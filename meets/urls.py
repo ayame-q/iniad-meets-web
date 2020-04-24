@@ -2,8 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.top, name="top"),
-    path('app', views.app, name="app"),
+    path('', views.app, name="top"),
     path('circle_admin/', views.circle_admin_list, name="circle_admin_list"),
     path('circle_admin/<int:pk>', views.circle_admin_page, name="circle_admin_page"),
     path('api/user/name/update', views.api_user_name_update, name="api_username_update"),
