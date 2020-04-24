@@ -168,3 +168,6 @@ ACCOUNT_UNIQUE_EMAIL = False
 AUTH_USER_MODEL = 'meets.User'
 
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
+
+# 設定読み込み
+from .settings_secret import *
