@@ -1,0 +1,174 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #edf7f5;
+}
+
+a {
+  color: #10589c;
+  text-decoration: none;
+}
+
+input[type=submit], input[type=button] {
+  cursor: pointer;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  margin-top: 5px;
+  font-size: 1.1em;
+  padding: 0.2em 0.5em;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  background-color: white;
+  border: 2px solid #10589C;
+  border-radius: 5px;
+  width: calc(100% - 80px);
+  margin-left: 50px;
+  margin-right: 30px;
+}
+@media (max-width: 899px) {
+  input, select, textarea {
+    width: calc(100% - 30px);
+    margin-left: 10px;
+    margin-right: 20px;
+  }
+}
+
+select {
+  padding-right: 38px;
+  background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 30"><defs><style>.cls-1{fill:none;stroke:#10589c;stroke-miterlimit:10;}</style></defs><polygon class="cls-1" points="8 8 24 8 16 22 8 8"/></svg>') no-repeat right;
+}
+
+header {
+  padding: 0 15px;
+  width: 100%;
+  height: 60px;
+  box-sizing: border-box;
+}
+header h1 {
+  margin: 0;
+}
+header h1 img {
+  height: 60px;
+}
+
+main {
+  display: flex;
+  width: 100vw;
+  height: 100%;
+  justify-content: space-between;
+}
+main #main-wrap {
+  flex-shrink: 1;
+  display: flex;
+  flex-direction: column;
+  width: 60vw;
+  height: 100%;
+}
+main #main-wrap #video-wrap {
+  flex-shrink: 0;
+  height: 60vh;
+  padding: 0 10px;
+}
+main #main-wrap #chat-wrap {
+  padding: 10px;
+  padding-bottom: 0;
+  flex-shrink: 1;
+  display: flex;
+  flex-direction: column;
+}
+main #main-wrap #chat-wrap #display-name-form {
+  display: none;
+}
+main #main-wrap #chat-wrap.edit-name #display-name-form {
+  display: block;
+}
+main #main-wrap #chat-wrap.edit-name #chat-send-form {
+  display: none;
+}
+main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap input {
+  margin: 0;
+  display: inline-block;
+}
+main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap input[type=text] {
+  width: calc(80% - 20em);
+}
+main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap input[type=submit], main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap input[type=button] {
+  width: 8em;
+}
+main #main-wrap #chat-wrap #chat-forms p {
+  margin: 0;
+}
+main #main-wrap #chat-wrap #chat-forms #chat-send-form label {
+  display: none;
+}
+main #main-wrap #chat-wrap #chat-forms #chat-send-form input[type=text] {
+  width: 70%;
+}
+main #main-wrap #chat-wrap #chat-log {
+  overflow: scroll;
+}
+main #main-wrap #chat-wrap #chat-log time {
+  display: block;
+  color: gray;
+  font-size: 0.8em;
+}
+main #main-wrap #chat-wrap #chat-log time::before {
+  content: "(";
+}
+main #main-wrap #chat-wrap #chat-log time::after {
+  content: ")";
+}
+main #side-wrap {
+  flex-shrink: 1;
+  flex-grow: 1;
+  padding: 0 10px;
+  overflow: scroll;
+  padding-left: 20px;
+}
+main #side-wrap h3 {
+  color: #e24863;
+  border-left: #e24863 solid 5px;
+  border-bottom: #e24863 solid 2px;
+  padding-left: 0.5em;
+  font-family: "Baloo Paaji 2", cursive;
+  text-shadow: 2px 2px 2px #d8d9d9;
+  box-shadow: -1px 2px 2px #d8d9d9;
+  margin: 0.2em 0;
+  margin-left: -10px;
+}
+main #side-wrap #circle-info .nodata {
+  display: none;
+}
+main #side-wrap #circle-entry #name-form {
+  display: none;
+}
+main #side-wrap #circle-entry.edit-name #name-form {
+  display: block;
+}
+main #side-wrap #circle-entry.edit-name #entry-form {
+  display: none;
+}
+main #side-wrap #entry-submit-wrap #entry-link {
+  display: none;
+}
+main #side-wrap #entry-submit-wrap.use_outside_form #entry-link {
+  display: block;
+}
+main #side-wrap #entry-submit-wrap.use_outside_form #entry-inside-form {
+  display: none;
+}
+
+/*# sourceMappingURL=main.css.map */

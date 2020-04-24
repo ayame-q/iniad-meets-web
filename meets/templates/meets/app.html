@@ -1,0 +1,293 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<link href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:wght@600&family=M+PLUS+Rounded+1c:wght@300;400&display=swap" rel="stylesheet">
+	<link href="https://vjs.zencdn.net/7.7.5/video-js.css" rel="stylesheet">
+	<link href="https://unpkg.com/@videojs/themes@1/dist/forest/index.css" rel="stylesheet">
+	<link rel="stylesheet" href="{% static "/css/main.css" %}">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<meta name="description" content="INIAD 公認サークルの合同Web新歓のページです。">
+	<meta property="og:url" content="https://meets.iniad.net/">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="INIAD meets Web">
+	<meta property="og:description" content="INIAD 公認サークルの合同Web新歓のページです。">
+	<meta property="og:site_name" content="INIAD meets Web">
+	<meta property="og:image" content="https://meets.iniad.net/img/thumbnail.png">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:site" content="@iniad_webmedia">
+	<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+	<script>
+		const circleList = []
+		{% for circle in circles %}
+			circleList[{{ circle.id }}] = {
+				"name": "{{ circle.name }}",
+				"is_using_entry_form": {{ circle.is_using_entry_form | lower }},
+				"entry_form_url": "{{ circle.entry_form_url }}",
+				"panflet_url": "{{ circle.panflet_url }}",
+				"website_url": "{{ circle.website_url }}",
+			}
+		{% endfor %}
+		const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/")
+		const add_chat_log = (message, add_front=false) => {
+			const chatWrapElement = document.getElementById("chat-log")
+			const dtElement = document.createElement("dt")
+			dtElement.innerHTML = message.send_user.display_name
+			if(message.receiver_circle_name){
+				dtElement.innerHTML += "<span class='receiver'>" + message.receiver_circle_name + "</span>"
+			}
+			const ddElement = document.createElement("dd")
+			ddElement.innerHTML = message.comment
+			ddElement.innerHTML += "<time>" + message.created_at + "</time>"
+			if(add_front){
+				chatWrapElement.insertBefore(ddElement, chatWrapElement.firstChild)
+				chatWrapElement.insertBefore(dtElement, chatWrapElement.firstChild)
+			} else {
+				chatWrapElement.appendChild(dtElement)
+				chatWrapElement.appendChild(ddElement)
+			}
+		}
+
+		chatSocket.onmessage = function (event) {
+			const data = JSON.parse(event.data);
+			if(data["initial_messages"]){
+				const initial_messages = data["initial_messages"]
+				for(const message of initial_messages){
+					add_chat_log(message)
+				}
+			}
+			if(data["message"]){
+				const message = JSON.parse(data["message"]);
+				console.log(message);
+				add_chat_log(message, true)
+			}
+		}
+		chatSocket.onclose = function (event) {
+			console.log("Disconnected.")
+		}
+		const sendComment = () => {
+			const commentElement = document.getElementById("comment");
+			chatSocket.send(JSON.stringify({"message": {"comment": commentElement.value, "receiver_circle_pk": null, "is_anonymous": false}}));
+			commentElement.value = "";
+		}
+		const sendNewName = () => {
+			const newNameElement = document.getElementById("new-name")
+			const prm = new URLSearchParams();
+			prm.append("name",newNameElement.value);
+			fetch("/api/user/name/update", {
+				method: "POST",
+				headers: {"X-CSRFToken": Cookies.get('csrftoken')},
+				body: prm,
+			})
+				.then(function (response) {
+					return response.json();
+				})
+				.then(function (json) {
+					if (json.success) {
+						const entryWrapElement = document.getElementById("circle-entry")
+						entryWrapElement.classList.remove("edit-name")
+						const nameElement = document.getElementById("new-name")
+						nameElement.value = json.name
+					}
+				})
+		}
+		const sendNewDisplayName = () => {
+			const newNameElement = document.getElementById("new-display-name")
+			const prm = new URLSearchParams();
+			prm.append("name", newNameElement.value);
+			fetch("/api/user/display_name/update", {
+				method: "POST",
+				headers: {"X-CSRFToken": Cookies.get('csrftoken')},
+				body: prm,
+			})
+				.then(function (response) {
+					return response.json();
+				})
+				.then(function (json) {
+					if (json.success) {
+						const chatWrapElement = document.getElementById("chat-wrap")
+						chatWrapElement.classList.remove("edit-name")
+						const displayNameElement = document.getElementById("new-display-name")
+						displayNameElement.value = json.name
+					}
+				})
+		}
+
+		const entryCircle = () => {
+			const circlesEntryElement = document.getElementById("circles-entry");
+
+			fetch("api/entry/" + circlesEntryElement.value, {
+				method: "POST",
+				headers: {"X-CSRFToken": Cookies.get('csrftoken')},
+			})
+				.then(function (response) {
+					return response.json();
+				})
+				.then(function (json) {
+					if (json.success) {
+						const enteredCircleUlElement = document.getElementById("entered_circles")
+						enteredCircleUlElement.innerHTML = "";
+						for(const circle of json.entry_circles){
+							const liElement = document.createElement("li")
+							liElement.textContent = circle.name
+							enteredCircleUlElement.appendChild(liElement)
+						}
+					}
+				})
+		}
+
+		const editDisplayName = () => {
+			const chatWrapElement = document.getElementById("chat-wrap")
+			chatWrapElement.classList.add("edit-name")
+		}
+
+		const refreshCircleInfo = (value=false) => {
+			const circlesInfoElement = document.getElementById("circles-info");
+			const circlesEntryElement = document.getElementById("circles-entry");
+			if(!value){
+				value = circlesInfoElement.value
+			}
+			const circleInfo = circleList[value]
+			circlesInfoElement.value = value
+			circlesEntryElement.value = value
+			const circleInfoNameElement = document.getElementById("circle-info-name")
+			const circleInfoNameDdElement = circleInfoNameElement.getElementsByTagName("dd")[0]
+			const circleInfoPanfletElement = document.getElementById("circle-info-panflet")
+			const circleInfoPanfletAElement = circleInfoPanfletElement.getElementsByTagName("a")[0]
+			const circleInfoWebsiteElement = document.getElementById("circle-info-website")
+			const circleInfoWebsiteAElement = circleInfoWebsiteElement.getElementsByTagName("a")[0]
+			const circleEntrySubmitWrapElement = document.getElementById("entry-submit-wrap")
+			const circleEntryLinkElement = document.getElementById("entry-link")
+			const circleEntryUrl = circleEntryLinkElement.getElementsByTagName("a")[0]
+			circleInfoNameDdElement.textContent = circleInfo.name
+			circleInfoPanfletAElement.href = circleInfo.panflet_url
+			if(circleInfo.panflet_url !== "None"){
+				circleInfoPanfletElement.classList.remove("nodata")
+			} else {
+				circleInfoPanfletElement.classList.add("nodata")
+			}
+			circleInfoWebsiteAElement.href = circleInfo.website_url
+			if(circleInfo.panflet_url !== "None"){
+				circleInfoWebsiteElement.classList.remove("nodata")
+			} else {
+				circleInfoWebsiteElement.classList.add("nodata")
+			}
+			if(!circleInfo.is_using_entry_form) {
+				circleEntrySubmitWrapElement.classList.add("use_outside_form")
+				circleEntryUrl.href = circleInfo.entry_form_url
+			} else {
+				circleEntrySubmitWrapElement.classList.remove("use_outside_form")
+				circleEntryUrl.href = "#"
+			}
+		}
+		window.onload = () => {
+			const player = videojs('video');
+			player.on("error", (err) => {
+				console.log(err)
+			})
+			const circlesInfoElement = document.getElementById("circles-info");
+			circlesInfoElement.addEventListener("change", (event) => {
+				refreshCircleInfo(event.target.value)
+			})
+			const circlesEntryElement = document.getElementById("circles-entry");
+			circlesEntryElement.addEventListener("change", (event) => {
+				refreshCircleInfo(event.target.value)
+			})
+			refreshCircleInfo()
+		}
+	</script>
+	<script src="{% static "js/video.js" %}"></script>
+	<title>INIAD meets Web</title>
+</head>
+<body>
+<header>
+	<h1><a href="/"><img src="{% static "/img/logo.svg" %}" alt="INIAD meets Web"></a></h1>
+</header>
+<main>
+	<div id="main-wrap">
+		<section id="video-wrap">
+			<video class="video-js vjs-theme-forest vjs-16-9" id="video" controls>
+				<source src="https://stream.ayame-cloud.com/live/meets.m3u8" type="application/x-mpegURL">
+			</video>
+		</section>
+		<section id="chat-wrap"{% if not user.is_display_name_initialized %} class="edit-name"{% endif %}>
+			<div id="chat-forms">
+				<div id="display-name-form">
+					<form onsubmit="sendNewDisplayName(); return false;">
+						{% csrf_token %}
+						<p class="chat-forms-wrap">
+							<label for="new-display-name">公開名</label><input type="text" id="new-display-name" value="{{ user.display_name }}" required>
+							<input type="submit">
+						</p>
+					</form>
+				</div>
+				<div id="chat-send-form">
+					<form onsubmit="sendComment(); return false;">
+						<p class="chat-forms-wrap">
+							<label for="comment">本文</label><input type="text" id="comment">
+							<input type="submit">
+							<input type="button" value="公開名を変更" onclick="editDisplayName()">
+						</p>
+					</form>
+				</div>
+			</div>
+			<dl id="chat-log"></dl>
+		</section>
+	</div>
+	<div id="side-wrap">
+		<section id="circle-info">
+			<h3>サークル情報</h3>
+			<select id="circles-info">
+				{% for circle in circles %}
+					<option value="{{ circle.id }}">{{ circle.name }}</option>
+				{% endfor %}
+			</select>
+			<dl>
+				<div id="circle-info-name">
+					<dt>サークル名</dt>
+					<dd></dd>
+				</div>
+			</dl>
+			<div id="circle-info-panflet">
+				<p><a href="#" target="_blank">サークル資料</a></p>
+			</div>
+			<div id="circle-info-website">
+				<p><a href="#" target="_blank">Webサイト</a></p>
+			</div>
+		</section>
+		<section id="circle-entry"{% if not user.name %} class="edit-name"{% endif %}>
+			<h3>サークル入会</h3>
+			<div id="name-form">
+				<form onsubmit="sendNewName(); return false;">
+					<p><label for="new-name">氏名</label><input type="text" id="new-name" value="{{ user.name }}"></p>
+					<p><input type="submit"></p>
+				</form>
+			</div>
+			<div id="entry-form">
+				<form onsubmit="entryCircle(); return false;">
+					<p>
+						<select id="circles-entry">
+							{% for circle in circles %}
+								<option value="{{ circle.id }}">{{ circle.name }}</option>
+							{% endfor %}
+						</select>
+					</p>
+					<div id="entry-submit-wrap">
+						<p id="entry-link"><a href="#" target="_blank">入会フォーム(外部サイト)</a></p>
+						<p id="entry-inside-form"><input type="submit" value="入会する！"></p>
+					</div>
+				</form>
+				<h4>入会申込済みサークル</h4>
+				<ul id="entered_circles">
+					{% for entry in my_entries %}
+						<li>{{ entry.circle.name }}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</section>
+	</div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<link href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:wght@600&family=M+PLUS+Rounded+1c:wght@300;400&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="{% static "css/prepare.css" %}?0">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<meta name="description" content="INIAD 公認サークルの合同Web新歓のページです。">
+	<meta property="og:url" content="https://meets.iniad.net/">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="INIAD meets Web">
+	<meta property="og:description" content="INIAD 公認サークルの合同Web新歓のページです。">
+	<meta property="og:site_name" content="INIAD meets Web">
+	<meta property="og:image" content="https://meets.iniad.net/img/thumbnail.png">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:site" content="@iniad_webmedia">
+	<script src="{% static "js/prepare.js" %}"></script>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-163289416-1"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'UA-163289416-1');
+	</script>
+	<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+	<script src="https://d.line-scdn.net/r/web/social-plugin/js/thirdparty/loader.min.js" async="async" defer="defer"></script>
+	<title>INIAD meets Web</title>
+</head>
+<body>
+<main>
+	<div>
+		<header>
+			<h1><a href="/"><img src="{% static "img/logo.svg" %}" alt="INIAD meets Web"></a></h1>
+		</header>
+		<div id="keyimage">
+			<h2>INIADっぽいこと 、ちょっぴり先取りしよう。</h2>
+			<p>オンライン新歓イベント、始まる。</p>
+		</div>
+	</div>
+	<section>
+		<div id="info">
+			<p id="date"><time>4.24 Fri. 20:00〜</time></p>
+			<p>今、ご覧のページにて。</p>
+			<p class="small">
+				INIAD公認サークル合同新歓イベント
+				<img src="{% static "img/logo.svg" %}" alt="INIAD meets Web">
+			</p>
+			<div class="circle-list">
+				<p>参加予定団体(敬称略)</p>
+				<ul>
+					<li>ARK</li>
+					<li>IGSC</li>
+					<li>INIActors</li>
+					<li>INIAD Art Works</li>
+					<li>INIAD Developers</li>
+					<li>INIAD Minecraft サークル</li>
+					<li>INIAD Official Tennis-club</li>
+					<li>INIAD-FES実行委員会</li>
+					<li>RAISON DȆTRE</li>
+					<li>RAZ eスポーツサークル</li>
+					<li>TATFO</li>
+					<li>The Shawshank</li>
+					<li>Webメディア研究会</li>
+					<li>たまご</li>
+					<li>ダンスサークルことりん</li>
+					<li>軽音サークルBTL</li>
+				</ul>
+			</div>
+			<div class="share-button">
+				<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false" data-text="INIAD公認サークルオンライン新歓イベント" data-url="https://meets.iniad.net/" data-lang="ja">Tweet</a>
+				<div class="line-it-button" data-lang="ja" data-type="share-a" data-ver="3" data-url="https://meets.iniad.net/" data-color="default" data-size="small" data-count="false" style="display: none;"></div>
+			</div>
+		</div>
+	</section>
+<footer>
+	<p><small>&copy; 2020 Webメディア研究会</small></p>
+</footer>
+</main>
+</body>
+</html>
