@@ -22,6 +22,10 @@ input[type=submit], input[type=button] {
   cursor: pointer;
 }
 
+textarea {
+  resize: none;
+}
+
 input, select, textarea {
   font-family: inherit;
   margin-top: 5px;
@@ -34,9 +38,7 @@ input, select, textarea {
   background-color: white;
   border: 2px solid #10589C;
   border-radius: 5px;
-  width: calc(100% - 80px);
-  margin-left: 50px;
-  margin-right: 30px;
+  width: calc(100%);
 }
 @media (max-width: 899px) {
   input, select, textarea {
@@ -67,8 +69,9 @@ header h1 img {
 main {
   display: flex;
   width: 100vw;
-  height: 100%;
-  justify-content: space-between;
+  height: calc(100% - 60px);
+  justify-content: stretch;
+  align-items: stretch;
 }
 main #main-wrap {
   flex-shrink: 1;
@@ -79,13 +82,15 @@ main #main-wrap {
 }
 main #main-wrap #video-wrap {
   flex-shrink: 0;
-  height: 60vh;
   padding: 0 10px;
+  flex-basis: fit-content;
 }
 main #main-wrap #chat-wrap {
+  min-height: 0;
   padding: 10px;
   padding-bottom: 0;
   flex-shrink: 1;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
@@ -97,6 +102,9 @@ main #main-wrap #chat-wrap.edit-name #display-name-form {
 }
 main #main-wrap #chat-wrap.edit-name #chat-send-form {
   display: none;
+}
+main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap {
+  display: flex;
 }
 main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap input {
   margin: 0;
@@ -117,26 +125,26 @@ main #main-wrap #chat-wrap #chat-forms #chat-send-form label {
 main #main-wrap #chat-wrap #chat-forms #chat-send-form input[type=text] {
   width: 70%;
 }
-main #main-wrap #chat-wrap #chat-log {
+main #main-wrap #chat-wrap #chat-log-wrap {
   overflow: scroll;
+  height: auto;
 }
-main #main-wrap #chat-wrap #chat-log time {
+main #main-wrap #chat-wrap #chat-log-wrap #chat-log time {
   display: block;
   color: gray;
   font-size: 0.8em;
 }
-main #main-wrap #chat-wrap #chat-log time::before {
+main #main-wrap #chat-wrap #chat-log-wrap #chat-log time::before {
   content: "(";
 }
-main #main-wrap #chat-wrap #chat-log time::after {
+main #main-wrap #chat-wrap #chat-log-wrap #chat-log time::after {
   content: ")";
 }
 main #side-wrap {
   flex-shrink: 1;
   flex-grow: 1;
-  padding: 0 10px;
+  padding: 0 15px;
   overflow: scroll;
-  padding-left: 20px;
 }
 main #side-wrap h3 {
   color: #e24863;
@@ -147,7 +155,16 @@ main #side-wrap h3 {
   text-shadow: 2px 2px 2px #d8d9d9;
   box-shadow: -1px 2px 2px #d8d9d9;
   margin: 0.2em 0;
-  margin-left: -10px;
+  margin-left: -15px;
+}
+main #side-wrap #circle-info #circle-link-wrap {
+  display: flex;
+}
+main #side-wrap #circle-info #circle-link-wrap > div:not(:last-child) {
+  padding-right: 1em;
+}
+main #side-wrap #circle-info #circle-link-wrap p {
+  margin-top: 0;
 }
 main #side-wrap #circle-info .nodata {
   display: none;
