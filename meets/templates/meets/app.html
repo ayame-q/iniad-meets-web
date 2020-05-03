@@ -129,8 +129,12 @@
 						const enteredCircleUlElement = document.getElementById("entered_circles")
 						enteredCircleUlElement.innerHTML = "";
 						for(const circle of json.entry_circles){
+							console.log(circle)
 							const liElement = document.createElement("li")
 							liElement.textContent = circle.name
+							liElement.addEventListener("click", () => {
+								refreshCircleInfo(circle.id);
+							})
 							enteredCircleUlElement.appendChild(liElement)
 						}
 					}
@@ -144,13 +148,14 @@
 
 		const refreshCircleInfo = (value=false) => {
 			const circlesInfoElement = document.getElementById("circles-info");
-			const circlesEntryElement = document.getElementById("circles-entry");
+			const circlesSelectElements = document.getElementsByClassName("circles-select");
 			if(!value){
 				value = circlesInfoElement.value
 			}
 			const circleInfo = circleList[value]
-			circlesInfoElement.value = value
-			circlesEntryElement.value = value
+			for(const element of circlesSelectElements){
+				element.value = value
+			}
 			const circleInfoNameElement = document.getElementById("circle-info-name")
 			const circleInfoNameDdElement = circleInfoNameElement.getElementsByTagName("dd")[0]
 			const circleInfoPanfletElement = document.getElementById("circle-info-panflet")
@@ -159,7 +164,6 @@
 			const circleInfoWebsiteAElement = circleInfoWebsiteElement.getElementsByTagName("a")[0]
 			const circleEntrySubmitWrapElement = document.getElementById("entry-submit-wrap")
 			const circleEntryLinkElement = document.getElementById("entry-link")
-			const circleEntryUrl = circleEntryLinkElement.getElementsByTagName("a")[0]
 			circleInfoNameDdElement.textContent = circleInfo.name
 			circleInfoPanfletAElement.href = circleInfo.panflet_url
 			if(circleInfo.panflet_url !== "None"){
@@ -173,27 +177,47 @@
 			} else {
 				circleInfoWebsiteElement.classList.add("nodata")
 			}
-			if(!circleInfo.is_using_entry_form) {
-				circleEntrySubmitWrapElement.classList.add("use_outside_form")
-				circleEntryUrl.href = circleInfo.entry_form_url
-			} else {
-				circleEntrySubmitWrapElement.classList.remove("use_outside_form")
-				circleEntryUrl.href = "#"
+			console.log(circleEntrySubmitWrapElement);
+			if(circleEntrySubmitWrapElement){
+				const circleEntryUrl = circleEntryLinkElement.getElementsByTagName("a")[0]
+				if(!circleInfo.is_using_entry_form) {
+					circleEntrySubmitWrapElement.classList.add("use_outside_form")
+					circleEntryUrl.href = circleInfo.entry_form_url
+				} else {
+					circleEntrySubmitWrapElement.classList.remove("use_outside_form")
+					circleEntryUrl.href = "#"
+				}
 			}
 		}
 		window.onload = () => {
-			const player = videojs('video');
+			const player = videojs('video', {"autoplay": true});
 			player.on("error", (err) => {
 				console.log(err)
 			})
-			const circlesInfoElement = document.getElementById("circles-info");
-			circlesInfoElement.addEventListener("change", (event) => {
-				refreshCircleInfo(event.target.value)
-			})
-			const circlesEntryElement = document.getElementById("circles-entry");
-			circlesEntryElement.addEventListener("change", (event) => {
-				refreshCircleInfo(event.target.value)
-			})
+			const circlesSelectElements = document.getElementsByClassName("circles-select");
+			for(const element of circlesSelectElements){
+				element.addEventListener("change", (event) => {
+					refreshCircleInfo(event.target.value)
+				})
+			}
+			const textAreaElements = document.getElementsByTagName("textarea");
+			for(const element of textAreaElements){
+				element.addEventListener("input", (event) => {
+					const target = event.target
+					const lineHeight = Number(target.getAttribute("rows"));
+					const textHeight = target.value.split("\n").length;
+					if(target.scrollHeight !== lineHeight){
+						console.log(textHeight)
+						if(textHeight < 2){
+							target.setAttribute("rows", 2)
+						}else if(textHeight <= 10){
+							target.setAttribute("rows", textHeight)
+						}else{
+							target.setAttribute("rows", 10)
+						}
+					}
+				})
+			}
 			refreshCircleInfo()
 		}
 	</script>
@@ -207,7 +231,7 @@
 <main>
 	<div id="main-wrap">
 		<section id="video-wrap">
-			<video class="video-js vjs-theme-forest vjs-16-9" id="video" controls>
+			<video class="video-js vjs-theme-forest vjs-16-9" id="video" controls autoplay>
 				<source src="https://stream.ayame-cloud.com/live/meets.m3u8" type="application/x-mpegURL">
 			</video>
 		</section>
@@ -232,13 +256,15 @@
 					</form>
 				</div>
 			</div>
-			<dl id="chat-log"></dl>
+			<div id="chat-log-wrap">
+				<dl id="chat-log"></dl>
+			</div>
 		</section>
 	</div>
 	<div id="side-wrap">
 		<section id="circle-info">
 			<h3>サークル情報</h3>
-			<select id="circles-info">
+			<select id="circles-info" class="circles-select">
 				{% for circle in circles %}
 					<option value="{{ circle.id }}">{{ circle.name }}</option>
 				{% endfor %}
@@ -249,13 +275,30 @@
 					<dd></dd>
 				</div>
 			</dl>
-			<div id="circle-info-panflet">
-				<p><a href="#" target="_blank">サークル資料</a></p>
-			</div>
-			<div id="circle-info-website">
-				<p><a href="#" target="_blank">Webサイト</a></p>
+			<div id="circle-link-wrap">
+				<div id="circle-info-panflet">
+					<p><a href="#" target="_blank">サークル資料</a></p>
+				</div>
+				<div id="circle-info-website">
+					<p><a href="#" target="_blank">Webサイト</a></p>
+				</div>
 			</div>
 		</section>
+		<section id="circle-question">
+			<h3>サークルへ質問</h3>
+			<form onsubmit="return false;">
+				<p>
+					<select id="circles-question" class="circles-select">
+						{% for circle in circles %}
+							<option value="{{ circle.id }}">{{ circle.name }}</option>
+						{% endfor %}
+					</select>
+					<textarea id="question-text" placeholder="質問内容を入力してください"></textarea>
+					<input type="submit" value="送信する">
+				</p>
+			</form>
+		</section>
+		{% if user.is_student %}
 		<section id="circle-entry"{% if not user.name %} class="edit-name"{% endif %}>
 			<h3>サークル入会</h3>
 			<div id="name-form">
@@ -267,7 +310,7 @@
 			<div id="entry-form">
 				<form onsubmit="entryCircle(); return false;">
 					<p>
-						<select id="circles-entry">
+						<select id="circles-entry" class="circles-select">
 							{% for circle in circles %}
 								<option value="{{ circle.id }}">{{ circle.name }}</option>
 							{% endfor %}
@@ -281,11 +324,12 @@
 				<h4>入会申込済みサークル</h4>
 				<ul id="entered_circles">
 					{% for entry in my_entries %}
-						<li>{{ entry.circle.name }}</li>
+						<li onclick="refreshCircleInfo({{ entry.circle.id }})">{{ entry.circle.name }}</li>
 					{% endfor %}
 				</ul>
 			</div>
 		</section>
+		{% endif %}
 	</div>
 
 </main>
