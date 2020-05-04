@@ -256,7 +256,93 @@ main{
 				display: none;
 			}
 		}
+		#circle-question{
+			h4{
+				cursor: pointer;
+				color: #10589c;
+				&::before{
+					content: "▷";
+				}
+			}
+			&.open{
+				h4::before{
+					content: "▽";
+				}
+				#my-questions{
+					display: block;
+				}
+			}
+			#my-questions{
+				display: none;
+
+				.question{
+					padding-left: 1em;
+					&:not(:last-child){
+						margin-bottom: 0.5em;
+					}
+					p{
+						margin: 0;
+						&.userinfo{
+							font-weight: bold;
+							color: #397057;
+							.receiver{
+								&::before{
+									content: ">";
+									padding: 0 0.3em;
+								}
+							}
+						}
+						&.time time{
+							color: gray;
+							font-size: 0.8em;
+							&::before{
+								content: "(";
+							}
+							&::after{
+								content: ")";
+							}
+						}
+					}
+					.question-reply{
+						padding-left: 1em;
+						font-size: 0.95em;
+						border-left: solid #397057 1.5px;
+
+						.sender-circle{
+							color: #397057;
+							&::before{
+								content: "@";
+							}
+						}
+					}
+				}
+			}
+		}
 		#circle-entry{
+			#entry-form{
+				h4{
+					cursor: pointer;
+					color: #10589c;
+					&::before{
+						content: "▷";
+					}
+				}
+				&.open{
+					h4::before{
+						content: "▽";
+					}
+					#entered_circles{
+						display: block;
+					}
+				}
+				#entered_circles{
+					display: none;
+				}
+				p#entered_circles{
+					margin-left: 1em;
+				}
+			}
+
 			#name-form{
 				display: none;
 			}

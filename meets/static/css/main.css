@@ -1,3 +1,4 @@
+@charset "UTF-8";
 html, body {
   margin: 0;
   padding: 0;
@@ -224,6 +225,79 @@ main #side-wrap #circle-info #circle-link-wrap p {
 }
 main #side-wrap #circle-info .nodata {
   display: none;
+}
+main #side-wrap #circle-question h4 {
+  cursor: pointer;
+  color: #10589c;
+}
+main #side-wrap #circle-question h4::before {
+  content: "▷";
+}
+main #side-wrap #circle-question.open h4::before {
+  content: "▽";
+}
+main #side-wrap #circle-question.open #my-questions {
+  display: block;
+}
+main #side-wrap #circle-question #my-questions {
+  display: none;
+}
+main #side-wrap #circle-question #my-questions .question {
+  padding-left: 1em;
+}
+main #side-wrap #circle-question #my-questions .question:not(:last-child) {
+  margin-bottom: 0.5em;
+}
+main #side-wrap #circle-question #my-questions .question p {
+  margin: 0;
+}
+main #side-wrap #circle-question #my-questions .question p.userinfo {
+  font-weight: bold;
+  color: #397057;
+}
+main #side-wrap #circle-question #my-questions .question p.userinfo .receiver::before {
+  content: ">";
+  padding: 0 0.3em;
+}
+main #side-wrap #circle-question #my-questions .question p.time time {
+  color: gray;
+  font-size: 0.8em;
+}
+main #side-wrap #circle-question #my-questions .question p.time time::before {
+  content: "(";
+}
+main #side-wrap #circle-question #my-questions .question p.time time::after {
+  content: ")";
+}
+main #side-wrap #circle-question #my-questions .question .question-reply {
+  padding-left: 1em;
+  font-size: 0.95em;
+  border-left: solid #397057 1.5px;
+}
+main #side-wrap #circle-question #my-questions .question .question-reply .sender-circle {
+  color: #397057;
+}
+main #side-wrap #circle-question #my-questions .question .question-reply .sender-circle::before {
+  content: "@";
+}
+main #side-wrap #circle-entry #entry-form h4 {
+  cursor: pointer;
+  color: #10589c;
+}
+main #side-wrap #circle-entry #entry-form h4::before {
+  content: "▷";
+}
+main #side-wrap #circle-entry #entry-form.open h4::before {
+  content: "▽";
+}
+main #side-wrap #circle-entry #entry-form.open #entered_circles {
+  display: block;
+}
+main #side-wrap #circle-entry #entry-form #entered_circles {
+  display: none;
+}
+main #side-wrap #circle-entry #entry-form p#entered_circles {
+  margin-left: 1em;
 }
 main #side-wrap #circle-entry #name-form {
   display: none;
