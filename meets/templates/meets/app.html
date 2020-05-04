@@ -122,6 +122,10 @@
 						<input type="submit" value="送信する">
 					</p>
 				</form>
+				<h4 onclick="toggleShowMyQuestions()">送った質問</h4>
+				<div id="my-questions">
+					<p><a href="#" onclick="toggleShowMyQuestions()">閉じる</a></p>
+				</div>
 			</section>
 			{% if user.is_student %}
 				<section id="circle-entry"{% if not user.name %} class="edit-name"{% endif %}>
@@ -146,12 +150,16 @@
 								<p id="entry-inside-form"><input type="submit" value="入会する！"></p>
 							</div>
 						</form>
-						<h4>入会申込済みサークル</h4>
-						<ul id="entered_circles">
-							{% for entry in my_entries %}
-								<li onclick="refreshCircleInfo({{ entry.circle.id }})">{{ entry.circle.name }}</li>
-							{% endfor %}
-						</ul>
+						<h4 onclick="toggleShowEnteredCirles()">入会申込済みサークル</h4>
+						{% if my_entries %}
+							<ul id="entered_circles">
+								{% for entry in my_entries %}
+									<li onclick="refreshCircleInfo({{ entry.circle.id }})">{{ entry.circle.name }}</li>
+								{% endfor %}
+							</ul>
+						{% else %}
+							<p id="entered_circles">まだ登録がありません</p>
+						{% endif %}
 					</div>
 				</section>
 			{% endif %}

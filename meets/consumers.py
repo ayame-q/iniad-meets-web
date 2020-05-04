@@ -67,9 +67,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "is_anonymous": log.is_anonymous,
                     "created_at": "{0:%Y-%m-%d %H:%M:%S}".format(log.created_at),
                     "parent_pk": log.parent.pk if log.parent else None,
-                    "parent_user_pk": log.parent.send_user.pk if log.parent else None,
                     "parent_user_name": (log.parent.send_user.display_name if not log.parent.is_anonymous else "匿名") if log.parent else None,
                     "parent_comment": log.parent.comment if log.parent else None,
+                    "backend_send_user_pk": log.send_user.pk,
+                    "backend_parent_user_pk": log.parent.send_user.pk if log.parent else None,
                     "send_user": {"display_name": log.send_user.display_name, "class": log.send_user.get_class()} if not log.is_anonymous else {"display_name": "匿名", "class": log.send_user.get_class()}
                 }),
             }
@@ -78,11 +79,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         message_json = event["message"]
         message = json.loads(message_json)
-        message["is_yours"] = False
-        print(message["parent_user_pk"])
-        if message["parent_user_pk"] == self.user.pk:
-            message["is_yours"] = True
-        message.pop("parent_user_pk")
+        message["is_your_question"] = False
+        message["is_your_answer"] = False
+        if message["backend_send_user_pk"] == self.user.pk and message["receiver_circle_pk"]:
+            message["is_your_question"] = True
+        message.pop("backend_send_user_pk")
+        if message["backend_parent_user_pk"] == self.user.pk:
+            message["is_your_answer"] = True
+        message.pop("backend_parent_user_pk")
         await self.send(text_data=json.dumps({
             "message": json.dumps(message)
         }))

@@ -1,8 +1,30 @@
-const show_notify = (str, {type="normal", title="", timeout=5000, buttons=[], layout=1}={}) => {
+const show_notify = (str, {type="normal", title="", timeout=5000, buttons=[], layout=1, color=false}={}) => {
 	if(type === "normal"){
 		iziToast.show({
 			position: 'topRight',
-			color: 'blue',
+			color: color ? color : 'blue',
+			title: title,
+			message: str,
+			timeout: timeout,
+			buttons: buttons,
+			layout: layout,
+		})
+	}
+	if(type === "info"){
+		iziToast.info({
+			position: 'topRight',
+			color: color ? color : 'blue',
+			title: title,
+			message: str,
+			timeout: timeout,
+			buttons: buttons,
+			layout: layout,
+		})
+	}
+	if(type === "warning"){
+		iziToast.warning({
+			position: 'topRight',
+			color: color ? color : 'yellow',
 			title: title,
 			message: str,
 			timeout: timeout,
@@ -13,6 +35,7 @@ const show_notify = (str, {type="normal", title="", timeout=5000, buttons=[], la
 	if(type === "error"){
 		iziToast.error({
 			position: 'topRight',
+			color: color ? color : 'red',
 			title: title,
 			message: str,
 			timeout: timeout,
@@ -30,7 +53,7 @@ let have_connected_server = false;
 let connect_count_server = 0;
 
 const connectChat = () => {
-
+	connect_count_server++
 	const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/")
 	const add_chat_log = (message, add_front=false) => {
 		const chatWrapElement = document.getElementById("chat-log")
@@ -57,9 +80,41 @@ const connectChat = () => {
 	}
 
 
+	const addMyQuestion = (question) => {
+		const questionElement = document.createElement("div")
+		questionElement.setAttribute("id", `myquestion-${question.id}`)
+		questionElement.classList.add("question")
+		questionElement.innerHTML = `
+			<p class="userinfo">
+				<span class="sender" title="${question.send_user.class ? question.send_user.class + "期生" : "その他" }">${question.send_user.display_name}</span><span class="receiver">${question.receiver_circle_name}</span>
+			</p>
+			<p class="comment">
+				${question.comment.replace(/\r?\n/g, "<br>")}
+			</p>
+			<p class="time"><time>${question.created_at}</time></p>
+		`
+		myQuestionsElement.insertBefore(questionElement, myQuestionsElement.firstChild)
+	}
+
+	const addMyQuestionReply = (message) => {
+		const parentQuestionElement = document.getElementById(`myquestion-${message.parent_pk}`)
+		const replyElement = document.createElement("div")
+		replyElement.classList.add("question-reply")
+		replyElement.innerHTML = `
+			<p class="sender">
+				${message.send_user.display_name}
+				<span class="sender-circle">${message.sender_circle_name}</span>
+			</p>
+			<p class="comment">${message.comment}</p>
+			<p class="time"><time>${message.created_at}</time></p>
+		`
+		parentQuestionElement.appendChild(replyElement)
+	}
+
+
 	const addStaffQuestion = (question) => {
 		const questionElement = document.createElement("div")
-		questionElement.setAttribute("id", `question-${question.id}`)
+		questionElement.setAttribute("id", `staffquestion-${question.id}`)
 		questionElement.classList.add("question")
 		questionElement.innerHTML = `
 			<p class="userinfo">
@@ -81,7 +136,7 @@ const connectChat = () => {
 		replyFormElement.addEventListener("submit", (event) => {
 			chatSocket.send(JSON.stringify({"message": {"comment": event.target.comment.value, "parent_pk": parseInt(event.target.parent.value), "sender_circle_pk": parseInt(event.target.sender_circle.value),"is_anonymous": false}}));
 			replyFormElement.parentNode.removeChild(replyFormElement);
-			const openReplyFormButtonElement = document.querySelector(`#question-${event.target.parent.value} button`)
+			const openReplyFormButtonElement = document.querySelector(`#staffquestion-${event.target.parent.value} button`)
 			openReplyFormButtonElement.disabled = false
 		})
 		const openReplyFormButtonElement = document.createElement("button")
@@ -94,8 +149,9 @@ const connectChat = () => {
 		getQuestionsElement.insertBefore(questionElement, getQuestionsElement.firstChild)
 	}
 
+
 	const addStaffQuestionReply = (message) => {
-		const parentQuestionElement = document.getElementById(`question-${message.parent_pk}`)
+		const parentQuestionElement = document.getElementById(`staffquestion-${message.parent_pk}`)
 		const openReplyFormButtonElement = parentQuestionElement.getElementsByTagName("button")[0]
 		const replyElement = document.createElement("div")
 		replyElement.classList.add("question-reply")
@@ -110,23 +166,42 @@ const connectChat = () => {
 	chatSocket.onmessage = function (event) {
 		const data = JSON.parse(event.data)
 		if(data["initial_messages"]){
+			const chatWrapElement = document.getElementById("chat-log")
+			chatWrapElement.textContent = ""
 			const initial_messages = data["initial_messages"]
 			for(const message of initial_messages){
 				add_chat_log(message)
 			}
 			if(have_connected_server){
-				show_notify("サーバーに再接続しました。")
+				show_notify("サーバーとの再接続に成功しました。", {type: "info"})
 			}
 			have_connected_server = true
+			connect_count_server = 0
 		}
 		if(data["message"]){
 			const message = JSON.parse(data["message"]);
 			add_chat_log(message, true)
-			if(message.is_yours){
+			if(message.is_your_question){
+				addMyQuestion(message)
+				show_notify(message.receiver_circle_name + "へ質問を送りました。")
+			}
+			if(message.is_your_answer){
+				addMyQuestionReply(message)
 				show_notify(message.comment.replace(/\r?\n/g, "<br>"), {
 					title: `${message.sender_circle_name}から回答が届きました`,
-					timeout: 20000,
+					timeout: false,
 					layout: 2,
+					buttons: [["<button>開く</button>", (instance, toast) => {
+						openShowMyQuestions()
+						staffMode(false)
+						document.getElementById(`myquestion-${message.parent_pk}`).scrollIntoView({behavior: "smooth"})
+						instance.hide({
+							transitionOut: 'fadeOutUp',
+							onClosing: function(instance, toast, closedBy){
+								console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
+							}
+						}, toast, 'buttonName');
+					}]]
 				})
 			}
 			if(staffCircleIdList.includes(message.sender_circle_pk)){
@@ -140,6 +215,7 @@ const connectChat = () => {
 					layout: 2,
 					buttons: [["<button>開く</button>", (instance, toast) => {
 						staffMode(true);
+						document.getElementById(`staffquestion-${message.id}`).scrollIntoView({behavior: "smooth"})
 						instance.hide({
 							transitionOut: 'fadeOutUp',
 							onClosing: function(instance, toast, closedBy){
@@ -152,11 +228,15 @@ const connectChat = () => {
 		}
 	}
 	chatSocket.onclose = function (event) {
-		show_notify("サーバーから切断されました。再接続します。", {type: "error"})
 		chatSendFormElement.removeEventListener("submit", sendComment)
 		questionSendFormElement.removeEventListener("submit", sendQuestion)
 		getQuestionsElement.textContent = ""
-		setTimeout(connectChat, 5000)
+		if(connect_count_server < 6){
+			show_notify("サーバーから切断されました。再接続します。", {type: "warning"})
+			setTimeout(connectChat, 5000)
+		} else {
+			show_notify("サーバーと通信できません。時間をおいてページを再読込してみてください。", {type: "error", timeout: false})
+		}
 	}
 	const sendComment = () => {
 		const commentElement = document.getElementById("comment");
@@ -188,20 +268,31 @@ const connectChat = () => {
 		circleMessageSendFormElement.addEventListener("submit", sendCircleMessage)
 	}
 
-
-
-
-
-
-	const getQuestions = () => {
-		console.log("load")
-		fetch("api/get_questions")
+	const getMyQuestions = () => {
+		fetch("api/my_questions")
 			.then(function (response) {
 				return response.json();
 			})
 			.then(function (json) {
 				if (json.success) {
-					console.log(json)
+					for(const question of json.questions){
+						addMyQuestion(question)
+						for(const reply of question.replies){
+							addMyQuestionReply(reply)
+						}
+					}
+				}
+			})
+	}
+
+
+	const getStaffQuestions = () => {
+		fetch("api/staff_questions")
+			.then(function (response) {
+				return response.json();
+			})
+			.then(function (json) {
+				if (json.success) {
 					for(const question of json.questions){
 						addStaffQuestion(question)
 						for(const reply of question.replies){
@@ -212,9 +303,11 @@ const connectChat = () => {
 			})
 	}
 
+	const myQuestionsElement = document.getElementById("my-questions")
+	getMyQuestions()
 	const getQuestionsElement = document.getElementById("get-questions")
 	if(document.getElementById("side-wrap-staff")){
-		getQuestions()
+		getStaffQuestions()
 	}
 
 }
@@ -275,6 +368,7 @@ const entryCircle = () => {
 		})
 		.then(function (json) {
 			if (json.success) {
+				show_notify(json.entered_circle_name + "に入会申し込みしました。")
 				const enteredCircleUlElement = document.getElementById("entered_circles")
 				enteredCircleUlElement.innerHTML = "";
 				for(const circle of json.entry_circles){
@@ -285,6 +379,8 @@ const entryCircle = () => {
 					})
 					enteredCircleUlElement.appendChild(liElement)
 				}
+			} else {
+				show_notify(json.error, {type:"warning"})
 			}
 		})
 }
@@ -343,6 +439,27 @@ const staffMode = (bool) => {
 		sideWrapElement.classList.add("staff-mode")
 	} else {
 		sideWrapElement.classList.remove("staff-mode")
+	}
+}
+
+const toggleShowMyQuestions = () => {
+	const circleQuestionElement = document.getElementById("circle-question")
+	if(circleQuestionElement.classList.contains("open")){
+		circleQuestionElement.classList.remove("open")
+	}else{
+		circleQuestionElement.classList.add("open")
+	}
+}
+const openShowMyQuestions = () => {
+	const circleQuestionElement = document.getElementById("circle-question")
+	circleQuestionElement.classList.add("open")
+}
+const toggleShowEnteredCirles = () => {
+	const entryFormElement = document.getElementById("entry-form")
+	if(entryFormElement.classList.contains("open")){
+		entryFormElement.classList.remove("open")
+	}else{
+		entryFormElement.classList.add("open")
 	}
 }
 
