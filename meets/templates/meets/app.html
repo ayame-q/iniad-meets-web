@@ -6,6 +6,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:wght@600&family=M+PLUS+Rounded+1c:wght@300;400&display=swap" rel="stylesheet">
 	<link href="https://vjs.zencdn.net/7.7.5/video-js.css" rel="stylesheet">
 	<link href="https://unpkg.com/@videojs/themes@1/dist/forest/index.css" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="{% static "/css/main.css" %}">
 	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
 	<meta name="description" content="INIAD 公認サークルの合同Web新歓のページです。">
@@ -18,6 +19,8 @@
 	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:site" content="@iniad_webmedia">
 	<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
+	<script src="{% static "js/video.js" %}"></script>
 	<script>
 		const circleList = []
 		{% for circle in circles %}
@@ -29,199 +32,9 @@
 				"website_url": "{{ circle.website_url }}",
 			}
 		{% endfor %}
-		const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/")
-		const add_chat_log = (message, add_front=false) => {
-			const chatWrapElement = document.getElementById("chat-log")
-			const dtElement = document.createElement("dt")
-			dtElement.innerHTML = message.send_user.display_name
-			if(message.receiver_circle_name){
-				dtElement.innerHTML += "<span class='receiver'>" + message.receiver_circle_name + "</span>"
-			}
-			const ddElement = document.createElement("dd")
-			ddElement.innerHTML = message.comment
-			ddElement.innerHTML += "<time>" + message.created_at + "</time>"
-			if(add_front){
-				chatWrapElement.insertBefore(ddElement, chatWrapElement.firstChild)
-				chatWrapElement.insertBefore(dtElement, chatWrapElement.firstChild)
-			} else {
-				chatWrapElement.appendChild(dtElement)
-				chatWrapElement.appendChild(ddElement)
-			}
-		}
-
-		chatSocket.onmessage = function (event) {
-			const data = JSON.parse(event.data);
-			if(data["initial_messages"]){
-				const initial_messages = data["initial_messages"]
-				for(const message of initial_messages){
-					add_chat_log(message)
-				}
-			}
-			if(data["message"]){
-				const message = JSON.parse(data["message"]);
-				console.log(message);
-				add_chat_log(message, true)
-			}
-		}
-		chatSocket.onclose = function (event) {
-			console.log("Disconnected.")
-		}
-		const sendComment = () => {
-			const commentElement = document.getElementById("comment");
-			chatSocket.send(JSON.stringify({"message": {"comment": commentElement.value, "receiver_circle_pk": null, "is_anonymous": false}}));
-			commentElement.value = "";
-		}
-		const sendNewName = () => {
-			const newNameElement = document.getElementById("new-name")
-			const prm = new URLSearchParams();
-			prm.append("name",newNameElement.value);
-			fetch("/api/user/name/update", {
-				method: "POST",
-				headers: {"X-CSRFToken": Cookies.get('csrftoken')},
-				body: prm,
-			})
-				.then(function (response) {
-					return response.json();
-				})
-				.then(function (json) {
-					if (json.success) {
-						const entryWrapElement = document.getElementById("circle-entry")
-						entryWrapElement.classList.remove("edit-name")
-						const nameElement = document.getElementById("new-name")
-						nameElement.value = json.name
-					}
-				})
-		}
-		const sendNewDisplayName = () => {
-			const newNameElement = document.getElementById("new-display-name")
-			const prm = new URLSearchParams();
-			prm.append("name", newNameElement.value);
-			fetch("/api/user/display_name/update", {
-				method: "POST",
-				headers: {"X-CSRFToken": Cookies.get('csrftoken')},
-				body: prm,
-			})
-				.then(function (response) {
-					return response.json();
-				})
-				.then(function (json) {
-					if (json.success) {
-						const chatWrapElement = document.getElementById("chat-wrap")
-						chatWrapElement.classList.remove("edit-name")
-						const displayNameElement = document.getElementById("new-display-name")
-						displayNameElement.value = json.name
-					}
-				})
-		}
-
-		const entryCircle = () => {
-			const circlesEntryElement = document.getElementById("circles-entry");
-
-			fetch("api/entry/" + circlesEntryElement.value, {
-				method: "POST",
-				headers: {"X-CSRFToken": Cookies.get('csrftoken')},
-			})
-				.then(function (response) {
-					return response.json();
-				})
-				.then(function (json) {
-					if (json.success) {
-						const enteredCircleUlElement = document.getElementById("entered_circles")
-						enteredCircleUlElement.innerHTML = "";
-						for(const circle of json.entry_circles){
-							console.log(circle)
-							const liElement = document.createElement("li")
-							liElement.textContent = circle.name
-							liElement.addEventListener("click", () => {
-								refreshCircleInfo(circle.id);
-							})
-							enteredCircleUlElement.appendChild(liElement)
-						}
-					}
-				})
-		}
-
-		const editDisplayName = () => {
-			const chatWrapElement = document.getElementById("chat-wrap")
-			chatWrapElement.classList.add("edit-name")
-		}
-
-		const refreshCircleInfo = (value=false) => {
-			const circlesInfoElement = document.getElementById("circles-info");
-			const circlesSelectElements = document.getElementsByClassName("circles-select");
-			if(!value){
-				value = circlesInfoElement.value
-			}
-			const circleInfo = circleList[value]
-			for(const element of circlesSelectElements){
-				element.value = value
-			}
-			const circleInfoNameElement = document.getElementById("circle-info-name")
-			const circleInfoNameDdElement = circleInfoNameElement.getElementsByTagName("dd")[0]
-			const circleInfoPanfletElement = document.getElementById("circle-info-panflet")
-			const circleInfoPanfletAElement = circleInfoPanfletElement.getElementsByTagName("a")[0]
-			const circleInfoWebsiteElement = document.getElementById("circle-info-website")
-			const circleInfoWebsiteAElement = circleInfoWebsiteElement.getElementsByTagName("a")[0]
-			const circleEntrySubmitWrapElement = document.getElementById("entry-submit-wrap")
-			const circleEntryLinkElement = document.getElementById("entry-link")
-			circleInfoNameDdElement.textContent = circleInfo.name
-			circleInfoPanfletAElement.href = circleInfo.panflet_url
-			if(circleInfo.panflet_url !== "None"){
-				circleInfoPanfletElement.classList.remove("nodata")
-			} else {
-				circleInfoPanfletElement.classList.add("nodata")
-			}
-			circleInfoWebsiteAElement.href = circleInfo.website_url
-			if(circleInfo.panflet_url !== "None"){
-				circleInfoWebsiteElement.classList.remove("nodata")
-			} else {
-				circleInfoWebsiteElement.classList.add("nodata")
-			}
-			console.log(circleEntrySubmitWrapElement);
-			if(circleEntrySubmitWrapElement){
-				const circleEntryUrl = circleEntryLinkElement.getElementsByTagName("a")[0]
-				if(!circleInfo.is_using_entry_form) {
-					circleEntrySubmitWrapElement.classList.add("use_outside_form")
-					circleEntryUrl.href = circleInfo.entry_form_url
-				} else {
-					circleEntrySubmitWrapElement.classList.remove("use_outside_form")
-					circleEntryUrl.href = "#"
-				}
-			}
-		}
-		window.onload = () => {
-			const player = videojs('video', {"autoplay": true});
-			player.on("error", (err) => {
-				console.log(err)
-			})
-			const circlesSelectElements = document.getElementsByClassName("circles-select");
-			for(const element of circlesSelectElements){
-				element.addEventListener("change", (event) => {
-					refreshCircleInfo(event.target.value)
-				})
-			}
-			const textAreaElements = document.getElementsByTagName("textarea");
-			for(const element of textAreaElements){
-				element.addEventListener("input", (event) => {
-					const target = event.target
-					const lineHeight = Number(target.getAttribute("rows"));
-					const textHeight = target.value.split("\n").length;
-					if(target.scrollHeight !== lineHeight){
-						console.log(textHeight)
-						if(textHeight < 2){
-							target.setAttribute("rows", 2)
-						}else if(textHeight <= 10){
-							target.setAttribute("rows", textHeight)
-						}else{
-							target.setAttribute("rows", 10)
-						}
-					}
-				})
-			}
-			refreshCircleInfo()
-		}
+		const staffCircleIdList = [{% for circle in staff_circles %}{{ circle.id }},{% endfor %}]
 	</script>
-	<script src="{% static "js/video.js" %}"></script>
+	<script src="{% static "js/app.js" %}"></script>
 	<title>INIAD meets Web</title>
 </head>
 <body>
@@ -246,10 +59,10 @@
 						</p>
 					</form>
 				</div>
-				<div id="chat-send-form">
-					<form onsubmit="sendComment(); return false;">
+				<div id="chat-send-form-wrap">
+					<form id="chat-send-form" onsubmit="return false;">
 						<p class="chat-forms-wrap">
-							<label for="comment">本文</label><input type="text" id="comment">
+							<label for="comment">本文</label><input type="text" id="comment" required>
 							<input type="submit">
 							<input type="button" value="公開名を変更" onclick="editDisplayName()">
 						</p>
@@ -262,76 +75,115 @@
 		</section>
 	</div>
 	<div id="side-wrap">
-		<section id="circle-info">
-			<h3>サークル情報</h3>
-			<select id="circles-info" class="circles-select">
-				{% for circle in circles %}
-					<option value="{{ circle.id }}">{{ circle.name }}</option>
-				{% endfor %}
-			</select>
-			<dl>
-				<div id="circle-info-name">
-					<dt>サークル名</dt>
-					<dd></dd>
+		{% if staff_circles %}
+		<div id="side-wrap-tab">
+			<ul>
+				<li id="user-tab" onclick="staffMode(false)">配信情報</li>
+				<li id="staff-tab" onclick="staffMode(true)">スタッフ向け</li>
+			</ul>
+		</div>
+		{% endif %}
+		<div id="side-wrap-user">
+			<section id="circle-info">
+				<h3>サークル情報</h3>
+				<select id="circles-info" class="circles-select">
+					{% for circle in circles %}
+						<option value="{{ circle.id }}">{{ circle.name }}</option>
+					{% endfor %}
+				</select>
+				<dl>
+					<div id="circle-info-name">
+						<dt>サークル名</dt>
+						<dd></dd>
+					</div>
+				</dl>
+				<div id="circle-link-wrap">
+					<div id="circle-info-panflet">
+						<p><a href="#" target="_blank">サークル資料</a></p>
+					</div>
+					<div id="circle-info-website">
+						<p><a href="#" target="_blank">Webサイト</a></p>
+					</div>
 				</div>
-			</dl>
-			<div id="circle-link-wrap">
-				<div id="circle-info-panflet">
-					<p><a href="#" target="_blank">サークル資料</a></p>
-				</div>
-				<div id="circle-info-website">
-					<p><a href="#" target="_blank">Webサイト</a></p>
-				</div>
-			</div>
-		</section>
-		<section id="circle-question">
-			<h3>サークルへ質問</h3>
-			<form onsubmit="return false;">
-				<p>
-					<select id="circles-question" class="circles-select">
-						{% for circle in circles %}
-							<option value="{{ circle.id }}">{{ circle.name }}</option>
-						{% endfor %}
-					</select>
-					<textarea id="question-text" placeholder="質問内容を入力してください"></textarea>
-					<input type="submit" value="送信する">
-				</p>
-			</form>
-		</section>
-		{% if user.is_student %}
-		<section id="circle-entry"{% if not user.name %} class="edit-name"{% endif %}>
-			<h3>サークル入会</h3>
-			<div id="name-form">
-				<form onsubmit="sendNewName(); return false;">
-					<p><label for="new-name">氏名</label><input type="text" id="new-name" value="{{ user.name }}"></p>
-					<p><input type="submit"></p>
-				</form>
-			</div>
-			<div id="entry-form">
-				<form onsubmit="entryCircle(); return false;">
+			</section>
+			<section id="circle-question">
+				<h3>サークルへ質問</h3>
+				<form id="circle-question-form" onsubmit="return false;">
 					<p>
-						<select id="circles-entry" class="circles-select">
+						<select id="circles-question" class="circles-select">
 							{% for circle in circles %}
 								<option value="{{ circle.id }}">{{ circle.name }}</option>
 							{% endfor %}
 						</select>
+						<textarea id="question-text" placeholder="質問内容を入力してください" required></textarea>
+						<span class="checkbox">
+							<input type="checkbox" id="ask-anonymous"><label for="ask-anonymous">匿名で質問する</label>
+						</span>
+						<input type="submit" value="送信する">
 					</p>
-					<div id="entry-submit-wrap">
-						<p id="entry-link"><a href="#" target="_blank">入会フォーム(外部サイト)</a></p>
-						<p id="entry-inside-form"><input type="submit" value="入会する！"></p>
-					</div>
 				</form>
-				<h4>入会申込済みサークル</h4>
-				<ul id="entered_circles">
-					{% for entry in my_entries %}
-						<li onclick="refreshCircleInfo({{ entry.circle.id }})">{{ entry.circle.name }}</li>
-					{% endfor %}
-				</ul>
+			</section>
+			{% if user.is_student %}
+				<section id="circle-entry"{% if not user.name %} class="edit-name"{% endif %}>
+					<h3>サークル入会</h3>
+					<div id="name-form">
+						<form onsubmit="sendNewName(); return false;">
+							<p><label for="new-name">氏名</label><input type="text" id="new-name" value="{{ user.name }}"></p>
+							<p><input type="submit"></p>
+						</form>
+					</div>
+					<div id="entry-form">
+						<form onsubmit="entryCircle(); return false;">
+							<p>
+								<select id="circles-entry" class="circles-select">
+									{% for circle in circles %}
+										<option value="{{ circle.id }}">{{ circle.name }}</option>
+									{% endfor %}
+								</select>
+							</p>
+							<div id="entry-submit-wrap">
+								<p id="entry-link"><a href="#" target="_blank">入会フォーム(外部サイト)</a></p>
+								<p id="entry-inside-form"><input type="submit" value="入会する！"></p>
+							</div>
+						</form>
+						<h4>入会申込済みサークル</h4>
+						<ul id="entered_circles">
+							{% for entry in my_entries %}
+								<li onclick="refreshCircleInfo({{ entry.circle.id }})">{{ entry.circle.name }}</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</section>
+			{% endif %}
+		</div>
+		{% if staff_circles %}
+			<div id="side-wrap-staff">
+				<section id="send-circle-message-form-wrap">
+					<h3>メッセージ送信</h3>
+					<form id="circle-message-send-form" onsubmit="return false;">
+						<p>
+							<select name="circle">
+								{% for circle in staff_circles %}
+									<option value="{{ circle.id }}">{{ circle.name }}</option>
+								{% endfor %}
+							</select>
+							<textarea name="comment" required></textarea>
+							<input type="submit">
+						</p>
+					</form>
+				</section>
+				<section id="get-questions-wrap">
+					<h3>届いた質問</h3>
+					<div id="get-questions"></div>
+				</section>
+				{% if has_admin_circle %}
+				<p class="circle-admin-link">
+					<a href="{% url "circle_admin_list" %}">サークル管理</a>
+				</p>
+				{% endif %}
 			</div>
-		</section>
 		{% endif %}
 	</div>
-
 </main>
 </body>
 </html>

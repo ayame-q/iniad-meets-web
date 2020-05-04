@@ -10,4 +10,5 @@ urlpatterns = [
     path('api/entry/<int:pk>', views.api_entry, name="api_entry"),
     path('api/admin_users/add', views.api_admin_users_add, name="admin_users_add"),
     path('api/staff_users/add', views.api_staff_users_add, name="staff_users_add"),
+    path('api/get_questions', views.api_get_questions, name="get_questions"),
 ]

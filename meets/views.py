@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 import json, re
-from .models import Entry, Circle, UserRole
+from .models import Entry, Circle, UserRole, ChatLog
 
 # Create your views here.
-def top(request):
+def pre(request):
     return render(request, "meets/pre.html")
 
 
@@ -13,7 +13,21 @@ def app(request):
         return render(request, "meets/top.html")
     circles = Circle.objects.all()
     my_entries = Entry.objects.filter(user=request.user)
-    return render(request, "meets/app.html", {"circles": circles, "my_entries": my_entries})
+    get_questions = None
+    if request.user.role:
+        staff_circles = Circle.objects.filter(staff_users=request.user.role)
+        if staff_circles:
+            get_questions = ChatLog.objects.filter(receiver_circle__in=staff_circles).order_by("-created_at")
+    else:
+        staff_circles = None
+
+    if request.user.is_superuser or request.user.role.admin_circles.count():
+        has_admin_circle = True
+    else:
+        has_admin_circle = False
+
+    result = {"circles": circles, "my_entries": my_entries, "staff_circles": staff_circles, "has_admin_circle": has_admin_circle, "get_questions": get_questions}
+    return render(request, "meets/app.html", result)
 
 
 def circle_admin_list(request):
@@ -165,3 +179,33 @@ def api_entry(request, pk):
         return JsonResponse(result)
     except Circle.DoesNotExist:
         return JsonResponse({"success": False, "error": "サークルが見つかりません"})
+
+def api_get_questions(request):
+    if request.user.role:
+        staff_circles = Circle.objects.filter(staff_users=request.user.role)
+        if staff_circles:
+            get_questions = ChatLog.objects.filter(receiver_circle__in=staff_circles).order_by("created_at")
+            result = [
+                {
+                    "id": question.id,
+                    "comment": question.comment,
+                    "receiver_circle_pk": question.receiver_circle.pk if question.receiver_circle else None,
+                    "receiver_circle_name": question.receiver_circle.name if question.receiver_circle else None,
+                    "is_anonymous": question.is_anonymous,
+                    "created_at": "{0:%Y-%m-%d %H:%M:%S}".format(question.created_at),
+                    "replies": [{
+                        "id": reply.id,
+                        "parent_pk": question.id,
+                        "comment": reply.comment,
+                        "send_user": {"display_name": reply.send_user.display_name, "class": reply.send_user.get_class()},
+                        "created_at": "{0:%Y-%m-%d %H:%M:%S}".format(reply.created_at),
+                    } for reply in question.replies.all()],
+                    "send_user": {"display_name": question.send_user.display_name, "class": question.send_user.get_class()} if not question.is_anonymous else {"display_name": "匿名", "class": question.send_user.get_class()}
+                }
+                for question in get_questions
+            ]
+            return JsonResponse({"success": True, "error": None, "questions": result})
+        else:
+            return JsonResponse({"success": False, "error": "サークルのスタッフではありません"})
+    else:
+        return JsonResponse({"success": False, "error": "学生ではありません"})

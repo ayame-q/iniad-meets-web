@@ -42,10 +42,11 @@ class Circle(models.Model):
 class ChatLog(models.Model):
     comment = models.TextField(verbose_name="コメント")
     send_user = models.ForeignKey(User, related_name="chat_logs", on_delete=models.CASCADE, verbose_name="送信者")
-    created_at = models.DateTimeField(default=timezone.localtime, verbose_name="作成日")
+    sender_circle = models.ForeignKey(Circle, related_name="chat_logs", null=True, blank=True, on_delete=models.SET_NULL, verbose_name="送信元サークル")
     receiver_circle = models.ForeignKey(Circle, related_name="questions", null=True, blank=True, on_delete=models.SET_NULL, verbose_name="宛先サークル")
     parent = models.ForeignKey("self", related_name="replies", null=True, blank=True, on_delete=models.SET_NULL, verbose_name="返信先")
     is_anonymous = models.BooleanField(default=False, verbose_name="匿名投稿")
+    created_at = models.DateTimeField(default=timezone.localtime, verbose_name="作成日")
 
 
 class Entry(models.Model):
