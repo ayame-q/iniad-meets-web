@@ -379,12 +379,35 @@ main{
 }
 
 #circle-admin{
+	#circle-config{
+		padding-left: 15px;
+		padding-right: 5px;
+		h3{
+			color: #e24863;
+			border-left: #e24863 solid 5px;
+			border-bottom: #e24863 solid 2px;
+			padding-left: 0.5em;
+			font-family: 'Baloo Paaji 2', cursive;
+			text-shadow: 2px 2px 2px #d8d9d9;
+			box-shadow: -1px 2px 2px #d8d9d9;
+			margin: 0.2em 0;
+			margin-left: -15px;
+			margin-right: -5px;
+		}
+	}
 	li{
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		input[type=submit], &[type=button]{
 			width: 8em;
+		}
+	}
+	table{
+		margin: auto;
+		text-align: center;
+		a{
+			color: black;
 		}
 	}
 }
