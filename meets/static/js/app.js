@@ -183,8 +183,10 @@ const connectChat = () => {
 	const questionSendFormElement = document.getElementById("circle-question-form");
 	questionSendFormElement.addEventListener("submit", sendQuestion)
 
-	const circleMessageSendFormElement = document.getElementById("circle-message-send-form");
-	circleMessageSendFormElement.addEventListener("submit", sendCircleMessage)
+	if(document.getElementById("circle-message-send-form")){
+		const circleMessageSendFormElement = document.getElementById("circle-message-send-form");
+		circleMessageSendFormElement.addEventListener("submit", sendCircleMessage)
+	}
 
 
 
