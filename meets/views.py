@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
-import json, re
+from django.http import JsonResponse, HttpResponse
+from django.core.exceptions import PermissionDenied
+import json, re, csv
 from .models import Entry, Circle, UserRole, ChatLog
 
 # Create your views here.
@@ -91,6 +92,25 @@ def circle_admin_page(request, pk):
         "circle": circle
     })
     return render(request, "meets/circle-admin.html", result)
+
+
+def circle_admin_entry_csv(request, pk):
+    try:
+        if request.user.is_superuser:
+            circle = Circle.objects.get(pk=pk)
+        else:
+            circle = Circle.objects.filter(admin_users=request.user.role).get(pk=pk)
+    except Circle.DoesNotExist:
+        raise PermissionDenied
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="circle-entry.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(["学籍番号", "名前", "メールアドレス", "申込日時"])
+    for entry in circle.entries.all():
+        writer.writerow([entry.user.student_id, entry.user.name, entry.user.email, "{0:%Y-%m-%d %H:%M:%S}".format(entry.created_at)])
+
+    return response
 
 
 def api_admin_users_add(request):

@@ -91,56 +91,70 @@
 				<p>Error: {{ error }}</p>
 			{% endfor %}
 			{% if circle %}
-				<h3>スタッフ<small>(チャットや質問への回答をスタッフとして書き込めるアカウント)</small></h3>
-				<ul>
-					{% for staff_user in circle.staff_users.all %}
-						<li>
-							{{ staff_user.email }}{% if staff_user.userinfo %}({{ staff_user.userinfo.first_name }} {{ staff_user.userinfo.last_name }}){% endif %}
-							{% if circle.staff_users.count is not 1 %}
-							<form method="post" style="display: inline">
-								<input type="submit" value="削除">
-								<input type="hidden" name="method" value="remove_staff">
-								<input type="hidden" name="remove_pk" value="{{ staff_user.pk }}">
-								{% csrf_token %}
-							</form>
-							{% endif %}
-						</li>
-					{% endfor %}
-				</ul>
-				<form id="add_staff" method="post">
-					<dl>
-						<dt><label for="add_staff_email">追加(INIADメールアドレスをすべて半角小文字で改行区切りで入力してください</label></dt>
-						<dd><textarea id="add_staff_email" name="add_email" cols="30" rows="5"></textarea></dd>
-					</dl>
-					<input type="hidden" name="method" value="add_staff">
-					{% csrf_token %}
-					<input type="submit">
-				</form>
-				<h3>管理者<small>(この管理画面を開けるアカウント)</small></h3>
-				<ul>
-					{% for admin_user in circle.admin_users.all %}
-						<li>
-							{{ admin_user.email }}{% if admin_user.userinfo %}({{ admin_user.userinfo.first_name }} {{ admin_user.userinfo.last_name }}){% endif %}
-							{% if circle.admin_users.count is not 1 %}
+				<div id="circle-config">
+					<h3>入会者リスト</h3>
+					<p><a href="{% url "circle_entry_csv" circle.pk %}">CSVでダウンロード</a></p>
+					<table>
+						<tr><th>学籍番号</th><th>氏名</th><th>メールアドレス</th><th>申込日時</th></tr>
+						{% for entry in circle.entries.all %}
+							<tr><td>{{ entry.user.student_id }}</td><td>{{ entry.user.name }}</td><td><a href="mailto:{{ entry.user.email }}">{{ entry.user.email }}</a></td><td>{{ entry.created_at | date:"Y-m-d H:i:s" }}</td></tr>
+						{% empty %}
+							<tr><td colspan="4">まだ登録がありません</td></tr>
+						{% endfor %}
+						<tr></tr>
+					</table>
+
+					<h3>スタッフ<small>(チャットや質問への回答をスタッフとして書き込めるアカウント)</small></h3>
+					<ul>
+						{% for staff_user in circle.staff_users.all %}
+							<li>
+								{{ staff_user.email }}{% if staff_user.userinfo %}({{ staff_user.userinfo.first_name }} {{ staff_user.userinfo.last_name }}){% endif %}
+								{% if circle.staff_users.count is not 1 %}
 								<form method="post" style="display: inline">
 									<input type="submit" value="削除">
-									<input type="hidden" name="method" value="remove_admin">
-									<input type="hidden" name="remove_pk" value="{{ admin_user.pk }}">
+									<input type="hidden" name="method" value="remove_staff">
+									<input type="hidden" name="remove_pk" value="{{ staff_user.pk }}">
 									{% csrf_token %}
 								</form>
-							{% endif %}
-						</li>
-					{% endfor %}
-				</ul>
-				<form id="add_admin" method="post">
-					<dl>
-						<dt><label for="add_admin_email">追加(INIADメールアドレスをすべて半角小文字で改行区切りで入力してください</label></dt>
-						<dd><textarea id="add_admin_email" name="add_email" cols="30" rows="5"></textarea></dd>
-					</dl>
-					<input type="hidden" name="method" value="add_admin">
-					{% csrf_token %}
-					<input type="submit">
-				</form>
+								{% endif %}
+							</li>
+						{% endfor %}
+					</ul>
+					<form id="add_staff" method="post">
+						<dl>
+							<dt><label for="add_staff_email">追加(INIADメールアドレスをすべて半角小文字で改行区切りで入力してください</label></dt>
+							<dd><textarea id="add_staff_email" name="add_email" cols="30" rows="5"></textarea></dd>
+						</dl>
+						<input type="hidden" name="method" value="add_staff">
+						{% csrf_token %}
+						<input type="submit">
+					</form>
+					<h3>管理者<small>(この管理画面を開けるアカウント)</small></h3>
+					<ul>
+						{% for admin_user in circle.admin_users.all %}
+							<li>
+								{{ admin_user.email }}{% if admin_user.userinfo %}({{ admin_user.userinfo.first_name }} {{ admin_user.userinfo.last_name }}){% endif %}
+								{% if circle.admin_users.count is not 1 %}
+									<form method="post" style="display: inline">
+										<input type="submit" value="削除">
+										<input type="hidden" name="method" value="remove_admin">
+										<input type="hidden" name="remove_pk" value="{{ admin_user.pk }}">
+										{% csrf_token %}
+									</form>
+								{% endif %}
+							</li>
+						{% endfor %}
+					</ul>
+					<form id="add_admin" method="post">
+						<dl>
+							<dt><label for="add_admin_email">追加(INIADメールアドレスをすべて半角小文字で改行区切りで入力してください</label></dt>
+							<dd><textarea id="add_admin_email" name="add_email" cols="30" rows="5"></textarea></dd>
+						</dl>
+						<input type="hidden" name="method" value="add_admin">
+						{% csrf_token %}
+						<input type="submit">
+					</form>
+				</div>
 			{% endif %}
 		{% else %}
 			<p>Error: 権限がありません</p>
