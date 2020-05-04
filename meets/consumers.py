@@ -53,7 +53,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     pass
 
             log = ChatLog.objects.create(comment=comment, send_user=self.user, sender_circle=sender_circle, receiver_circle=receiver_circle, parent=parent, is_anonymous=is_anonymous)
-
+            log = ChatLog.objects.get(pk=log.pk)
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {

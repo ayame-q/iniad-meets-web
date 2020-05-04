@@ -50,12 +50,12 @@ const truncate = (str, len=20) => {
 }
 
 let have_connected_server = false;
-let connect_count_server = 0;
+let connect_count_websocket_server = 0;
 let yongest_log_id = -1;
 
 const connectChat = () => {
 
-	connect_count_server++
+	connect_count_websocket_server++
 	const chatSocket = new WebSocket("wss://" + window.location.host + "/ws/chat/")
 	const add_chat_log = (message, add_front=false) => {
 		if(yongest_log_id < 0 || yongest_log_id > message.id){
@@ -182,7 +182,7 @@ const connectChat = () => {
 				show_notify("サーバーとの再接続に成功しました。", {type: "info"})
 			}
 			have_connected_server = true
-			connect_count_server = 0
+			connect_count_websocket_server = 0
 		}
 
 		if(data["old_messages"]){
@@ -252,7 +252,7 @@ const connectChat = () => {
 			circleMessageSendFormElement.removeEventListener("submit", sendCircleMessage)
 		}
 		getQuestionsElement.textContent = ""
-		if(connect_count_server < 6){
+		if(connect_count_websocket_server < 6){
 			show_notify("サーバーから切断されました。再接続します。", {type: "warning"})
 			setTimeout(connectChat, 5000)
 		} else {
@@ -362,10 +362,10 @@ const sendNewName = () => {
 			}
 		})
 }
-const sendNewDisplayName = () => {
-	const newNameElement = document.getElementById("new-display-name")
+const sendNewDisplayName = (event) => {
+	const newName = event.target.displayName.value
 	const prm = new URLSearchParams();
-	prm.append("name", newNameElement.value);
+	prm.append("name", newName);
 	fetch("/api/user/display_name/update", {
 		method: "POST",
 		headers: {"X-CSRFToken": Cookies.get('csrftoken')},
@@ -376,10 +376,14 @@ const sendNewDisplayName = () => {
 		})
 		.then(function (json) {
 			if (json.success) {
-				const chatWrapElement = document.getElementById("chat-wrap")
-				chatWrapElement.classList.remove("edit-name")
-				const displayNameElement = document.getElementById("new-display-name")
-				displayNameElement.value = json.name
+				const editElements = document.getElementsByClassName("edit-display-name")
+				const displayNameFormElements = document.getElementsByClassName("display-name-form")
+				for(const element of editElements){
+					element.classList.remove("edit-display-name")
+				}
+				for(const element of displayNameFormElements){
+					element.displayName.value = json.name
+				}
 			}
 		})
 }
@@ -415,7 +419,7 @@ const entryCircle = () => {
 
 const editDisplayName = () => {
 	const chatWrapElement = document.getElementById("chat-wrap")
-	chatWrapElement.classList.add("edit-name")
+	chatWrapElement.classList.add("edit-display-name")
 }
 
 const refreshCircleInfo = (value=false) => {
@@ -491,18 +495,47 @@ const toggleShowEnteredCirles = () => {
 	}
 }
 
-window.onload = () => {
-	connectChat()
+let is_video_error = false
+
+const connectVideo = () => {
 	const player = videojs('video', {"autoplay": true});
 	player.on("error", (err) => {
-		console.log(err)
+		is_video_error = true
+		show_notify("現在配信されていないようです。配信開始までしばらくお待ちください。時間をおいてリロードしてみてください。", {type: "error", timeout: false})
 	})
+	player.ready(() => {
+		setTimeout(() => {
+			if(!is_video_error){
+				show_notify("INIAD meets Webへようこそ！再生ボタンを押して参加しましょう！", {timeout: 180000, buttons: [["<button>再生</button>", (instance, toast) => {
+						player.play()
+						instance.hide({
+							transitionOut: 'fadeOutUp',
+							onClosing: function(instance, toast, closedBy){
+								console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
+							}
+						}, toast, 'buttonName');
+					}]]})
+			}
+		}, 1000)
+	})
+}
+
+
+window.onload = () => {
+	connectChat()
+	connectVideo()
+
 	const circlesSelectElements = document.getElementsByClassName("circles-select");
 	for(const element of circlesSelectElements){
 		element.addEventListener("change", (event) => {
 			refreshCircleInfo(event.target.value)
 		})
 	}
+	const displayNameFormElements = document.getElementsByClassName("display-name-form")
+	for(const element of displayNameFormElements){
+		element.addEventListener("submit", sendNewDisplayName)
+	}
+
 	const textAreaElements = document.getElementsByTagName("textarea");
 	for(const element of textAreaElements){
 		element.addEventListener("input", (event) => {
