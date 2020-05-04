@@ -51,11 +51,15 @@ const truncate = (str, len=20) => {
 
 let have_connected_server = false;
 let connect_count_server = 0;
+let yongest_log_id = -1;
 
 const connectChat = () => {
 	connect_count_server++
 	const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/")
 	const add_chat_log = (message, add_front=false) => {
+		if(yongest_log_id < 0 || yongest_log_id > message.id){
+			yongest_log_id = message.id
+		}
 		const chatWrapElement = document.getElementById("chat-log")
 		const dtElement = document.createElement("dt")
 		dtElement.innerHTML = `<span class="user" title="${message.send_user.class ? message.send_user.class + "期生" : "その他" }">${message.send_user.display_name}</span>`
@@ -168,6 +172,7 @@ const connectChat = () => {
 		if(data["initial_messages"]){
 			const chatWrapElement = document.getElementById("chat-log")
 			chatWrapElement.textContent = ""
+			yongest_log_id = -1
 			const initial_messages = data["initial_messages"]
 			for(const message of initial_messages){
 				add_chat_log(message)
@@ -178,6 +183,17 @@ const connectChat = () => {
 			have_connected_server = true
 			connect_count_server = 0
 		}
+
+		if(data["old_messages"]){
+			const chatWrapElement = document.getElementById("chat-log")
+			const old_messages = data["old_messages"]
+			for(const message of old_messages){
+				if(message.id < yongest_log_id){
+					add_chat_log(message)
+				}
+			}
+		}
+
 		if(data["message"]){
 			const message = JSON.parse(data["message"]);
 			add_chat_log(message, true)
@@ -230,6 +246,10 @@ const connectChat = () => {
 	chatSocket.onclose = function (event) {
 		chatSendFormElement.removeEventListener("submit", sendComment)
 		questionSendFormElement.removeEventListener("submit", sendQuestion)
+		if(document.getElementById("circle-message-send-form")){
+			const circleMessageSendFormElement = document.getElementById("circle-message-send-form");
+			circleMessageSendFormElement.removeEventListener("submit", sendCircleMessage)
+		}
 		getQuestionsElement.textContent = ""
 		if(connect_count_server < 6){
 			show_notify("サーバーから切断されました。再接続します。", {type: "warning"})
@@ -267,6 +287,13 @@ const connectChat = () => {
 		const circleMessageSendFormElement = document.getElementById("circle-message-send-form");
 		circleMessageSendFormElement.addEventListener("submit", sendCircleMessage)
 	}
+	const chatLogWrapElement = document.getElementById("chat-log-wrap")
+	chatLogWrapElement.addEventListener("scroll", () => {
+		if(chatLogWrapElement.scrollHeight - chatLogWrapElement.scrollTop === chatLogWrapElement.clientHeight){
+			console.log(yongest_log_id)
+			chatSocket.send(JSON.stringify({"get_old": yongest_log_id}))
+		}
+	})
 
 	const getMyQuestions = () => {
 		fetch("api/my_questions")
