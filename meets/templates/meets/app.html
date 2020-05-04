@@ -41,25 +41,25 @@
 <header>
 	<h1><a href="/"><img src="{% static "/img/logo.svg" %}" alt="INIAD meets Web"></a></h1>
 </header>
-<main>
+<main{% if not user.is_display_name_initialized %} class="edit-display-name"{% endif %}>
 	<div id="main-wrap">
 		<section id="video-wrap">
 			<video class="video-js vjs-theme-forest vjs-16-9" id="video" controls autoplay>
 				<source src="https://stream.ayame-cloud.com/live/meets.m3u8" type="application/x-mpegURL">
 			</video>
 		</section>
-		<section id="chat-wrap"{% if not user.is_display_name_initialized %} class="edit-name"{% endif %}>
+		<section id="chat-wrap">
 			<div id="chat-forms">
-				<div id="display-name-form">
-					<form onsubmit="sendNewDisplayName(); return false;">
+				<div class="display-name-form-wrap">
+					<form class="display-name-form" onsubmit="return false;">
 						{% csrf_token %}
 						<p class="chat-forms-wrap">
-							<label for="new-display-name">公開名</label><input type="text" id="new-display-name" value="{{ user.display_name }}" required>
-							<input type="submit">
+							<label for="new-display-name-chat">公開名</label><input type="text" id="new-display-name-chat" name="displayName" value="{{ user.display_name }}" required>
+							<input type="submit" value="登録">
 						</p>
 					</form>
 				</div>
-				<div id="chat-send-form-wrap">
+				<div id="chat-send-form-wrap" class="after-display-name-form">
 					<form id="chat-send-form" onsubmit="return false;">
 						<p class="chat-forms-wrap">
 							<label for="comment">本文</label><input type="text" id="comment" required>
@@ -108,23 +108,34 @@
 			</section>
 			<section id="circle-question">
 				<h3>サークルへ質問</h3>
-				<form id="circle-question-form" onsubmit="return false;">
-					<p>
-						<select id="circles-question" class="circles-select">
-							{% for circle in circles %}
-								<option value="{{ circle.id }}">{{ circle.name }}</option>
-							{% endfor %}
-						</select>
-						<textarea id="question-text" placeholder="質問内容を入力してください" required></textarea>
-						<span class="checkbox">
-							<input type="checkbox" id="ask-anonymous"><label for="ask-anonymous">匿名で質問する</label>
-						</span>
-						<input type="submit" value="送信する">
-					</p>
-				</form>
-				<h4 onclick="toggleShowMyQuestions()">送った質問</h4>
-				<div id="my-questions">
-					<p><a href="#" onclick="toggleShowMyQuestions()">閉じる</a></p>
+				<div class="display-name-form-wrap">
+					<form class="display-name-form" onsubmit="return false;">
+						{% csrf_token %}
+						<p class="chat-forms-wrap">
+							<label for="new-display-name-question">公開名</label><input type="text" id="new-display-name-question" name="displayName" value="{{ user.display_name }}" required>
+							<input type="submit" value="登録">
+						</p>
+					</form>
+				</div>
+				<div class="after-display-name-form">
+					<form id="circle-question-form" onsubmit="return false;">
+						<p>
+							<select id="circles-question" class="circles-select">
+								{% for circle in circles %}
+									<option value="{{ circle.id }}">{{ circle.name }}</option>
+								{% endfor %}
+							</select>
+							<textarea id="question-text" placeholder="質問内容を入力してください" required></textarea>
+							<span class="checkbox">
+								<input type="checkbox" id="ask-anonymous"><label for="ask-anonymous">匿名で質問する</label>
+							</span>
+							<input type="submit" value="送信する">
+						</p>
+					</form>
+					<h4 onclick="toggleShowMyQuestions()">送った質問</h4>
+					<div id="my-questions">
+						<p><a href="#" onclick="toggleShowMyQuestions()">閉じる</a></p>
+					</div>
 				</div>
 			</section>
 			{% if user.is_student %}
@@ -132,8 +143,8 @@
 					<h3>サークル入会</h3>
 					<div id="name-form">
 						<form onsubmit="sendNewName(); return false;">
-							<p><label for="new-name">氏名</label><input type="text" id="new-name" value="{{ user.name }}"></p>
-							<p><input type="submit"></p>
+							<p><label for="new-name">氏名</label><input type="text" id="new-name" value="{{ user.name }}" placeholder="必ず本名を入力してください"></p>
+							<p><input type="submit" value="登録"></p>
 						</form>
 					</div>
 					<div id="entry-form">

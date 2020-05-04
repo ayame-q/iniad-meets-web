@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import PermissionDenied
+from django.utils import html
 import json, re, csv
 from .models import Entry, Circle, UserRole, ChatLog
 
@@ -161,7 +162,7 @@ def api_staff_users_add(request):
 def api_user_name_update(request):
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "No data"})
-    new_name = request.POST.get("name")
+    new_name = html.escape(request.POST.get("name"))
     request.user.name = new_name
     request.user.save()
     result = {"success": True, "error": None, "name": request.user.name}
@@ -171,7 +172,7 @@ def api_user_name_update(request):
 def api_user_display_name_update(request):
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "No data"})
-    new_name = request.POST.get("name")
+    new_name = html.escape(request.POST.get("name"))
     request.user.display_name = new_name
     request.user.is_display_name_initialized = True
     request.user.save()

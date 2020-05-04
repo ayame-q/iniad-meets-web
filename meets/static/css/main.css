@@ -19,6 +19,17 @@ a {
   text-decoration: none;
 }
 
+.display-name-form-wrap {
+  display: none;
+}
+
+.edit-display-name .display-name-form-wrap {
+  display: block;
+}
+.edit-display-name .after-display-name-form {
+  display: none;
+}
+
 input[type=submit], input[type=button] {
   cursor: pointer;
 }
@@ -138,15 +149,6 @@ main #main-wrap #chat-wrap {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-}
-main #main-wrap #chat-wrap #display-name-form {
-  display: none;
-}
-main #main-wrap #chat-wrap.edit-name #display-name-form {
-  display: block;
-}
-main #main-wrap #chat-wrap.edit-name #chat-send-form-wrap {
-  display: none;
 }
 main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap {
   display: flex;
