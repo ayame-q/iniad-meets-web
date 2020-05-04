@@ -31,7 +31,7 @@ let connect_count_server = 0;
 
 const connectChat = () => {
 
-	const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/")
+	const chatSocket = new WebSocket("wss://" + window.location.host + "/ws/chat/")
 	const add_chat_log = (message, add_front=false) => {
 		const chatWrapElement = document.getElementById("chat-log")
 		const dtElement = document.createElement("dt")
