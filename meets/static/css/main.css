@@ -31,14 +31,47 @@ input, select, textarea {
   margin-top: 5px;
   font-size: 1.1em;
   padding: 0.2em 0.5em;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   -webkit-appearance: none;
-  background-color: white;
+  -moz-appearance: none;
+  appearance: none;
+}
+input:not([type=checkbox]), select:not([type=checkbox]), textarea:not([type=checkbox]) {
   border: 2px solid #10589C;
   border-radius: 5px;
   width: calc(100%);
+  background-color: white;
+}
+input[type=checkbox], select[type=checkbox], textarea[type=checkbox] {
+  width: 50px;
+  height: 50px;
+  padding: 4px;
+  margin: 0;
+}
+input[type=checkbox]::before, select[type=checkbox]::before, textarea[type=checkbox]::before {
+  content: "";
+  display: block;
+  margin-top: 0;
+  margin-bottom: 5px;
+  margin-right: 7px;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  border: 2px solid #10589C;
+  transition: all 0.12s, border-color 0.08s;
+}
+input[type=checkbox]:checked::before, select[type=checkbox]:checked::before, textarea[type=checkbox]:checked::before {
+  width: 15px;
+  margin: 10px;
+  margin-top: -5px;
+  margin-right: 15px;
+  padding-left: 1px;
+  border-radius: 0;
+  opacity: 1;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
 }
 @media (max-width: 899px) {
   input, select, textarea {
@@ -48,9 +81,18 @@ input, select, textarea {
   }
 }
 
+.checkbox {
+  display: flex;
+  align-items: center;
+}
+
 select {
+  margin: 0;
   padding-right: 38px;
-  background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 30"><defs><style>.cls-1{fill:none;stroke:#10589c;stroke-miterlimit:10;}</style></defs><polygon class="cls-1" points="8 8 24 8 16 22 8 8"/></svg>') no-repeat right;
+  background-image: linear-gradient(45deg, transparent 50%, #10589C 50%), linear-gradient(135deg, #10589C 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
 }
 
 header {
@@ -75,9 +117,11 @@ main {
 }
 main #main-wrap {
   flex-shrink: 1;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  width: 60vw;
+  flex-basis: 1000px;
+  max-width: calc(68vh / 0.56);
   height: 100%;
 }
 main #main-wrap #video-wrap {
@@ -100,11 +144,12 @@ main #main-wrap #chat-wrap #display-name-form {
 main #main-wrap #chat-wrap.edit-name #display-name-form {
   display: block;
 }
-main #main-wrap #chat-wrap.edit-name #chat-send-form {
+main #main-wrap #chat-wrap.edit-name #chat-send-form-wrap {
   display: none;
 }
 main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap {
   display: flex;
+  align-items: center;
 }
 main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap input {
   margin: 0;
@@ -119,15 +164,25 @@ main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap input[type=submit], main
 main #main-wrap #chat-wrap #chat-forms p {
   margin: 0;
 }
-main #main-wrap #chat-wrap #chat-forms #chat-send-form label {
+main #main-wrap #chat-wrap #chat-forms #chat-send-form-wrap label {
   display: none;
 }
-main #main-wrap #chat-wrap #chat-forms #chat-send-form input[type=text] {
+main #main-wrap #chat-wrap #chat-forms #chat-send-form-wrap input[type=text] {
   width: 70%;
 }
 main #main-wrap #chat-wrap #chat-log-wrap {
   overflow: scroll;
   height: auto;
+}
+main #main-wrap #chat-wrap #chat-log-wrap #chat-log .sender-circle {
+  color: #10589c;
+}
+main #main-wrap #chat-wrap #chat-log-wrap #chat-log .sender-circle::before {
+  content: "@";
+}
+main #main-wrap #chat-wrap #chat-log-wrap #chat-log .receiver::before {
+  content: ">";
+  padding: 0 0.3em;
 }
 main #main-wrap #chat-wrap #chat-log-wrap #chat-log time {
   display: block;
@@ -141,8 +196,9 @@ main #main-wrap #chat-wrap #chat-log-wrap #chat-log time::after {
   content: ")";
 }
 main #side-wrap {
-  flex-shrink: 1;
-  flex-grow: 1;
+  flex-shrink: 2;
+  flex-grow: 2;
+  flex-basis: 300px;
   padding: 0 15px;
   overflow: scroll;
 }
@@ -186,6 +242,87 @@ main #side-wrap #entry-submit-wrap.use_outside_form #entry-link {
 }
 main #side-wrap #entry-submit-wrap.use_outside_form #entry-inside-form {
   display: none;
+}
+main #side-wrap #side-wrap-tab {
+  text-align: center;
+}
+main #side-wrap #side-wrap-tab ul {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin-left: -15px;
+}
+main #side-wrap #side-wrap-tab ul li {
+  flex-grow: 1;
+  flex-shrink: 1;
+  color: #e24863;
+  padding: 10px;
+  display: block;
+  border-bottom: #e24863 solid 2px;
+  cursor: pointer;
+}
+main #side-wrap #side-wrap-staff .circle-admin-link {
+  text-align: right;
+}
+main #side-wrap #side-wrap-staff #get-questions-wrap #get-questions .question:not(:last-child) {
+  margin-bottom: 0.5em;
+}
+main #side-wrap #side-wrap-staff #get-questions-wrap #get-questions .question p {
+  margin: 0;
+}
+main #side-wrap #side-wrap-staff #get-questions-wrap #get-questions .question p.userinfo {
+  font-weight: bold;
+  color: #10589c;
+}
+main #side-wrap #side-wrap-staff #get-questions-wrap #get-questions .question p.userinfo .receiver::before {
+  content: ">";
+  padding: 0 0.3em;
+}
+main #side-wrap #side-wrap-staff #get-questions-wrap #get-questions .question p.time time {
+  color: gray;
+  font-size: 0.8em;
+}
+main #side-wrap #side-wrap-staff #get-questions-wrap #get-questions .question p.time time::before {
+  content: "(";
+}
+main #side-wrap #side-wrap-staff #get-questions-wrap #get-questions .question p.time time::after {
+  content: ")";
+}
+main #side-wrap #side-wrap-staff #get-questions-wrap #get-questions .question .question-reply {
+  padding-left: 1em;
+  font-size: 0.8em;
+  border-left: solid #2192c5 1.5px;
+}
+main #side-wrap.staff-mode #side-wrap-tab #staff-tab {
+  background-color: #e24863;
+  color: white;
+  cursor: default;
+}
+main #side-wrap.staff-mode #side-wrap-user {
+  display: none;
+}
+main #side-wrap.staff-mode #side-wrap-staff {
+  display: block;
+}
+main #side-wrap:not(.staff-mode) #side-wrap-tab #user-tab {
+  background-color: #e24863;
+  color: white;
+  cursor: default;
+}
+main #side-wrap:not(.staff-mode) #side-wrap-user {
+  display: block;
+}
+main #side-wrap:not(.staff-mode) #side-wrap-staff {
+  display: none;
+}
+
+#circle-admin li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#circle-admin li input[type=submit], #circle-admin li[type=button] {
+  width: 8em;
 }
 
 /*# sourceMappingURL=main.css.map */
