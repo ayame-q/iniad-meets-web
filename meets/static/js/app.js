@@ -716,10 +716,10 @@ const updateStatus = (obj) => {
 	for(const key of Object.keys(circleList)){
 		const circle = circleList[key]
 		const now = new Date().getTime()
-		if(now < circle.start_time_ts){
+		if(circle.start_time_ts && now < circle.start_time_ts){
 			activeCircleSetTimeOutIds.push(setTimeout(() => {
 				showCircleInfo(circle.id)
-			}))
+			}, now - circle.start_time_ts))
 		}
 	}
 }
