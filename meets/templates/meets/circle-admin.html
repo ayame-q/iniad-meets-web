@@ -92,6 +92,36 @@
 			{% endfor %}
 			{% if circle %}
 				<div id="circle-config">
+					<h3>サークル基本情報</h3>
+					<script>
+						const toggleEntryFormUrl = () => {
+							const isUsingEntryFormCheckboxElement = document.getElementById("is_using_entry_form")
+							const entryFormUrlInputElement = document.getElementById("entry_form_url")
+							if (isUsingEntryFormCheckboxElement.checked) {
+								entryFormUrlInputElement.disabled = true
+							} else {
+								entryFormUrlInputElement.disabled = false
+							}
+						}
+					</script>
+					<form method="post">
+						<p style="display: flex; align-items: center;"><input type="checkbox" id="is_using_entry_form" name="is_using_entry_form" value="true"{% if circle.is_using_entry_form %} checked{% endif %} onclick="toggleEntryFormUrl()"><label for="is_using_entry_form">INIAD meets Webシステム内部のエントリーフォームを利用する</label></p>
+						<dl>
+							<dt><label for="entry_form_url">外部エントリーフォームURL</label></dt>
+							<dd><input type="url" id="entry_form_url" name="entry_form_url" value="{% if circle.entry_form_url %}{{ circle.entry_form_url }}{% endif %}" placeholder="https://"{% if circle.is_using_entry_form %} disabled{% endif %}></dd>
+							<dt><label for="panflet_url">資料PDF URL</label></dt>
+							<dd><input type="url" id="panflet_url" name="panflet_url" value="{% if circle.panflet_url %}{{ circle.panflet_url }}{% endif %}" placeholder="https://"></dd>
+							<dt><label for="website_url">公式サイトURL</label></dt>
+							<dd><input type="url" id="website_url" name="website_url" value="{% if circle.website_url %}{{ circle.website_url }}{% endif %}" placeholder="https://"></dd>
+							<dt><label for="twitter_sn">Twitter ID</label></dt>
+							<dd class="twitter_sn_wrap">@<input type="text" id="twitter_sn" name="twitter_sn" value="{% if circle.twitter_sn %}{{ circle.twitter_sn }}{% endif %}"></dd>
+							<dt><label for="circle_comment">一言説明</label></dt>
+							<dd><textarea id="circle_comment" name="circle_comment" placeholder="改行3回以内で、120文字以内でお願いします。" maxlength="120">{% if circle.comment %}{{ circle.comment }}{% endif %}</textarea></dd>
+						</dl>
+						<p><input type="submit"></p>
+						<input type="hidden" name="method" value="edit_info">
+						{% csrf_token %}
+					</form>
 					<h3>入会者リスト</h3>
 					<p><a href="{% url "circle_entry_csv" circle.pk %}">CSVでダウンロード</a></p>
 					<table>

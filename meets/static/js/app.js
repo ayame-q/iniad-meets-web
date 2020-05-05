@@ -1,47 +1,32 @@
-const show_notify = (str, {type="normal", title="", timeout=5000, buttons=[], layout=1, color=false}={}) => {
+const show_notify = (str, arr={}) => {
+	type = arr.type ? arr.type : "normal"
+	arr.message = str
+	if(!arr.position){
+		arr.position =  'topRight'
+	}
 	if(type === "normal"){
-		iziToast.show({
-			position: 'topRight',
-			color: color ? color : 'blue',
-			title: title,
-			message: str,
-			timeout: timeout,
-			buttons: buttons,
-			layout: layout,
-		})
+		if(!arr.color){
+			arr.color = 'blue'
+		}
+		return iziToast.show(arr)
 	}
 	if(type === "info"){
-		iziToast.info({
-			position: 'topRight',
-			color: color ? color : 'blue',
-			title: title,
-			message: str,
-			timeout: timeout,
-			buttons: buttons,
-			layout: layout,
-		})
+		if(!arr.color){
+			arr.color = 'green'
+		}
+		return iziToast.info(arr)
 	}
 	if(type === "warning"){
-		iziToast.warning({
-			position: 'topRight',
-			color: color ? color : 'yellow',
-			title: title,
-			message: str,
-			timeout: timeout,
-			buttons: buttons,
-			layout: layout,
-		})
+		if(!arr.color){
+			arr.color = 'yellow'
+		}
+		return iziToast.warning(arr)
 	}
 	if(type === "error"){
-		iziToast.error({
-			position: 'topRight',
-			color: color ? color : 'red',
-			title: title,
-			message: str,
-			timeout: timeout,
-			buttons: buttons,
-			layout: layout,
-		})
+		if(!arr.color){
+			arr.color = 'red'
+		}
+		return iziToast.error(arr)
 	}
 }
 
@@ -64,10 +49,10 @@ const connectChat = () => {
 		const dtElement = document.createElement("dt")
 		dtElement.innerHTML = `<span class="user" title="${message.send_user.class ? message.send_user.class + "期生" : "その他" }">${message.send_user.display_name}</span>`
 		if(message.sender_circle_name){
-			dtElement.innerHTML += `<span class='sender-circle' onclick='refreshCircleInfo(${message.sender_circle_pk})'>${message.sender_circle_name}</span>`
+			dtElement.innerHTML += `<span class='sender-circle' onclick='showCircleInfo(${message.sender_circle_pk})'>${message.sender_circle_name}</span>`
 		}
 		if(message.receiver_circle_name){
-			dtElement.innerHTML += `<span class='receiver' onclick='refreshCircleInfo(${message.receiver_circle_pk})'>${message.receiver_circle_name}</span>`
+			dtElement.innerHTML += `<span class='receiver' onclick='showCircleInfo(${message.receiver_circle_pk})'>${message.receiver_circle_name}</span>`
 		} else if (message.parent_user_name) {
 			dtElement.innerHTML += `<span class='receiver' title="${message.parent_comment}">${message.parent_user_name}</span>`
 		}
@@ -179,6 +164,7 @@ const connectChat = () => {
 			}
 			if(have_connected_server){
 				show_notify("サーバーとの再接続に成功しました。", {type: "info"})
+				getStatus()
 			}
 			have_connected_server = true
 			connect_count_websocket_server = 0
@@ -242,6 +228,29 @@ const connectChat = () => {
 				})
 			}
 		}
+
+		if(data["notify"]){
+			const notify = JSON.parse(data["notify"])
+			console.log(notify)
+			show_notify(notify.comment, {type: notify.type, timeout: notify.timeout, color: notify.color})
+		}
+
+		if(data["start_broadcast"]){
+			if(is_video_error || is_video_waiting){
+				window.location.reload()
+			}
+		}
+
+		if(data["status"]){
+			const status = JSON.parse(data["status"])
+			console.log(status)
+			updateStatus(status)
+		}
+
+		if(data["force_reload"]){
+			window.location.reload()
+		}
+
 	}
 	chatSocket.onclose = function (event) {
 		chatSendFormElement.removeEventListener("submit", sendComment)
@@ -250,7 +259,9 @@ const connectChat = () => {
 			const circleMessageSendFormElement = document.getElementById("circle-message-send-form");
 			circleMessageSendFormElement.removeEventListener("submit", sendCircleMessage)
 		}
-		getQuestionsElement.textContent = ""
+		if(getQuestionsElement){
+			getQuestionsElement.textContent = ""
+		}
 		if(connect_count_websocket_server < 6){
 			show_notify("サーバーから切断されました。再接続します。", {type: "warning"})
 			setTimeout(connectChat, 5000)
@@ -273,6 +284,7 @@ const connectChat = () => {
 	}
 
 	const sendCircleMessage = () => {
+		const circleMessageSendFormElement = document.getElementById("circle-message-send-form");
 		chatSocket.send(JSON.stringify({"message": {"comment": circleMessageSendFormElement.comment.value, "sender_circle_pk": parseInt(circleMessageSendFormElement.circle.value), "is_anonymous": false}}));
 		circleMessageSendFormElement.comment.value = ""
 	}
@@ -336,7 +348,6 @@ const connectChat = () => {
 	if(document.getElementById("side-wrap-staff")){
 		getStaffQuestions()
 	}
-
 }
 
 
@@ -389,31 +400,64 @@ const sendNewDisplayName = (event) => {
 
 const entryCircle = () => {
 	const circlesEntryElement = document.getElementById("circles-entry");
+	const entryCircleID = circlesEntryElement.value
 
-	fetch("api/entry/" + circlesEntryElement.value, {
-		method: "POST",
-		headers: {"X-CSRFToken": Cookies.get('csrftoken')},
-	})
-		.then(function (response) {
-			return response.json();
-		})
-		.then(function (json) {
-			if (json.success) {
-				show_notify(json.entered_circle_name + "に入会申し込みしました。")
-				const enteredCircleUlElement = document.getElementById("entered_circles")
-				enteredCircleUlElement.innerHTML = "";
-				for(const circle of json.entry_circles){
-					const liElement = document.createElement("li")
-					liElement.textContent = circle.name
-					liElement.addEventListener("click", () => {
-						refreshCircleInfo(circle.id);
+	show_notify(`${circleList[entryCircleID].name}に入会申込しますか？`, {
+		timeout: false,
+		drag: false,
+		buttons: [
+			["<button>はい</button>", (instance, toast) => {
+				instance.hide({
+					transitionOut: 'fadeOutUp',
+					onClosing: () => {},
+				}, toast, 'buttonName');
+
+				fetch("api/entry/" + entryCircleID, {
+					method: "POST",
+					headers: {"X-CSRFToken": Cookies.get('csrftoken')},
+				})
+					.then(function (response) {
+						return response.json();
 					})
-					enteredCircleUlElement.appendChild(liElement)
-				}
-			} else {
-				show_notify(json.error, {type:"warning"})
-			}
-		})
+					.then(function (json) {
+						if (json.success) {
+							show_notify(json.entered_circle_name + "に入会申し込みしました。")
+							const enteredCircleUlElement = document.getElementById("entered_circles")
+							enteredCircleUlElement.innerHTML = "";
+							for(const circle of json.entry_circles){
+								const liElement = document.createElement("li")
+								liElement.textContent = circle.name
+								liElement.addEventListener("click", () => {
+									showCircleInfo(circle.id);
+								})
+								enteredCircleUlElement.appendChild(liElement)
+							}
+						} else {
+							show_notify(json.error, {type:"warning"})
+						}
+					})
+			}],
+			["<button>キャンセル</button>", (instance, toast) => {
+				instance.hide({
+					transitionOut: 'fadeOutUp',
+					onClosing: () => {
+					},
+				}, toast, 'buttonName');
+			}]
+		],
+		onOpening: (instance, toast) => {
+			first_message = toast
+		},
+	})
+
+
+
+}
+
+const editName = () => {
+	show_notify("事務課への提出に必要なため、<br>入会フォームの氏名欄には必ず<br>本名をフルネームで入力してください。<br><small>(あなたが入会したサークルの担当者以外に公開することは<br>ありませんのでご安心ください。)</small>", {targetFirst: false, timeout: 25000})
+	const chatWrapElement = document.getElementById("circle-entry")
+	chatWrapElement.classList.add("edit-name")
 }
 
 const editDisplayName = () => {
@@ -421,36 +465,66 @@ const editDisplayName = () => {
 	chatWrapElement.classList.add("edit-display-name")
 }
 
-const refreshCircleInfo = (value=false) => {
+const showCircleInfo = (value=false) => {
 	const circlesInfoElement = document.getElementById("circles-info");
-	const circlesSelectElements = document.getElementsByClassName("circles-select");
 	if(!value){
 		value = circlesInfoElement.value
 	}
 	const circleInfo = circleList[value]
+	const circlesSelectElements = document.getElementsByClassName("circles-select");
+	const questionTextElement = document.getElementById("question-text");
 	for(const element of circlesSelectElements){
-		element.value = value
+		if(element.id !== "circles-question"){
+			element.value = value
+		}else{
+			if(questionTextElement.value === ""){
+				element.value = value
+			}
+		}
 	}
-	const circleInfoNameElement = document.getElementById("circle-info-name")
-	const circleInfoNameDdElement = circleInfoNameElement.getElementsByTagName("dd")[0]
+	const circleInfoStartTimeElement = document.getElementById("circle-info-start-time")
+	const circleInfoStartTimeTimeElement = circleInfoStartTimeElement.getElementsByTagName("time")[0]
+	const circleInfoCommentElement = document.getElementById("circle-info-comment")
+	const circleInfoCommentPElement = circleInfoCommentElement.getElementsByTagName("p")[0]
 	const circleInfoPanfletElement = document.getElementById("circle-info-panflet")
 	const circleInfoPanfletAElement = circleInfoPanfletElement.getElementsByTagName("a")[0]
 	const circleInfoWebsiteElement = document.getElementById("circle-info-website")
 	const circleInfoWebsiteAElement = circleInfoWebsiteElement.getElementsByTagName("a")[0]
+	const circleInfoTwitterElement = document.getElementById("circle-info-twitter")
+	const circleInfoTwitterAElement = circleInfoTwitterElement.getElementsByTagName("a")[0]
+	const circleInfoTwitterSnElement = document.getElementById("circle-info-twitter_sn")
 	const circleEntrySubmitWrapElement = document.getElementById("entry-submit-wrap")
 	const circleEntryLinkElement = document.getElementById("entry-link")
-	circleInfoNameDdElement.textContent = circleInfo.name
+	circleInfoStartTimeTimeElement.textContent = circleInfo.start_time_str
+	if(circleInfo.start_time_str !== ""){
+		circleInfoStartTimeElement.classList.remove("nodata")
+	} else {
+		circleInfoStartTimeElement.classList.add("nodata")
+	}
+	circleInfoCommentPElement.innerHTML = circleInfo.comment
+	if(circleInfo.comment !== ""){
+		circleInfoCommentElement.classList.remove("nodata")
+	} else {
+		circleInfoCommentElement.classList.add("nodata")
+	}
 	circleInfoPanfletAElement.href = circleInfo.panflet_url
-	if(circleInfo.panflet_url !== "None"){
+	if(circleInfo.panflet_url !== ""){
 		circleInfoPanfletElement.classList.remove("nodata")
 	} else {
 		circleInfoPanfletElement.classList.add("nodata")
 	}
 	circleInfoWebsiteAElement.href = circleInfo.website_url
-	if(circleInfo.panflet_url !== "None"){
+	if(circleInfo.panflet_url !== ""){
 		circleInfoWebsiteElement.classList.remove("nodata")
 	} else {
 		circleInfoWebsiteElement.classList.add("nodata")
+	}
+	circleInfoTwitterAElement.href = "https://twitter.com/" + circleInfo.twitter_sn
+	circleInfoTwitterSnElement.textContent = circleInfo.twitter_sn
+	if(circleInfo.twitter_sn !== ""){
+		circleInfoTwitterElement.classList.remove("nodata")
+	} else {
+		circleInfoTwitterElement.classList.add("nodata")
 	}
 	if(circleEntrySubmitWrapElement){
 		const circleEntryUrl = circleEntryLinkElement.getElementsByTagName("a")[0]
@@ -460,6 +534,12 @@ const refreshCircleInfo = (value=false) => {
 		} else {
 			circleEntrySubmitWrapElement.classList.remove("use_outside_form")
 			circleEntryUrl.href = "#"
+		}
+		const circleEntryElement = document.getElementById("circle-entry")
+		if(!circleInfo.is_using_entry_form && !circleInfo.entry_form_url){
+			circleEntryElement.classList.add("cannot-entry")
+		}else{
+			circleEntryElement.classList.remove("cannot-entry")
 		}
 	}
 }
@@ -486,7 +566,7 @@ const openShowMyQuestions = () => {
 	circleQuestionElement.classList.add("open")
 }
 const toggleShowEnteredCirles = () => {
-	const entryFormElement = document.getElementById("entry-form")
+	const entryFormElement = document.getElementById("entry-form-wrap")
 	if(entryFormElement.classList.contains("open")){
 		entryFormElement.classList.remove("open")
 	}else{
@@ -494,40 +574,115 @@ const toggleShowEnteredCirles = () => {
 	}
 }
 
+const showTutorial = () => {
+	setTimeout(() => {
+		show_notify("ご参加ありがとうございます！", {targetFirst: false, timeout: 10000})
+	}, 1000)
+	setTimeout(() => {
+		show_notify("画面右側にはサークルの簡単な情報があります。<br>また、各サークルへの質問や、<br>各サークルに簡単に入会申し込みすることができます！", {targetFirst: false, timeout: 25000})
+	}, 3000)
+	setTimeout(() => {
+		show_notify("なお、事務課への提出に必要なため、<br>右下の入会フォームの氏名欄には必ず<br>本名をフルネームで入力してください。<br><small>(あなたが入会したサークルの担当者以外に<br>公開することはありませんのでご安心ください。)</small>", {targetFirst: false, timeout: 25000})
+	}, 5000)
+	setTimeout(() => {
+		show_notify("画面左下にはチャットがあります！<br>好きな公開名を登録して<br>チャットでの会話を楽しんでください。<br>ちょっとした会話も大歓迎です！", {targetFirst: false, timeout: 25000})
+	}, 12000)
+	setTimeout(() => {
+		show_notify("もし気になることがございましたら、<br>ぜひ右側の質問フォームから<br>お気軽に質問してください。<br>匿名でも質問できます！", {targetFirst: false, timeout: 25000})
+	}, 14000)
+	setTimeout(() => {
+		show_notify("それでは、短い間ではありますが<br>イベントをお楽しみください！", {targetFirst: false, timeout: 25000})
+	}, 20000)
+}
+
+let initial_play = true
 let is_video_error = false
+let is_video_waiting = false
+let time_out_waiting_notifies = []
+let waiting_notify
 
 const connectVideo = () => {
-	const player = videojs('video', {"autoplay": true});
+	let first_message
+	const player = videojs('video');
 	player.on("error", (err) => {
 		is_video_error = true
-		show_notify("現在配信されていないようです。配信開始までしばらくお待ちください。時間をおいてリロードしてみてください。", {type: "error", timeout: false})
+		show_notify("現在配信されていないようです。配信開始までしばらくお待ちください。<br><small>(配信中のはずなのにこのメッセージが表示される場合は時間をおいて再読込してみてください。)</small>", {type: "error", timeout: false})
 	})
-	player.ready(() => {
-		setTimeout(() => {
-			if(!is_video_error){
-				show_notify("INIAD meets Webへようこそ！再生ボタンを押して参加しましょう！", {timeout: 180000, buttons: [["<button>再生</button>", (instance, toast) => {
-						player.play()
-						instance.hide({
-							transitionOut: 'fadeOutUp',
-							onClosing: function(instance, toast, closedBy){
-								console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
-							}
-						}, toast, 'buttonName');
-					}]]})
+	player.on("waiting", () => {
+		is_video_waiting = true
+		if(!waiting_notify && !is_video_error){
+			time_out_waiting_notifies.push(setTimeout(() => {
+				show_notify("動画サーバーから切断されました…しばらくお待ちください。", {type: "warning", timeout: 17000,
+					onOpening: (instance, toast) => {
+						waiting_notify = toast
+					},
+				})
+			}, 3000))
+			time_out_waiting_notifies.push(setTimeout(() => {
+				is_video_error = true
+				iziToast.hide({}, waiting_notify)
+				show_notify("動画サーバーと再接続できませんでした。<br>現在配信されていないか、サーバーやネットワーク等の問題が起こっている可能性があります。<br>再読込してみてください。", {type: "error", timeout: false,
+					onOpening: (instance, toast) => {
+						waiting_notify = toast
+					},
+				})
+			}, 20000))
+		}
+	})
+	player.on("playing", () => {
+		is_video_waiting = false
+		for(const timeout of time_out_waiting_notifies){
+			clearTimeout(timeout)
+		}
+		if(waiting_notify){
+			try{
+				iziToast.hide({}, waiting_notify)
+			}catch(e){
+
 			}
-		}, 1000)
+			show_notify("動画サーバーと再接続しました", {type: "info"})
+			waiting_notify = null
+		}
+	})
+	player.on("play", (arg) => {
+		if(initial_play){
+			try{
+				iziToast.hide({}, first_message)
+			}catch(e){
+
+			}
+			showTutorial()
+		}
+		initial_play = false
+	})
+	player.on("durationchange", () => {
+		if(!is_video_error){
+			show_notify("INIAD meets Webへようこそ！再生ボタンを押して参加しましょう！", {
+				timeout: 180000,
+				buttons: [["<button>再生</button>", (instance, toast) => {
+					player.play()
+					instance.hide({
+						transitionOut: 'fadeOutUp',
+						onClosing: () => {},
+					}, toast, 'buttonName');
+				}]],
+				onOpening: (instance, toast) => {
+					first_message = toast
+				},
+			})
+		}
 	})
 }
 
+let circleList = {}
+let activeCircleSetTimeOutIds = []
 
-window.onload = () => {
-	connectChat()
-	connectVideo()
-
+const updateStatus = (obj) => {
+	circleList = obj.circle_list
 	const circlesSelectElements = document.getElementsByClassName("circles-select");
 	for(const element of circlesSelectElements){
 		element.addEventListener("change", (event) => {
-			refreshCircleInfo(event.target.value)
+			showCircleInfo(event.target.value)
 		})
 	}
 	const displayNameFormElements = document.getElementsByClassName("display-name-form")
@@ -552,5 +707,35 @@ window.onload = () => {
 			}
 		})
 	}
-	refreshCircleInfo()
+	showCircleInfo()
+	const sideWrapElement = document.getElementById("side-wrap")
+	sideWrapElement.classList.remove("no-circles-info")
+	for(const timeOutID of activeCircleSetTimeOutIds){
+		clearTimeout(timeOutID)
+	}
+	for(const key of Object.keys(circleList)){
+		const circle = circleList[key]
+		const now = new Date().getTime()
+		if(now < circle.start_time_ts){
+			activeCircleSetTimeOutIds.push(setTimeout(() => {
+				showCircleInfo(circle.id)
+			}))
+		}
+	}
+}
+
+const getStatus = () => {
+	fetch("api/status")
+		.then(function (response) {
+			return response.json();
+		})
+		.then(function (json) {
+			updateStatus(json)
+		})
+}
+
+window.onload = () => {
+	getStatus()
+	connectChat()
+	connectVideo()
 }

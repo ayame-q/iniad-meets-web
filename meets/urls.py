@@ -6,6 +6,7 @@ urlpatterns = [
     path('circle_admin/', views.circle_admin_list, name="circle_admin_list"),
     path('circle_admin/<int:pk>', views.circle_admin_page, name="circle_admin_page"),
     path('circle_admin/<int:pk>/entries/csv', views.circle_admin_entry_csv, name="circle_entry_csv"),
+    path('system_admin/', views.system_admin, name="system_admin"),
     path('api/user/name/update', views.api_user_name_update, name="api_username_update"),
     path('api/user/display_name/update', views.api_user_display_name_update, name="api_user_display_name_update"),
     path('api/entry/<int:pk>', views.api_entry, name="api_entry"),
@@ -13,4 +14,5 @@ urlpatterns = [
     path('api/staff_users/add', views.api_staff_users_add, name="staff_users_add"),
     path('api/my_questions', views.api_get_my_questions, name="my_questions"),
     path('api/staff_questions', views.api_get_staff_questions, name="get_questions"),
+    path('api/status', views.api_get_status, name="status"),
 ]

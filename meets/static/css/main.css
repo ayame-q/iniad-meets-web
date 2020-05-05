@@ -85,6 +85,9 @@ input[type=checkbox]:checked::before, select[type=checkbox]:checked::before, tex
   -webkit-transform: rotate(45deg);
   transform: rotate(45deg);
 }
+input:disabled, select:disabled, textarea:disabled {
+  background-color: lightgray;
+}
 @media (max-width: 899px) {
   input, select, textarea {
     width: calc(100% - 30px);
@@ -205,6 +208,9 @@ main #side-wrap {
   padding: 0 15px;
   overflow: scroll;
 }
+main #side-wrap.no-circles-info {
+  opacity: 0;
+}
 main #side-wrap h3 {
   color: #e24863;
   border-left: #e24863 solid 5px;
@@ -216,6 +222,13 @@ main #side-wrap h3 {
   margin: 0.2em 0;
   margin-left: -15px;
 }
+main #side-wrap #circle-info #circle-info-start-time {
+  display: flex;
+  flex-wrap: wrap;
+}
+main #side-wrap #circle-info #circle-info-start-time dd {
+  margin-left: 0.5em;
+}
 main #side-wrap #circle-info #circle-link-wrap {
   display: flex;
 }
@@ -226,7 +239,7 @@ main #side-wrap #circle-info #circle-link-wrap p {
   margin-top: 0;
 }
 main #side-wrap #circle-info .nodata {
-  display: none;
+  display: none !important;
 }
 main #side-wrap #circle-question h4 {
   cursor: pointer;
@@ -282,23 +295,41 @@ main #side-wrap #circle-question #my-questions .question .question-reply .sender
 main #side-wrap #circle-question #my-questions .question .question-reply .sender-circle::before {
   content: "@";
 }
-main #side-wrap #circle-entry #entry-form h4 {
+main #side-wrap #circle-entry #cannot-entry-message {
+  display: none;
+}
+main #side-wrap #circle-entry.cannot-entry #cannot-entry-message {
+  display: block;
+}
+main #side-wrap #circle-entry.cannot-entry #entry-submit-wrap {
+  display: none;
+}
+main #side-wrap #circle-entry #entry-form-wrap #entry-submit-wrap #entry-link {
+  display: none;
+}
+main #side-wrap #circle-entry #entry-form-wrap #entry-submit-wrap.use_outside_form #entry-link {
+  display: block;
+}
+main #side-wrap #circle-entry #entry-form-wrap #entry-submit-wrap.use_outside_form #entry-inside-form {
+  display: none;
+}
+main #side-wrap #circle-entry #entry-form-wrap h4 {
   cursor: pointer;
   color: #10589c;
 }
-main #side-wrap #circle-entry #entry-form h4::before {
+main #side-wrap #circle-entry #entry-form-wrap h4::before {
   content: "▷";
 }
-main #side-wrap #circle-entry #entry-form.open h4::before {
+main #side-wrap #circle-entry #entry-form-wrap.open h4::before {
   content: "▽";
 }
-main #side-wrap #circle-entry #entry-form.open #entered_circles {
+main #side-wrap #circle-entry #entry-form-wrap.open #entered_circles {
   display: block;
 }
-main #side-wrap #circle-entry #entry-form #entered_circles {
+main #side-wrap #circle-entry #entry-form-wrap #entered_circles {
   display: none;
 }
-main #side-wrap #circle-entry #entry-form p#entered_circles {
+main #side-wrap #circle-entry #entry-form-wrap p#entered_circles {
   margin-left: 1em;
 }
 main #side-wrap #circle-entry #name-form {
@@ -307,17 +338,12 @@ main #side-wrap #circle-entry #name-form {
 main #side-wrap #circle-entry.edit-name #name-form {
   display: block;
 }
-main #side-wrap #circle-entry.edit-name #entry-form {
+main #side-wrap #circle-entry.edit-name #entry-form-wrap {
   display: none;
 }
-main #side-wrap #entry-submit-wrap #entry-link {
-  display: none;
-}
-main #side-wrap #entry-submit-wrap.use_outside_form #entry-link {
-  display: block;
-}
-main #side-wrap #entry-submit-wrap.use_outside_form #entry-inside-form {
-  display: none;
+main #side-wrap #circle-entry .bottom-right-link {
+  text-align: right;
+  font-size: 0.8em;
 }
 main #side-wrap #side-wrap-tab {
   text-align: center;
@@ -408,6 +434,13 @@ main #side-wrap:not(.staff-mode) #side-wrap-staff {
   margin-left: -15px;
   margin-right: -5px;
 }
+#circle-admin .twitter_sn_wrap {
+  display: flex;
+  align-items: center;
+}
+#circle-admin .twitter_sn_wrap input {
+  margin-left: 0.2em;
+}
 #circle-admin li {
   display: flex;
   justify-content: space-between;
@@ -422,6 +455,23 @@ main #side-wrap:not(.staff-mode) #side-wrap-staff {
 }
 #circle-admin table a {
   color: black;
+}
+
+#admin {
+  padding-left: 15px;
+  padding-right: 5px;
+}
+#admin h3 {
+  color: #e24863;
+  border-left: #e24863 solid 5px;
+  border-bottom: #e24863 solid 2px;
+  padding-left: 0.5em;
+  font-family: "Baloo Paaji 2", cursive;
+  text-shadow: 2px 2px 2px #d8d9d9;
+  box-shadow: -1px 2px 2px #d8d9d9;
+  margin: 0.2em 0;
+  margin-left: -15px;
+  margin-right: -5px;
 }
 
 /*# sourceMappingURL=main.css.map */

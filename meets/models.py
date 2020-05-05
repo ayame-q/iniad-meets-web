@@ -33,10 +33,13 @@ class Circle(models.Model):
     leader_name = models.CharField(max_length=50, default="", verbose_name="代表者名")
     staff_users = models.ManyToManyField(UserRole, blank=True, related_name="staff_circles")
     admin_users = models.ManyToManyField(UserRole, blank=True, related_name="admin_circles")
+    start_time_sec = models.IntegerField(null=True, blank=True, verbose_name="開始時間(秒)")
     is_using_entry_form = models.BooleanField(default=True, verbose_name="内部エントリーフォームを利用する")
     entry_form_url = models.URLField(null=True, blank=True, verbose_name="エントリーフォームURL")
     panflet_url = models.URLField(null=True, blank=True, verbose_name="サークル資料URL")
     website_url = models.URLField(null=True, blank=True, verbose_name="WebサイトURL")
+    twitter_sn = models.CharField(max_length=15, null=True, blank=True, verbose_name="Twitter ID")
+    comment = models.TextField(blank=True, default="", verbose_name="一言説明")
 
 
 class ChatLog(models.Model):
@@ -53,3 +56,16 @@ class Entry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="entries", verbose_name="ユーザー")
     circle = models.ForeignKey(Circle, on_delete=models.CASCADE, related_name="entries", verbose_name="サークル")
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="登録日")
+
+
+status_choices = (
+    (0, "開始前"),
+    (1, "開催中"),
+    (2, "終了"),
+)
+
+
+class Status(models.Model):
+    status = models.IntegerField(choices=status_choices, default=0, verbose_name="開催状況")
+    started_time = models.DateTimeField(null=True, blank=True, verbose_name="実際のイベント開始日時")
+    planning_start_time = models.DateTimeField(null=True, blank=True, verbose_name="イベント開始予定日時")

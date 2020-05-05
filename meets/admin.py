@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, Circle, UserRole, ChatLog, Entry
+from .models import User, Circle, UserRole, ChatLog, Entry, Status
 
 # Register your models here.
 class UserAdmin(BaseUserAdmin):
@@ -19,3 +19,4 @@ admin.site.register(Circle)
 admin.site.register(UserRole)
 admin.site.register(ChatLog)
 admin.site.register(Entry)
+admin.site.register(Status)
