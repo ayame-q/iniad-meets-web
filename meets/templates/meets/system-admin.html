@@ -53,7 +53,7 @@
 			}
 		}
 		const connectChat = () => {
-			const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/")
+			const chatSocket = new WebSocket("wss://" + window.location.host + "/ws/chat/")
 			const sendNotifyForm = document.getElementById("send-notify");
 			sendNotifyForm.addEventListener("submit", (event) => {
 				const notifyForm = event.target
