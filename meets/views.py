@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import PermissionDenied
-from django.utils import html
-import json, re, csv
-from .models import Entry, Circle, UserRole, ChatLog
+from django.utils import html, timezone
+import json, re, csv, datetime
+from .models import Entry, Circle, UserRole, ChatLog, Status
 
 # Create your views here.
 def pre(request):
@@ -29,6 +29,12 @@ def app(request):
 
     result = {"circles": circles, "my_entries": my_entries, "staff_circles": staff_circles, "has_admin_circle": has_admin_circle, "my_questions": my_questions}
     return render(request, "meets/app.html", result)
+
+
+def is_url(s, allowed_blank=False):
+    if allowed_blank:
+        return not s or bool(re.match("https?://[\w/:%#$&?()~.=+\-]+", str(s)))
+    return bool(re.match("https?://[\w/:%#$&?()~.=+\-]+", str(s)))
 
 
 def circle_admin_list(request):
@@ -59,8 +65,25 @@ def circle_admin_page(request, pk):
     result = {"errors": []}
     if request.method == "POST":
         method = request.POST.get("method")
+        if method == "edit_info":
+            circle.is_using_entry_form = bool(request.POST.get("is_using_entry_form"))
+            circle.entry_form_url = request.POST.get("entry_form_url")
+            print(type(circle.entry_form_url))
+            circle.panflet_url = request.POST.get("panflet_url")
+            circle.website_url = request.POST.get("website_url")
+            circle.twitter_sn = html.escape(request.POST.get("twitter_sn"))
+            circle_comment = html.escape(request.POST.get("circle_comment"))
+            if not(len(circle_comment) <= 120 and len(circle_comment.splitlines()) <= 3):
+                result["errors"].append("一言説明は改行3回以内で、120文字以内でお願いします。")
+            elif not (is_url(circle.entry_form_url, True) and is_url(circle.panflet_url, True) and is_url(circle.website_url, True)):
+                result["errors"].append("URLがおかしいです")
+            elif not circle.is_using_entry_form and not is_url(circle.entry_form_url):
+                result["errors"].append("内部エントリーフォームを利用しない場合は外部フォームへのURLを指定してください")
+            else:
+                circle.save()
+
         if method == "add_admin" or method == "add_staff":
-            add_emails = request.POST.get("add_email").split("\n")
+            add_emails = re.split("\r?\n", request.POST.get("add_email"))
             target_model = None
             if method == "add_admin":
                 target_model = circle.admin_users
@@ -111,6 +134,12 @@ def circle_admin_entry_csv(request, pk):
         writer.writerow([entry.user.student_id, entry.user.name, entry.user.email, "{0:%Y-%m-%d %H:%M:%S}".format(entry.created_at)])
 
     return response
+
+
+def system_admin(request):
+    if request.user.is_superuser:
+        return render(request, "meets/system-admin.html")
+    raise PermissionDenied
 
 
 def api_admin_users_add(request):
@@ -190,6 +219,8 @@ def api_entry(request, pk):
 
     try:
         circle = Circle.objects.get(pk=pk)
+        if not circle.is_using_entry_form:
+            return JsonResponse({"success": False, "error": "そのサークルはエントリーフォームを利用していません"})
         if Entry.objects.filter(user=request.user, circle=circle).count() == 0:
             new_entry = Entry(user=request.user, circle=circle)
             new_entry.save()
@@ -258,3 +289,32 @@ def api_get_staff_questions(request):
             return JsonResponse({"success": False, "error": "サークルのスタッフではありません"})
     else:
         return JsonResponse({"success": False, "error": "学生ではありません"})
+
+
+def get_status():
+    circles = Circle.objects.all()
+    status = Status.objects.get(pk=1)
+    event_start_time = status.planning_start_time if status.status == 0 else status.started_time
+    circle_list = {}
+    for circle in circles:
+        circle_list[circle.id] = {
+            "id": circle.id,
+            "name": circle.name,
+            "is_using_entry_form": circle.is_using_entry_form,
+            "start_time_str": "{0:%H:%M}".format(timezone.localtime(event_start_time + datetime.timedelta(seconds=circle.start_time_sec))) if circle.start_time_sec else None,
+            "start_time_ts": int((event_start_time + datetime.timedelta(seconds=circle.start_time_sec)).timestamp() * 1000) if circle.start_time_sec else None,
+            "entry_form_url": circle.entry_form_url,
+            "panflet_url": circle.panflet_url,
+            "website_url": circle.website_url,
+            "twitter_sn": circle.twitter_sn,
+            "comment": circle.comment,
+        }
+    result = {
+        "status": status.status,
+        "circle_list": circle_list
+    }
+    return result
+
+
+def api_get_status(request):
+    return JsonResponse(get_status())

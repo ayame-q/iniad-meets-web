@@ -1,0 +1,157 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<link href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:wght@600&family=M+PLUS+Rounded+1c:wght@300;400&display=swap" rel="stylesheet">
+	<link href="https://vjs.zencdn.net/7.7.5/video-js.css" rel="stylesheet">
+	<link href="https://unpkg.com/@videojs/themes@1/dist/forest/index.css" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="{% static "/css/main.css" %}">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<meta name="description" content="INIAD 公認サークルの合同Web新歓のページです。">
+	<meta property="og:url" content="https://meets.iniad.net/">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="INIAD meets Web">
+	<meta property="og:description" content="INIAD 公認サークルの合同Web新歓のページです。">
+	<meta property="og:site_name" content="INIAD meets Web">
+	<meta property="og:image" content="https://meets.iniad.net/img/thumbnail.png">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:site" content="@iniad_webmedia">
+	<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+	<script src="{% static "js/iziToast.js" %}"></script>
+	<script>
+		const show_notify = (str, arr={}) => {
+			type = arr.type ? arr.type : "normal"
+			arr.message = str
+			if(!arr.position){
+				arr.position =  'topRight'
+			}
+			if(type === "normal"){
+				if(!arr.color){
+					arr.color = 'blue'
+				}
+				return iziToast.show(arr)
+			}
+			if(type === "info"){
+				if(!arr.color){
+					arr.color = 'green'
+				}
+				return iziToast.info(arr)
+			}
+			if(type === "warning"){
+				if(!arr.color){
+					arr.color = 'yellow'
+				}
+				return iziToast.warning(arr)
+			}
+			if(type === "error"){
+				if(!arr.color){
+					arr.color = 'red'
+				}
+				return iziToast.error(arr)
+			}
+		}
+		const connectChat = () => {
+			const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/")
+			const sendNotifyForm = document.getElementById("send-notify");
+			sendNotifyForm.addEventListener("submit", (event) => {
+				const notifyForm = event.target
+				let timeout = false
+				if(!notifyForm.no_timeout.checked){
+					timeout = notifyForm.timeout.value
+				}
+				chatSocket.send(JSON.stringify({
+					"notify": {
+						"comment": notifyForm.comment.value,
+						"type": notifyForm.type.value,
+						"timeout": timeout,
+						"color": notifyForm.color.value,
+						"with_chat": notifyForm.with_chat.checked
+					}
+				}));
+				notifyForm.comment.value = ""
+			})
+			chatSocket.onclose = function (event) {
+				show_notify("サーバーから切断されました。リロードしてください。", {type: "error", timeout: false})
+			}
+			const sendStartBroadcastButton = document.getElementById("start_broadcast")
+			sendStartBroadcastButton.addEventListener("click", () => {
+				chatSocket.send(JSON.stringify({"start_broadcast": true}));
+			})
+			const sendForceReloadButton = document.getElementById("force_reload")
+			sendForceReloadButton.addEventListener("click", () => {
+				chatSocket.send(JSON.stringify({"force_reload": true}));
+			})
+			const sendstartEventButton = document.getElementById("start_event")
+			sendstartEventButton.addEventListener("click", () => {
+				chatSocket.send(JSON.stringify({"start_event": true}));
+			})
+			const sendupdateStatusButton = document.getElementById("update_status")
+			sendupdateStatusButton.addEventListener("click", () => {
+				chatSocket.send(JSON.stringify({"update_status": true}));
+			})
+		}
+		window.onload = () => {
+			connectChat()
+		}
+	</script>
+	<style>
+		main{
+			padding: 0 10px;
+		}
+	</style>
+	<script src="{% static "js/video.js" %}"></script>
+	<title>管理者モード - INIAD meets Web</title>
+</head>
+<body>
+<header>
+	<h1><a href="/"><img src="{% static "/img/logo.svg" %}" alt="INIAD meets Web"></a></h1>
+</header>
+<main>
+	<section id="admin">
+		<h3>通知を送信</h3>
+		<form id="send-notify" onsubmit="return false;">
+			<dl>
+				<dt><label for="notify-type">種類</label></dt>
+				<dd>
+					<select id="notify-type" name="type">
+						<option value="normal">通常</option>
+						<option value="info">情報</option>
+						<option value="warning">警告</option>
+						<option value="error">エラー</option>
+					</select>
+				</dd>
+				<dt><label for="notify-color">背景色</label></dt>
+				<dd>
+					<select id="notify-color" name="color">
+						<option value="blue">青</option>
+						<option value="red">赤</option>
+						<option value="yellow">黄</option>
+						<option value="green">緑</option>
+					</select>
+				</dd>
+				<dt><label for="notify-timeout">表示時間(ミリ秒)</label></dt>
+				<dd><input type="number" id="notify-timeout" name="timeout" value="5000"></dd>
+			</dl>
+			<p style="display: flex; align-items: center;">
+				<input type="checkbox" id="notify-no_timeout" name="no_timeout"><label for="notify-no_timeout">自動で閉じない</label>
+			</p>
+			<dl>
+				<dt><label for="notify-comment">本文</label></dt>
+				<dd><textarea name="comment" id="notify-comment" required></textarea></dd>
+			</dl>
+			<p style="display: flex; align-items: center;">
+				<input type="checkbox" id="notify-with_chat" name="with_chat"><label for="notify-with_chat">チャットにも投稿する</label>
+			</p>
+			<p><input type="submit"></p>
+		</form>
+		<h3>Pingを送信</h3>
+		<input type="button" value="配信開始通知" id="start_broadcast">
+		<input type="button" value="イベント開始" id="start_event">
+		<input type="button" value="サークル情報更新" id="update_status">
+		<input type="button" value="強制リロード" id="force_reload">
+	</section>
+</main>
+</body>
+</html>
