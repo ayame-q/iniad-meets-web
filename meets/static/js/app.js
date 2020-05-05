@@ -720,7 +720,7 @@ const updateStatus = (obj) => {
 		if(circle.start_time_ts && now < circle.start_time_ts){
 			activeCircleSetTimeOutIds.push(setTimeout(() => {
 				showCircleInfo(circle.id)
-			}, now - circle.start_time_ts))
+			}, circle.start_time_ts - now))
 		}
 	}
 }
