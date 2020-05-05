@@ -496,32 +496,32 @@ const showCircleInfo = (value=false) => {
 	const circleEntrySubmitWrapElement = document.getElementById("entry-submit-wrap")
 	const circleEntryLinkElement = document.getElementById("entry-link")
 	circleInfoStartTimeTimeElement.textContent = circleInfo.start_time_str
-	if(circleInfo.start_time_str !== ""){
+	if(circleInfo.start_time_str){
 		circleInfoStartTimeElement.classList.remove("nodata")
 	} else {
 		circleInfoStartTimeElement.classList.add("nodata")
 	}
 	circleInfoCommentPElement.innerHTML = circleInfo.comment
-	if(circleInfo.comment !== ""){
+	if(circleInfo.comment){
 		circleInfoCommentElement.classList.remove("nodata")
 	} else {
 		circleInfoCommentElement.classList.add("nodata")
 	}
 	circleInfoPanfletAElement.href = circleInfo.panflet_url
-	if(circleInfo.panflet_url !== ""){
+	if(circleInfo.panflet_url){
 		circleInfoPanfletElement.classList.remove("nodata")
 	} else {
 		circleInfoPanfletElement.classList.add("nodata")
 	}
 	circleInfoWebsiteAElement.href = circleInfo.website_url
-	if(circleInfo.panflet_url !== ""){
+	if(circleInfo.panflet_url){
 		circleInfoWebsiteElement.classList.remove("nodata")
 	} else {
 		circleInfoWebsiteElement.classList.add("nodata")
 	}
 	circleInfoTwitterAElement.href = "https://twitter.com/" + circleInfo.twitter_sn
 	circleInfoTwitterSnElement.textContent = circleInfo.twitter_sn
-	if(circleInfo.twitter_sn !== ""){
+	if(circleInfo.twitter_sn){
 		circleInfoTwitterElement.classList.remove("nodata")
 	} else {
 		circleInfoTwitterElement.classList.add("nodata")
