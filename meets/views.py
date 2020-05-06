@@ -17,7 +17,7 @@ def app(request):
     my_questions = ChatLog.objects.filter(send_user=request.user, receiver_circle__isnull=False).order_by("id")
 
     if request.user.role:
-        staff_circles = Circle.objects.filter(staff_users=request.user.role)
+        staff_circles = Circle.objects.filter(staff_users=request.user.role).order_by("id")
     else:
         staff_circles = None
 
