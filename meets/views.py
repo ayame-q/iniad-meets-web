@@ -5,12 +5,11 @@ from django.utils import html, timezone
 import json, re, csv, datetime
 from .models import Entry, Circle, UserRole, ChatLog, Status
 
+
 # Create your views here.
-def pre(request):
-    return render(request, "meets/pre.html")
-
-
 def app(request):
+    if datetime.datetime.now() < datetime.datetime.fromtimestamp(1588761000):
+        return render(request, "meets/pre.html")
     if not request.user.is_authenticated:
         return render(request, "meets/top.html")
     circles = Circle.objects.order_by("id")
@@ -38,6 +37,8 @@ def is_url(s, allowed_blank=False):
 
 
 def circle_admin_list(request):
+    if not request.user.is_authenticated:
+        return redirect("/auth/google/login/?next=/circle_admin")
     if request.user.is_superuser:
         admin_circles = Circle.objects.all()
     elif request.user.role.admin_circles.count():
