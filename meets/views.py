@@ -80,6 +80,7 @@ def circle_admin_page(request, pk):
             elif not circle.is_using_entry_form and not is_url(circle.entry_form_url):
                 result["errors"].append("内部エントリーフォームを利用しない場合は外部フォームへのURLを指定してください")
             else:
+                circle.comment = circle_comment
                 circle.save()
 
         if method == "add_admin" or method == "add_staff":
