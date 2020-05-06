@@ -68,7 +68,6 @@ def circle_admin_page(request, pk):
         if method == "edit_info":
             circle.is_using_entry_form = bool(request.POST.get("is_using_entry_form"))
             circle.entry_form_url = request.POST.get("entry_form_url")
-            print(type(circle.entry_form_url))
             circle.panflet_url = request.POST.get("panflet_url")
             circle.website_url = request.POST.get("website_url")
             circle.twitter_sn = html.escape(request.POST.get("twitter_sn"))

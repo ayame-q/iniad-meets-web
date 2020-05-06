@@ -11,7 +11,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.user = self.scope["user"]
         self.room_group_name = "main"
         if self.user.is_authenticated:
-            print("Connected", self.user)
             await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name
@@ -87,7 +86,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             type = notify.get("type")
             color = notify.get("color")
             with_chat = bool(notify["with_chat"])
-            print(with_chat)
             try:
                 timeout = int(notify["timeout"])
             except ValueError:
