@@ -90,9 +90,7 @@ input:disabled, select:disabled, textarea:disabled {
 }
 @media (max-width: 899px) {
   input, select, textarea {
-    width: calc(100% - 30px);
-    margin-left: 10px;
-    margin-right: 20px;
+    width: 100%;
   }
 }
 
@@ -124,11 +122,15 @@ header h1 img {
 }
 
 main {
-  display: flex;
   width: 100vw;
-  height: calc(100% - 60px);
   justify-content: stretch;
   align-items: stretch;
+}
+@media (min-width: 900px) {
+  main {
+    display: flex;
+    height: calc(100% - 60px);
+  }
 }
 main #main-wrap {
   flex-shrink: 1;
@@ -141,8 +143,12 @@ main #main-wrap {
 }
 main #main-wrap #video-wrap {
   flex-shrink: 0;
-  padding: 0 10px;
   flex-basis: fit-content;
+}
+@media (min-width: 900px) {
+  main #main-wrap #video-wrap {
+    padding: 0 10px;
+  }
 }
 main #main-wrap #chat-wrap {
   min-height: 0;
@@ -156,6 +162,17 @@ main #main-wrap #chat-wrap {
 main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap {
   display: flex;
   align-items: center;
+}
+@media (max-width: 899px) {
+  main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap {
+    flex-wrap: wrap;
+  }
+  main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap input[type=text] {
+    width: 100% !important;
+  }
+  main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap input[type=submit], main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap input[type=button] {
+    width: 50% !important;
+  }
 }
 main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap input {
   margin: 0;
@@ -210,6 +227,11 @@ main #side-wrap {
 }
 main #side-wrap.no-circles-info {
   opacity: 0;
+}
+@media (max-width: 899px) {
+  main #side-wrap {
+    padding-left: 30px;
+  }
 }
 main #side-wrap h3 {
   color: #e24863;
@@ -347,16 +369,17 @@ main #side-wrap #circle-entry .bottom-right-link {
 }
 main #side-wrap #side-wrap-tab {
   text-align: center;
+  margin-left: -15px;
 }
 main #side-wrap #side-wrap-tab ul {
   display: flex;
   list-style: none;
   padding: 0;
-  margin-left: -15px;
 }
 main #side-wrap #side-wrap-tab ul li {
   flex-grow: 1;
   flex-shrink: 1;
+  flex-basis: 50vw;
   color: #e24863;
   padding: 10px;
   display: block;
@@ -416,6 +439,54 @@ main #side-wrap:not(.staff-mode) #side-wrap-user {
 }
 main #side-wrap:not(.staff-mode) #side-wrap-staff {
   display: none;
+}
+@media (max-width: 899px) {
+  main #mobile-tab {
+    text-align: center;
+  }
+  main #mobile-tab ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin-left: -15px;
+  }
+  main #mobile-tab ul li {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 50%;
+    color: #e24863;
+    padding: 10px;
+    display: block;
+    border-bottom: #e24863 solid 2px;
+    cursor: pointer;
+  }
+  main.chat-mode #mobile-tab #chat-tab {
+    background-color: #e24863;
+    color: white;
+    cursor: default;
+  }
+  main.chat-mode #side-wrap {
+    display: none !important;
+  }
+  main.chat-mode #chat-wrap {
+    display: flex !important;
+  }
+  main:not(.chat-mode) #mobile-tab #info-tab {
+    background-color: #e24863;
+    color: white;
+    cursor: default;
+  }
+  main:not(.chat-mode) #side-wrap {
+    display: block !important;
+  }
+  main:not(.chat-mode) #chat-wrap {
+    display: none !important;
+  }
+}
+@media (min-width: 900px) {
+  main #mobile-tab {
+    display: none;
+  }
 }
 
 #circle-admin #circle-config {

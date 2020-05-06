@@ -195,13 +195,12 @@ const connectChat = () => {
 					layout: 2,
 					buttons: [["<button>開く</button>", (instance, toast) => {
 						openShowMyQuestions()
+						mobileTab("info")
 						staffMode(false)
 						document.getElementById(`myquestion-${message.parent_pk}`).scrollIntoView({behavior: "smooth"})
 						instance.hide({
 							transitionOut: 'fadeOutUp',
-							onClosing: function(instance, toast, closedBy){
-								console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
-							}
+							onClosing: () => {}
 						}, toast, 'buttonName');
 					}]]
 				})
@@ -216,13 +215,12 @@ const connectChat = () => {
 					timeout: false,
 					layout: 2,
 					buttons: [["<button>開く</button>", (instance, toast) => {
+						mobileTab("info")
 						staffMode(true);
 						document.getElementById(`staffquestion-${message.id}`).scrollIntoView({behavior: "smooth"})
 						instance.hide({
 							transitionOut: 'fadeOutUp',
-							onClosing: function(instance, toast, closedBy){
-								console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
-							}
+							onClosing: () => {}
 						}, toast, 'buttonName');
 					}]]
 				})
@@ -231,7 +229,6 @@ const connectChat = () => {
 
 		if(data["notify"]){
 			const notify = JSON.parse(data["notify"])
-			console.log(notify)
 			show_notify(notify.comment, {type: notify.type, timeout: notify.timeout, color: notify.color})
 		}
 
@@ -243,7 +240,6 @@ const connectChat = () => {
 
 		if(data["status"]){
 			const status = JSON.parse(data["status"])
-			console.log(status)
 			updateStatus(status)
 		}
 
@@ -302,7 +298,6 @@ const connectChat = () => {
 	const chatLogWrapElement = document.getElementById("chat-log-wrap")
 	chatLogWrapElement.addEventListener("scroll", () => {
 		if(chatLogWrapElement.scrollHeight - chatLogWrapElement.scrollTop === chatLogWrapElement.clientHeight){
-			console.log(yongest_log_id)
 			chatSocket.send(JSON.stringify({"get_old": yongest_log_id}))
 		}
 	})
@@ -550,6 +545,14 @@ const staffMode = (bool) => {
 		sideWrapElement.classList.add("staff-mode")
 	} else {
 		sideWrapElement.classList.remove("staff-mode")
+	}
+}
+const mobileTab = (mode) => {
+	const sideWrapElement = document.querySelector("main")
+	if(mode === "chat") {
+		sideWrapElement.classList.add("chat-mode")
+	} else {
+		sideWrapElement.classList.remove("chat-mode")
 	}
 }
 
