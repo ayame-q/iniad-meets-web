@@ -40,7 +40,7 @@ def circle_admin_list(request):
     if not request.user.is_authenticated:
         return redirect("/auth/google/login/?next=/circle_admin")
     if request.user.is_superuser:
-        admin_circles = Circle.objects.all()
+        admin_circles = Circle.objects.order_by("id")
     elif request.user.role.admin_circles.count():
         admin_circles = request.user.role.admin_circles.all()
     else:
@@ -54,7 +54,7 @@ def circle_admin_list(request):
 
 def circle_admin_page(request, pk):
     if request.user.is_superuser:
-        admin_circles = Circle.objects.all()
+        admin_circles = Circle.objects.order_by("id")
     elif request.user.role.admin_circles.count():
         admin_circles = request.user.role.admin_circles.all()
     else:
