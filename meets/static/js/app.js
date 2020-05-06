@@ -497,7 +497,7 @@ const showCircleInfo = (value=false) => {
 	} else {
 		circleInfoStartTimeElement.classList.add("nodata")
 	}
-	circleInfoCommentPElement.innerHTML = circleInfo.comment
+	circleInfoCommentPElement.innerHTML = circleInfo.comment.replace(/\r?\n/g, "<br>")
 	if(circleInfo.comment){
 		circleInfoCommentElement.classList.remove("nodata")
 	} else {
