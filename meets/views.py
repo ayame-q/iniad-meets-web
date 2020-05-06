@@ -8,7 +8,7 @@ from .models import Entry, Circle, UserRole, ChatLog, Status
 
 # Create your views here.
 def app(request):
-    if datetime.datetime.now() < datetime.datetime.fromtimestamp(1588761000):
+    if datetime.datetime.now() < datetime.datetime.fromtimestamp(1588761000) and request.user.is_authenticated and not request.user.is_superuser:
         return render(request, "meets/pre.html")
     if not request.user.is_authenticated:
         return render(request, "meets/top.html")
