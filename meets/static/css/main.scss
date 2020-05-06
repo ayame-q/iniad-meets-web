@@ -104,9 +104,7 @@ input, select, textarea{
 		background-color: lightgray;
 	}
 	@include media(small){
-		width: calc(100% - 30px);
-		margin-left: 10px;
-		margin-right: 20px;
+		width: 100%;
 	}
 }
 .checkbox{
@@ -143,10 +141,14 @@ header{
 	}
 }
 
+
+
 main{
-	display: flex;
+	@include media(large){
+		display: flex;
+		height: calc(100% - 60px);
+	}
 	width: 100vw;
-	height: calc(100% - 60px);
 	justify-content: stretch;
 	align-items: stretch;
 	#main-wrap{
@@ -159,7 +161,9 @@ main{
 		height: 100%;
 		#video-wrap{
 			flex-shrink: 0;
-			padding: 0 10px;
+			@include media(large){
+				padding: 0 10px;
+			}
 			flex-basis: fit-content;
 		}
 		#chat-wrap{
@@ -174,6 +178,17 @@ main{
 				.chat-forms-wrap{
 					display: flex;
 					align-items: center;
+					@include media(small){
+						flex-wrap: wrap;
+						input{
+							&[type=text]{
+								width: 100% !important;
+							}
+							&[type=submit], &[type=button]{
+								width: 50% !important;
+							}
+						}
+					}
 					input{
 						margin: 0;
 						display: inline-block;
@@ -237,6 +252,9 @@ main{
 		flex-grow: 2;
 		flex-basis: 300px;
 		padding: 0 15px;
+		@include media(small){
+			padding-left: 30px;
+		}
 		overflow: scroll;
 		h3{
 			color: #e24863;
@@ -400,14 +418,15 @@ main{
 
 		#side-wrap-tab{
 			text-align: center;
+			margin-left: -15px;
 			ul{
 				display: flex;
 				list-style: none;
 				padding: 0;
-				margin-left: -15px;
 				li{
 					flex-grow: 1;
 					flex-shrink: 1;
+					flex-basis: 50vw;
 					color: #e24863;
 					padding: 10px;
 					display: block;
@@ -491,6 +510,67 @@ main{
 			}
 		}
 	}
+
+
+	@include media(small){
+
+		#mobile-tab{
+			text-align: center;
+			ul{
+				display: flex;
+				list-style: none;
+				padding: 0;
+				margin-left: -15px;
+				li{
+					flex-grow: 1;
+					flex-shrink: 1;
+					flex-basis: 50%;
+					color: #e24863;
+					padding: 10px;
+					display: block;
+					border-bottom: #e24863 solid 2px;
+					cursor: pointer;
+				}
+			}
+		}
+
+		&.chat-mode{
+			#mobile-tab{
+				#chat-tab{
+					background-color: #e24863;
+					color: white;
+					cursor: default;
+				}
+			}
+			#side-wrap{
+				display: none !important;
+			}
+			#chat-wrap{
+				display: flex !important;
+			}
+		}
+		&:not(.chat-mode){
+			#mobile-tab{
+				#info-tab{
+					background-color: #e24863;
+					color: white;
+					cursor: default;
+				}
+			}
+			#side-wrap{
+				display: block !important;
+			}
+			#chat-wrap{
+				display: none !important;
+			}
+		}
+	}
+	@include media(large){
+		#mobile-tab{
+			display: none;
+		}
+	}
+
 }
 
 #circle-admin{
