@@ -509,7 +509,7 @@ const showCircleInfo = (value=false) => {
 		circleInfoPanfletElement.classList.add("nodata")
 	}
 	circleInfoWebsiteAElement.href = circleInfo.website_url
-	if(circleInfo.panflet_url){
+	if(circleInfo.website_url){
 		circleInfoWebsiteElement.classList.remove("nodata")
 	} else {
 		circleInfoWebsiteElement.classList.add("nodata")
