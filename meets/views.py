@@ -13,8 +13,8 @@ def app(request):
     if not request.user.is_authenticated:
         return render(request, "meets/top.html")
     circles = Circle.objects.order_by("id")
-    my_entries = Entry.objects.filter(user=request.user)
-    my_questions = ChatLog.objects.filter(send_user=request.user, receiver_circle__isnull=False)
+    my_entries = Entry.objects.filter(user=request.user).order_by("id")
+    my_questions = ChatLog.objects.filter(send_user=request.user, receiver_circle__isnull=False).order_by("id")
 
     if request.user.role:
         staff_circles = Circle.objects.filter(staff_users=request.user.role)
