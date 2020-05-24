@@ -146,7 +146,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "sender_circle_pk": log.sender_circle.pk if log.sender_circle else None,
                     "sender_circle_name": log.sender_circle.name if log.sender_circle else None,
                     "is_anonymous": log.is_anonymous,
-                    "created_at": "{0:%Y-%m-%d %H:%M:%S}".format(log.created_at),
+                    "created_at": "{0:%Y-%m-%d %H:%M:%S}".format(timezone.localtime(log.created_at)),
                     "parent_pk": log.parent.pk if log.parent else None,
                     "parent_user_name": (log.parent.send_user.display_name if not log.parent.is_anonymous else "匿名") if log.parent else None,
                     "parent_comment": log.parent.comment if log.parent else None,
