@@ -654,7 +654,6 @@ const connectVideo = () => {
 			}catch(e){
 
 			}
-			showTutorial()
 		}
 		initial_play = false
 	})
