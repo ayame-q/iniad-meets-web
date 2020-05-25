@@ -629,7 +629,6 @@ const setCircleSetTimeOut = (time) => {
 const connectVideo = () => {
 	let first_message
 	const player = videojs('video');
-	player.load()
 	player.on("error", (err) => {
 		is_video_error = true
 		show_notify("動画の取得に失敗しました。<br><small>サーバーへの負荷が集中したなどの原因により障害が起こっている可能性があります。<br>申し訳ありませんが時間をおいて再読み込みしてみてください。</small>", {type: "error", timeout: false})
