@@ -40,7 +40,7 @@ let yongest_log_id = -1;
 
 const connectChat = () => {
 	connect_count_websocket_server++
-	const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/")
+	const chatSocket = new WebSocket("wss://" + window.location.host + "/ws/chat/")
 	const add_chat_log = (message, add_front=false) => {
 		if(yongest_log_id < 0 || yongest_log_id > message.id){
 			yongest_log_id = message.id
