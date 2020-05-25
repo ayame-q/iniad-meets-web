@@ -614,7 +614,7 @@ const setCircleSetTimeOut = (time) => {
 	let currentCircle = null
 	for(const key of Object.keys(circleList)){
 		const circle = circleList[key]
-		if(currentCircle === null || time > circle.video_time_sec && currentCircle.video_time_sec < circle.video_time_sec){
+		if(currentCircle === null || time >= circle.video_time_sec && currentCircle.video_time_sec <= circle.video_time_sec){
 			currentCircle = circle
 		}
 		if(circle.start_time_ts && time < circle.video_time_sec){
