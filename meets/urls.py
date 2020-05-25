@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('', views.app, name="top"),
+    path('after', views.after, name="after"),
     path('circle_admin/', views.circle_admin_list, name="circle_admin_list"),
     path('circle_admin/<int:pk>', views.circle_admin_page, name="circle_admin_page"),
     path('circle_admin/<int:pk>/entries/csv', views.circle_admin_entry_csv, name="circle_entry_csv"),

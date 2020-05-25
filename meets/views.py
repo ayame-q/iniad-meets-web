@@ -29,6 +29,28 @@ def app(request):
     result = {"circles": circles, "my_entries": my_entries, "staff_circles": staff_circles, "has_admin_circle": has_admin_circle, "my_questions": my_questions}
     return render(request, "meets/app.html", result)
 
+def after(request):
+    if datetime.datetime.now() < datetime.datetime.fromtimestamp(1590397200) and not request.user.is_superuser:
+        return render(request, "meets/pre.html")
+    if not request.user.is_authenticated:
+        return render(request, "meets/top.html")
+    circles = Circle.objects.order_by("id")
+    my_entries = Entry.objects.filter(user=request.user).order_by("id")
+    my_questions = ChatLog.objects.filter(send_user=request.user, receiver_circle__isnull=False).order_by("id")
+
+    if request.user.role:
+        staff_circles = Circle.objects.filter(staff_users=request.user.role).order_by("id")
+    else:
+        staff_circles = None
+
+    if request.user.is_superuser or request.user.role.admin_circles.count():
+        has_admin_circle = True
+    else:
+        has_admin_circle = False
+
+    result = {"circles": circles, "my_entries": my_entries, "staff_circles": staff_circles, "has_admin_circle": has_admin_circle, "my_questions": my_questions}
+    return render(request, "meets/after.html", result)
+
 
 def is_url(s, allowed_blank=False):
     if allowed_blank:
@@ -304,6 +326,7 @@ def get_status():
             "is_using_entry_form": circle.is_using_entry_form,
             "start_time_str": "{0:%H:%M}".format(timezone.localtime(event_start_time + datetime.timedelta(seconds=circle.start_time_sec))) if circle.start_time_sec else None,
             "start_time_ts": int((event_start_time + datetime.timedelta(seconds=circle.start_time_sec)).timestamp() * 1000) if circle.start_time_sec else None,
+            "video_time_sec": circle.start_time_sec if circle.start_time_sec else None,
             "entry_form_url": circle.entry_form_url,
             "panflet_url": circle.panflet_url,
             "website_url": circle.website_url,
