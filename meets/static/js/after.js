@@ -244,9 +244,10 @@ const connectChat = () => {
 		}
 
 		if(data["force_reload"]){
-			window.location.reload()
+			setTimeout(() => {
+				window.location.reload()
+			},  Math.random() * 60000)
 		}
-
 	}
 	chatSocket.onclose = function (event) {
 		chatSendFormElement.removeEventListener("submit", sendComment)
@@ -627,7 +628,8 @@ const setCircleSetTimeOut = (time) => {
 
 const connectVideo = () => {
 	let first_message
-	const player = videojs('video', {preload: "auto"});
+	const player = videojs('video');
+	player.load()
 	player.on("error", (err) => {
 		is_video_error = true
 		show_notify("動画の取得に失敗しました。<br><small>サーバーへの負荷が集中したなどの原因により障害が起こっている可能性があります。<br>申し訳ありませんが時間をおいて再読み込みしてみてください。</small>", {type: "error", timeout: false})
@@ -660,8 +662,8 @@ const connectVideo = () => {
 					player.play()
 				}
 			})
-			show_notify("INIAD meets Webへようこそ！再生ボタンを押して参加しましょう！", {
-				timeout: 180000,
+			show_notify("INIAD meets Webへようこそ！再生ボタンを押してアーカイブ動画を見ることができます。", {
+				timeout: false,
 				buttons: [["<button>再生</button>", (instance, toast) => {
 					player.play()
 					instance.hide({
@@ -672,6 +674,10 @@ const connectVideo = () => {
 				onOpening: (instance, toast) => {
 					first_message = toast
 				},
+			})
+			show_notify("Webメディア研究会では、<br>近日中に<a href='https://iniad-wm.com/' target='_blank'>iniad-wm.com</a>にて<br>学内Web新聞を創刊予定です。<br>サークル、授業、イベント、近くのお店、などなど…<br>学生生活に役立つ情報を発信していきます。<br>ご期待ください！", {
+				timeout: 300000,
+				targetFirst: false
 			})
 		}
 	})
