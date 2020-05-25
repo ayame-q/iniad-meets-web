@@ -7,7 +7,7 @@
 	<link href="https://vjs.zencdn.net/7.7.5/video-js.css" rel="stylesheet">
 	<link href="https://unpkg.com/@videojs/themes@1/dist/forest/index.css" rel="stylesheet">
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" rel="stylesheet">
-	<link rel="stylesheet" href="{% static "/css/main.css" %}?1">
+	<link rel="stylesheet" href="{% static "/css/main.css" %}?2">
 	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
 	<meta name="description" content="INIAD 公認サークルの合同Web新歓のページです。">
 	<meta property="og:url" content="https://meets.iniad.net/">
@@ -24,7 +24,7 @@
 	<script>
 		const staffCircleIdList = [{% for circle in staff_circles %}{{ circle.id }},{% endfor %}]
 	</script>
-	<script src="{% static "js/app.js" %}?1"></script>
+	<script src="{% static "js/app.js" %}?2"></script>
 	<!-- Global site tag (gtag.js) - Google Analytics -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-163289416-1"></script>
 	<script>
@@ -43,7 +43,7 @@
 <main{% if not user.is_display_name_initialized %} class="edit-display-name"{% endif %}>
 	<div id="main-wrap">
 		<section id="video-wrap">
-			<video class="video-js vjs-theme-forest vjs-16-9" id="video" controls>
+			<video class="video-js vjs-theme-forest vjs-16-9" id="video" controls playsinline preload="none">
 				<source src="https://stream.ayame-cloud.com/live/meets.m3u8" type="application/x-mpegURL">
 			</video>
 		</section>

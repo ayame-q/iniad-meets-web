@@ -245,7 +245,21 @@ const connectChat = () => {
 		}
 
 		if(data["force_reload"]){
-			window.location.reload()
+			setTimeout(() => {
+				window.location.reload()
+			},  Math.random() * 60000)
+		}
+
+		if(data["end_event"]){
+			setTimeout(() => {
+				show_notify("本放送は終了いたしました。ご参加いただきありがとうございました。<br>なお、ただいまアーカイブ動画を公開いたしました。リロードいただくとご覧いただくことができます。", {
+					timeout: false,
+				})
+				show_notify("Webメディア研究会では、<br>近日中に<a href='https://iniad-wm.com/' target='_blank'>iniad-wm.com</a>にて<br>学内Web新聞を創刊予定です。<br>サークル、授業、イベント、近くのお店、などなど…<br>学生生活に役立つ情報を発信していきます。<br>ご期待ください！", {
+					timeout: false,
+					targetFirst: false
+				})
+			}, Math.random() * 180000)
 		}
 
 	}
@@ -607,7 +621,8 @@ let waiting_notify
 
 const connectVideo = () => {
 	let first_message
-	const player = videojs('video');
+	const player = videojs('video')
+	player.load()
 	player.on("error", (err) => {
 		is_video_error = true
 		show_notify("現在配信されていないようです。配信開始までしばらくお待ちください。<br><small>(配信中のはずなのにこのメッセージが表示される場合は時間をおいて再読込してみてください。)</small>", {type: "error", timeout: false})
@@ -661,7 +676,7 @@ const connectVideo = () => {
 	player.on("durationchange", () => {
 		if(!is_video_error){
 			show_notify("INIAD meets Webへようこそ！再生ボタンを押して参加しましょう！", {
-				timeout: 180000,
+				timeout: false,
 				buttons: [["<button>再生</button>", (instance, toast) => {
 					player.play()
 					instance.hide({
@@ -738,7 +753,7 @@ const getStatus = () => {
 }
 
 window.onload = () => {
-	getStatus()
-	connectChat()
-	connectVideo()
+	setTimeout(getStatus)
+	setTimeout(connectChat)
+	setTimeout(connectVideo)
 }

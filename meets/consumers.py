@@ -78,6 +78,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     }
                 )
 
+        elif text_data_json.get("end_event"):
+            if self.user.is_superuser:
+                status = Status.objects.get(pk=1)
+                status.status = 2
+                status.save()
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        "type": "end_event"
+                    }
+                )
+
         elif text_data_json.get("notify") and text_data_json.get("notify").get("comment"):
             notify = text_data_json["notify"]
             comment = html.escape(notify["comment"])
@@ -189,6 +201,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def force_reload(self, *args):
         await self.send(text_data=json.dumps({"force_reload": True}))
+
+    async def end_event(self, *args):
+        await self.send(text_data=json.dumps({"end_event": True}))
 
 
     async def send_connect_messages(self):

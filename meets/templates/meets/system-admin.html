@@ -83,13 +83,17 @@
 			sendForceReloadButton.addEventListener("click", () => {
 				chatSocket.send(JSON.stringify({"force_reload": true}));
 			})
-			const sendstartEventButton = document.getElementById("start_event")
-			sendstartEventButton.addEventListener("click", () => {
+			const sendStartEventButton = document.getElementById("start_event")
+			sendStartEventButton.addEventListener("click", () => {
 				chatSocket.send(JSON.stringify({"start_event": true}));
 			})
-			const sendupdateStatusButton = document.getElementById("update_status")
-			sendupdateStatusButton.addEventListener("click", () => {
+			const sendUpdateStatusButton = document.getElementById("update_status")
+			sendUpdateStatusButton.addEventListener("click", () => {
 				chatSocket.send(JSON.stringify({"update_status": true}));
+			})
+			const sendEndEventButton = document.getElementById("end_event")
+			sendEndEventButton.addEventListener("click", () => {
+				chatSocket.send(JSON.stringify({"end_event": true}));
 			})
 		}
 		window.onload = () => {
@@ -158,6 +162,7 @@
 		<input type="button" value="配信開始通知" id="start_broadcast">
 		<input type="button" value="イベント開始" id="start_event">
 		<input type="button" value="サークル情報更新" id="update_status">
+		<input type="button" value="イベント終了" id="end_event">
 		<input type="button" value="強制リロード" id="force_reload">
 	</section>
 </main>
