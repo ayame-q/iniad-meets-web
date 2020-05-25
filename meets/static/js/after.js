@@ -646,6 +646,10 @@ const connectVideo = () => {
 		setCircleSetTimeOut(player.currentTime())
 		is_video_playing = true;
 	})
+	player.on("seeked", (arg) => {
+		setCircleSetTimeOut(player.currentTime())
+		is_video_playing = true;
+	})
 	player.on("pause", (arg) => {
 		clearCircleSetTimeOut()
 		is_video_playing = false
