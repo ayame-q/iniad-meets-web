@@ -622,7 +622,6 @@ let waiting_notify
 const connectVideo = () => {
 	let first_message
 	const player = videojs('video')
-	player.load()
 	player.on("error", (err) => {
 		is_video_error = true
 		show_notify("現在配信されていないようです。配信開始までしばらくお待ちください。<br><small>(配信中のはずなのにこのメッセージが表示される場合は時間をおいて再読込してみてください。)</small>", {type: "error", timeout: false})
