@@ -21,7 +21,7 @@ def app(request):
     else:
         staff_circles = None
 
-    if request.user.is_superuser or request.user.role.admin_circles.count():
+    if request.user.is_superuser or request.user.role and request.user.role.admin_circles.count():
         has_admin_circle = True
     else:
         has_admin_circle = False
