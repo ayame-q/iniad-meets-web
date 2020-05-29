@@ -49,10 +49,10 @@ const connectChat = () => {
 		const dtElement = document.createElement("dt")
 		dtElement.innerHTML = `<span class="user" title="${message.send_user.class ? message.send_user.class + "期生" : "その他" }">${message.send_user.display_name}</span>`
 		if(message.sender_circle_name){
-			dtElement.innerHTML += `<span class='sender-circle' onclick='showCircleInfo(${message.sender_circle_pk})'>${message.sender_circle_name}</span>`
+			dtElement.innerHTML += `<span class='sender-circle' onclick='showCircleInfo(${message.sender_circle_pk}); mobileTab("info")'>${message.sender_circle_name}</span>`
 		}
 		if(message.receiver_circle_name){
-			dtElement.innerHTML += `<span class='receiver' onclick='showCircleInfo(${message.receiver_circle_pk})'>${message.receiver_circle_name}</span>`
+			dtElement.innerHTML += `<span class='receiver' onclick='showCircleInfo(${message.receiver_circle_pk}); mobileTab("info")'>${message.receiver_circle_name}</span>`
 		} else if (message.parent_user_name) {
 			dtElement.innerHTML += `<span class='receiver' title="${message.parent_comment}">${message.parent_user_name}</span>`
 		}
