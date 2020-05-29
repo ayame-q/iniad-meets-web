@@ -1,14 +1,22 @@
 @mixin media($a: false, $b: false, $c: false){
 	$value: large;
 	@if($a == $value or $b == $value or $c == $value){
-		@media (min-width: 900px) {
+		@media (min-width: 481px) {
 			@content;
 		}
 	}
 
 	$value: small;
 	@if($a == $value or $b == $value or $c == $value){
-		@media (max-width: 899px) {
+		@media (max-width: 480px) {
+			@content;
+		}
+	}
+
+
+	$value: medium;
+	@if($a == $value or $b == $value or $c == $value){
+		@media (min-width: 481px) and (max-width: 800px) {
 			@content;
 		}
 	}
@@ -132,11 +140,25 @@ header{
 	padding: 0 15px;
 	width: 100%;
 	height: 60px;
+	@include media(medium){
+		height: 40px;
+	}
+	@include media(small){
+		height: auto;
+	}
 	box-sizing: border-box;
 	h1{
 		margin: 0;
 		img{
 			height: 60px;
+			@include media(medium){
+				height: 40px;
+			}
+			@include media(small){
+				max-width: 100%;
+				height: auto;
+				vertical-align: middle;
+			}
 		}
 	}
 }
@@ -148,6 +170,9 @@ main{
 		display: flex;
 		height: calc(100% - 60px);
 	}
+	@include media(medium){
+		height: calc(100% - 40px);
+	}
 	width: 100vw;
 	justify-content: stretch;
 	align-items: stretch;
@@ -157,7 +182,13 @@ main{
 		display: flex;
 		flex-direction: column;
 		flex-basis: 1000px;
-		max-width: calc(68vh / 0.56);
+		@include media(large){
+			max-width: min(calc(65vh / 0.56), 68vw);
+			height: 100%;
+		}
+		@include media(small){
+			max-width: calc(68vh / 0.56);
+		}
 		height: 100%;
 		#video-wrap{
 			flex-shrink: 0;

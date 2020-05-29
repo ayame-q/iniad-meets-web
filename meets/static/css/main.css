@@ -88,7 +88,7 @@ input[type=checkbox]:checked::before, select[type=checkbox]:checked::before, tex
 input:disabled, select:disabled, textarea:disabled {
   background-color: lightgray;
 }
-@media (max-width: 899px) {
+@media (max-width: 480px) {
   input, select, textarea {
     width: 100%;
   }
@@ -114,11 +114,33 @@ header {
   height: 60px;
   box-sizing: border-box;
 }
+@media (min-width: 481px) and (max-width: 800px) {
+  header {
+    height: 40px;
+  }
+}
+@media (max-width: 480px) {
+  header {
+    height: auto;
+  }
+}
 header h1 {
   margin: 0;
 }
 header h1 img {
   height: 60px;
+}
+@media (min-width: 481px) and (max-width: 800px) {
+  header h1 img {
+    height: 40px;
+  }
+}
+@media (max-width: 480px) {
+  header h1 img {
+    max-width: 100%;
+    height: auto;
+    vertical-align: middle;
+  }
 }
 
 main {
@@ -126,10 +148,15 @@ main {
   justify-content: stretch;
   align-items: stretch;
 }
-@media (min-width: 900px) {
+@media (min-width: 481px) {
   main {
     display: flex;
     height: calc(100% - 60px);
+  }
+}
+@media (min-width: 481px) and (max-width: 800px) {
+  main {
+    height: calc(100% - 40px);
   }
 }
 main #main-wrap {
@@ -138,14 +165,24 @@ main #main-wrap {
   display: flex;
   flex-direction: column;
   flex-basis: 1000px;
-  max-width: calc(68vh / 0.56);
   height: 100%;
+}
+@media (min-width: 481px) {
+  main #main-wrap {
+    max-width: min(calc(65vh / 0.56), 68vw);
+    height: 100%;
+  }
+}
+@media (max-width: 480px) {
+  main #main-wrap {
+    max-width: calc(68vh / 0.56);
+  }
 }
 main #main-wrap #video-wrap {
   flex-shrink: 0;
   flex-basis: fit-content;
 }
-@media (min-width: 900px) {
+@media (min-width: 481px) {
   main #main-wrap #video-wrap {
     padding: 0 10px;
   }
@@ -163,7 +200,7 @@ main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap {
   display: flex;
   align-items: center;
 }
-@media (max-width: 899px) {
+@media (max-width: 480px) {
   main #main-wrap #chat-wrap #chat-forms .chat-forms-wrap {
     flex-wrap: wrap;
   }
@@ -228,7 +265,7 @@ main #side-wrap {
 main #side-wrap.no-circles-info {
   opacity: 0;
 }
-@media (max-width: 899px) {
+@media (max-width: 480px) {
   main #side-wrap {
     padding-left: 30px;
   }
@@ -440,7 +477,7 @@ main #side-wrap:not(.staff-mode) #side-wrap-user {
 main #side-wrap:not(.staff-mode) #side-wrap-staff {
   display: none;
 }
-@media (max-width: 899px) {
+@media (max-width: 480px) {
   main #mobile-tab {
     text-align: center;
   }
@@ -483,7 +520,7 @@ main #side-wrap:not(.staff-mode) #side-wrap-staff {
     display: none !important;
   }
 }
-@media (min-width: 900px) {
+@media (min-width: 481px) {
   main #mobile-tab {
     display: none;
   }
