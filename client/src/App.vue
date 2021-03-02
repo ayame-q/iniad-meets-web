@@ -14,7 +14,9 @@ export default {
 	name: "App",
 	metaInfo: {
 		title: "",
-		titleTemplate: "%s - INIAD meets Web",
+		titleTemplate(input) {
+			return input ? `${input} - INIAD meets Web` : "INIAD meets Web"
+		},
 	},
 };
 </script>
