@@ -82,7 +82,7 @@
                 <p><input type="submit" value="参加登録"></p>
             </form>
         {% else %}
-            <p class="task-link"><a href="/auth/google/login/?next={{ request.path }}">INIADアカウントでログインして受付</a></p>
+            <p class="login-link"><a href="/auth/google/login/?next={{ request.path }}">INIADアカウントでログインして受付</a></p>
         {% endif %}
     </section>
 </main>

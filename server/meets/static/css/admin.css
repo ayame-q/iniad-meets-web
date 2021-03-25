@@ -133,10 +133,27 @@ main > article, main > section {
   padding: 15px 30px;
 }
 
-.task-link {
+.login-link {
   width: 100%;
 }
-.task-link a {
+.login-link a {
+  display: block;
+  background-color: #d35f55;
+  color: #ffffff;
+  padding: 1.2em 1.2em;
+  box-sizing: border-box;
+  border-radius: 5px;
+  width: 100%;
+  text-decoration: none;
+}
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+#menu-page .task-link {
+  width: 100%;
+}
+#menu-page .task-link a {
   display: block;
   background-color: #D35F55;
   color: #FFFFFF;
@@ -146,21 +163,21 @@ main > article, main > section {
   width: 100%;
   text-decoration: none;
 }
-.task-link a:hover {
+#menu-page .task-link a:hover {
   text-decoration: underline;
 }
-.task-link a:not(.finished):not(.editing)::before {
+#menu-page .task-link a:not(.finished):not(.editing)::before {
   content: "[未入力]";
   margin-right: 0.3em;
 }
-.task-link a.editing::before {
+#menu-page .task-link a.editing::before {
   content: "[一部入力済]";
   margin-right: 0.3em;
 }
-.task-link a.finished {
+#menu-page .task-link a.finished {
   background-color: #36b0cc;
 }
-.task-link a.finished::before {
+#menu-page .task-link a.finished::before {
   content: "[入力済]";
   margin-right: 0.3em;
 }

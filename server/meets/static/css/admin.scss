@@ -158,43 +158,63 @@ main > article, main > section{
     padding: 15px 30px;
 }
 
-.task-link {
+.login-link{
     width: 100%;
     a{
         display: block;
-        background-color: #D35F55;
-        color: #FFFFFF;
+        background-color: #d35f55;
+        color: #ffffff;
         padding: 1.2em 1.2em;
         box-sizing: border-box;
         border-radius: 5px;
         width: 100%;
         text-decoration: none;
+
         &:hover{
             text-decoration: underline;
         }
+    }
+}
 
-        &:not(.finished):not(.editing){
-            &::before{
-                content: "[未入力]";
-                margin-right: 0.3em;
+#menu-page{
+    .task-link{
+        width: 100%;
+        a{
+            display: block;
+            background-color: #D35F55;
+            color: #FFFFFF;
+            padding: 1.2em 1.2em;
+            box-sizing: border-box;
+            border-radius: 5px;
+            width: 100%;
+            text-decoration: none;
+            &:hover{
+                text-decoration: underline;
             }
-        }
 
-        &.editing{
-            &::before{
-                content: "[一部入力済]";
-                margin-right: 0.3em;
+            &:not(.finished):not(.editing){
+                &::before{
+                    content: "[未入力]";
+                    margin-right: 0.3em;
+                }
             }
-        }
 
-        &.finished{
-            background-color: #36b0cc;
-            &::before{
-                content: "[入力済]";
-                margin-right: 0.3em;
+            &.editing{
+                &::before{
+                    content: "[一部入力済]";
+                    margin-right: 0.3em;
+                }
             }
-        }
 
+            &.finished{
+                background-color: #36b0cc;
+                &::before{
+                    content: "[入力済]";
+                    margin-right: 0.3em;
+                }
+            }
+
+        }
     }
 }
 
