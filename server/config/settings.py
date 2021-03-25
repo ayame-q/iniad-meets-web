@@ -179,3 +179,5 @@ os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'upload_files')
 MEDIA_URL = '/upload_files/'
+
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = os.environ.get("ACCOUNT_DEFAULT_HTTP_PROTOCOL")
