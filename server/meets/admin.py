@@ -13,10 +13,15 @@ class UserAdmin(BaseUserAdmin):
         super().__init__(*args, **kwargs)
 
 
+class UUIDFieldAdmin(admin.ModelAdmin):
+    readonly_fields=('uuid',)
+
+
+
 # Register your models here.
-admin.site.register(User)
-admin.site.register(Circle)
-admin.site.register(UserRole)
-admin.site.register(ChatLog)
-admin.site.register(Entry)
-admin.site.register(Status)
+admin.site.register(User, UUIDFieldAdmin)
+admin.site.register(Circle, UUIDFieldAdmin)
+admin.site.register(UserRole, UUIDFieldAdmin)
+admin.site.register(ChatLog, UUIDFieldAdmin)
+admin.site.register(Entry, UUIDFieldAdmin)
+admin.site.register(Status, UUIDFieldAdmin)
