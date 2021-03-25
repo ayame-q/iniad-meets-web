@@ -1,0 +1,214 @@
+@charset "UTF-8";
+a {
+  color: #d35f55;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+input[type=submit], input[type=button] {
+  cursor: pointer;
+}
+
+textarea {
+  resize: none;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  font-size: 1.1em;
+  padding: 0.2em 0.5em;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+input:not([type=checkbox]), select:not([type=checkbox]), textarea:not([type=checkbox]) {
+  border: 2px solid #D35F55;
+  border-radius: 5px;
+  width: calc(100%);
+  background-color: white;
+}
+input[type=checkbox], select[type=checkbox], textarea[type=checkbox] {
+  width: 50px;
+  height: 50px;
+  padding: 4px;
+  margin: 0;
+}
+input[type=checkbox]::before, select[type=checkbox]::before, textarea[type=checkbox]::before {
+  content: "";
+  display: block;
+  margin-top: 0;
+  margin-bottom: 5px;
+  margin-right: 7px;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  border: 2px solid #D35F55;
+  transition: all 0.12s, border-color 0.08s;
+}
+input[type=checkbox]:checked::before, select[type=checkbox]:checked::before, textarea[type=checkbox]:checked::before {
+  width: 15px;
+  margin: 10px;
+  margin-top: -5px;
+  margin-right: 15px;
+  padding-left: 1px;
+  border-radius: 0;
+  opacity: 1;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+input[type=submit], select[type=submit], textarea[type=submit] {
+  background-color: #D35F55;
+  color: #FFFFFF;
+  padding: 0.5em 1.2em;
+}
+@media (min-width: 481px) {
+  input[type=submit], select[type=submit], textarea[type=submit] {
+    display: block;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: 0;
+  }
+}
+input:disabled, select:disabled, textarea:disabled {
+  background-color: lightgray;
+}
+@media (max-width: 480px) {
+  input, select, textarea {
+    width: 100%;
+  }
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+}
+
+select {
+  margin: 0;
+  padding-right: 38px;
+  background-image: linear-gradient(45deg, transparent 50%, #D35F55 50%), linear-gradient(135deg, #D35F55 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+html, body {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Yu Gothic", "游ゴシック", YuGothic, "游ゴシック体", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro W3", "メイリオ", sans-serif;
+  background-color: #EFEFEF;
+  color: #4D4D4D;
+}
+
+header {
+  background-color: #36b0cc;
+  text-align: center;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+header h1 {
+  margin: 0;
+}
+header h1 img {
+  height: 80px;
+}
+
+main > article, main > section {
+  margin: 30px auto;
+  width: 90vw;
+  max-width: 800px;
+  background-color: white;
+  box-shadow: 5px 5px 5px #727272BF;
+  padding: 15px 30px;
+}
+
+.task-link {
+  width: 100%;
+}
+.task-link a {
+  display: block;
+  background-color: #D35F55;
+  color: #FFFFFF;
+  padding: 1.2em 1.2em;
+  box-sizing: border-box;
+  border-radius: 5px;
+  width: 100%;
+  text-decoration: none;
+}
+.task-link a:hover {
+  text-decoration: underline;
+}
+.task-link a:not(.finished):not(.editing)::before {
+  content: "[未入力]";
+  margin-right: 0.3em;
+}
+.task-link a.editing::before {
+  content: "[一部入力済]";
+  margin-right: 0.3em;
+}
+.task-link a.finished {
+  background-color: #36b0cc;
+}
+.task-link a.finished::before {
+  content: "[入力済]";
+  margin-right: 0.3em;
+}
+
+#members-page .remove-form {
+  display: inline;
+}
+#members-page .remove-form input[type=submit] {
+  margin-left: 0.3em;
+  display: inline;
+  font-size: 0.8em;
+  border: #D35F55 solid 1.5px;
+  color: #D35F55;
+  background-color: #FFFFFF;
+  padding: 0.3em 1em;
+}
+
+#pamphlet-clear_id[type=checkbox] {
+  width: 12.5px;
+  height: 12.5px;
+  padding: 1px;
+  margin: 0;
+  margin-left: 0.3em;
+}
+#pamphlet-clear_id[type=checkbox]::before {
+  content: "";
+  display: block;
+  margin-top: 0;
+  margin-bottom: 1.25px;
+  margin-right: 1.75px;
+  padding: 0;
+  width: 9px;
+  height: 9px;
+  border: 0.5px solid #D35F55;
+  transition: all 0.12s, border-color 0.08s;
+}
+#pamphlet-clear_id[type=checkbox]:checked::before {
+  width: 3.75px;
+  margin: 2.5px;
+  margin-top: -1.25px;
+  margin-right: 3.75px;
+  padding-left: 0.25px;
+  border-radius: 0;
+  opacity: 1;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+/*# sourceMappingURL=admin.css.map */

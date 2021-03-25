@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:wght@600&family=M+PLUS+Rounded+1c:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "/css/admin.css" %}?1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="description" content="INIAD 公認サークルの合同Web新歓のページです。">
+    <meta property="og:url" content="https://meets.iniad.net/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="INIAD meets Web">
+    <meta property="og:description" content="INIAD 公認サークルの合同Web新歓のページです。">
+    <meta property="og:site_name" content="INIAD meets Web">
+    <meta property="og:image" content="https://meets.iniad.net/static/img/thumbnail.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@iniad_webmedia">
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163289416-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-163289416-1');
+    </script>
+    <script>
+        let openMovieFormAt = new Date()
+        const checkMovieUploaded = () => {
+            fetch("{% url 'api_movie_uploaded' circle.pk %}")
+            .then((response) => {
+                return response.json()
+            })
+            .then((result) => {
+                if (new Date(result.movie_uploaded_at) > openMovieFormAt){
+                    document.getElementById("movie-link").classList.add("finished")
+                } else {
+                    setTimeout(checkMovieUploaded, 1000)
+                }
+            })
+        }
+        const openMovieForm = () => {
+            openMovieFormAt = new Date()
+            document.getElementById("movie-link").classList.remove("finished")
+            setTimeout(checkMovieUploaded, 1000)
+        }
+    </script>
+    <title>サークル参加受付 - INIAD meets web</title>
+</head>
+<body>
+<header>
+    <h1><img src="{% static "/img/logo.svg" %}" alt="INIAD meets Web"></h1>
+</header>
+<main>
+    <section>
+        <h2>参加登録完了</h2>
+        <p>ありがとうございます。<br>「{{ circle.name }}」の INIAD meets web 参加登録が完了しました！</p>
+        <p>下のメニューから、サークル基本情報の登録や動画のアップロードなど、<br>
+            イベント参加に必要な準備を進めてください！
+        </p>
+        <section style="margin-top: 3em">
+            <p class="task-link">
+                <a {% if circle.pamphlet and circle.comment %}class="finished" {% elif circle.pamphlet or circle.website_url or circle.twitter_sn or circle.instagram_id or circle.comment %}class="editing" {% endif %}href="{% url 'circle_admin_info' circle.pk %}">サークル基本情報の登録</a>
+            </p>
+            <p class="task-link"><a{% if circle.movie_uploaded_at %} class="finished"{% endif %} id="movie-link" onclick="openMovieForm()" href="{{ movie_form_url }}{{ circle.uuid }}" target="_blank">動画のアップロード</a></p>
+            <p class="task-link"><a{% if circle.admin_users.count > 1 or circle.staff_users.count > 1 %} class="finished"{% endif %} href="{% url 'circle_admin_members' circle.pk %}">サークルスタッフの追加(必要な場合)</a></p>
+        </section>
+    </section>
+</main>
+</body>
+</html>

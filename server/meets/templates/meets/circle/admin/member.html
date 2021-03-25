@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:wght@600&family=M+PLUS+Rounded+1c:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "/css/admin.css" %}?1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="description" content="INIAD 公認サークルの合同Web新歓のページです。">
+    <meta property="og:url" content="https://meets.iniad.net/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="INIAD meets Web">
+    <meta property="og:description" content="INIAD 公認サークルの合同Web新歓のページです。">
+    <meta property="og:site_name" content="INIAD meets Web">
+    <meta property="og:image" content="https://meets.iniad.net/static/img/thumbnail.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@iniad_webmedia">
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163289416-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-163289416-1');
+    </script>
+    <title>サークルスタッフ登録 - INIAD meets web</title>
+</head>
+<body>
+<header>
+    <h1><img src="{% static "/img/logo.svg" %}" alt="INIAD meets Web"></h1>
+</header>
+<main>
+    <section id="members-page">
+        <h2>サークルスタッフ登録</h2>
+        {% for error in errors %}
+            <p>Error: {{ error }}</p>
+        {% endfor %}
+
+        <h3>スタッフ<small>(スタッフとしてチャットや質問の回答に書き込めるアカウント)</small></h3>
+        <ul>
+            {% for staff_user in circle.staff_users.all %}
+                <li>
+                    {{ staff_user.email }}{% if staff_user.userinfo %}({{ staff_user.userinfo.first_name }} {{ staff_user.userinfo.last_name }}){% endif %}
+                    {% if circle.staff_users.count is not 1 %}
+                        <form method="post" class="remove-form">
+                            <input type="submit" value="削除">
+                            <input type="hidden" name="method" value="remove_staff">
+                            <input type="hidden" name="remove_pk" value="{{ staff_user.pk }}">
+                            {% csrf_token %}
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        <form id="add_staff" method="post">
+            <dl>
+                <dt><label for="add_staff_email">追加(INIADメールアドレスをすべて半角小文字で改行区切りで入力してください</label></dt>
+                <dd><textarea id="add_staff_email" name="add_email" cols="30" rows="5"></textarea></dd>
+            </dl>
+            <input type="hidden" name="method" value="add_staff">
+            {% csrf_token %}
+            <input type="submit">
+        </form>
+        <h3>管理者<small>(この管理画面を開けるアカウント)</small></h3>
+        <ul>
+            {% for admin_user in circle.admin_users.all %}
+                <li>
+                    {{ admin_user.email }}{% if admin_user.userinfo %}({{ admin_user.userinfo.first_name }} {{ admin_user.userinfo.last_name }}){% endif %}
+                    {% if circle.admin_users.count is not 1 %}
+                        <form method="post" class="remove-form">
+                            <input type="submit" value="削除">
+                            <input type="hidden" name="method" value="remove_admin">
+                            <input type="hidden" name="remove_pk" value="{{ admin_user.pk }}">
+                            {% csrf_token %}
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        <form id="add_admin" method="post">
+            <dl>
+                <dt><label for="add_admin_email">追加(INIADメールアドレスをすべて半角小文字で改行区切りで入力してください</label></dt>
+                <dd><textarea id="add_admin_email" name="add_email" cols="30" rows="5"></textarea></dd>
+            </dl>
+            <input type="hidden" name="method" value="add_admin">
+            {% csrf_token %}
+            <input type="submit">
+        </form>
+        <p><a href="{% url 'circle_admin' circle.pk %}">戻る</a></p>
+    </section>
+</main>
+</body>
+</html>

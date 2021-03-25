@@ -1,12 +1,156 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
-from django.core.exceptions import PermissionDenied
+from django.urls import reverse
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.utils import html, timezone
+from django.views.generic import CreateView, UpdateView, ListView, DetailView
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
 import json, re, csv, datetime
 from .models import Entry, Circle, UserRole, ChatLog, Status
+from .serializers import CircleSerializer
+from . import forms
+import os
 
 
 # Create your views here.
+class CircleListAPIView(ListAPIView):
+    queryset = Circle.objects.all()
+    serializer_class = CircleSerializer
+
+
+class CircleInfoAPIView(RetrieveAPIView):
+    queryset = Circle.objects.all()
+    serializer_class = CircleSerializer
+
+
+class CircleJoinView(CreateView):
+    model = Circle
+    form_class = forms.CircleJoinForm
+    template_name = "meets/circle/join.html"
+
+    @method_decorator(login_required)
+    def post(self, request, *args, **kwargs):
+        return super(CircleJoinView, self).post(request=request, *args, **kwargs)
+
+    def form_valid(self, form):
+        data = form.save()
+        data.admin_users.add(self.request.user.role)
+        data.staff_users.add(self.request.user.role)
+        print(redirect("circle_admin", pk=data.pk))
+        return redirect("circle_admin", pk=data.pk)
+
+
+class CircleAdminSinglePageMixin(LoginRequiredMixin):
+    model = Circle
+
+    def get_queryset(self):
+        return self.request.user.role.admin_circles.all()
+
+
+class CircleAdminListPageMixin(LoginRequiredMixin):
+    model = Circle
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return Circle.objects.all()
+        return self.request.user.role.admin_circles.all()
+    
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.role.admin_circles.count() <= 0:
+            return redirect("circle_join")
+        if request.user.role.admin_circles.count() == 1:
+            return redirect("./" + str(request.user.role.admin_circles.get().uuid))
+        return super(CircleAdminListPageMixin, self).dispatch(request=request, *args, *kwargs)
+
+
+class CircleAdminGenericListView(CircleAdminListPageMixin, ListView):
+    template_name = "meets/circle/admin/info.html"
+
+
+class CircleAdminMenuView(CircleAdminSinglePageMixin, DetailView):
+    template_name = "meets/circle/admin/menu.html"
+    extra_context = {
+        "movie_form_url": os.environ.get("MOVIE_FORM_URL")
+    }
+
+
+class CircleAdminInfoView(CircleAdminSinglePageMixin, UpdateView):
+    form_class = forms.CircleInfoForm
+    template_name = "meets/circle/admin/info.html"
+
+    def get_success_url(self):
+        return reverse("circle_admin", kwargs={"pk": self.object.pk})
+
+
+class CircleAdminMembersView(CircleAdminSinglePageMixin, DetailView):
+    template_name = "meets/circle/admin/member.html"
+
+    def post(self, request, *args, **kwargs):
+        circle = self.get_object()
+        method = request.POST.get("method")
+
+        if method == "add_admin" or method == "add_staff":
+            add_emails = re.split("\r?\n", request.POST.get("add_email"))
+            target_model = None
+            if method == "add_admin":
+                target_model = circle.admin_users
+            else:
+                target_model = circle.staff_users
+            for add_email in add_emails:
+                if re.match(r"s1f10[0-9]{7}@iniad\.org", add_email):
+                    user_role = None
+                    try:
+                        user_role = UserRole.objects.get(email=add_email)
+                    except UserRole.DoesNotExist:
+                        user_role = UserRole(email=add_email)
+                        user_role.save()
+                    target_model.add(user_role)
+                else:
+                    self.extra_context["errors"].append(add_email + "は正常なINIADメールアドレスではありません。")
+
+        if method == "remove_admin" or method == "remove_staff":
+            remove_pk = request.POST.get("remove_pk")
+            if method == "remove_admin":
+                target_model = circle.admin_users
+            else:
+                target_model = circle.staff_users
+            target_model.remove(UserRole.objects.get(pk=remove_pk))
+
+        return redirect("circle_admin_members", pk=circle.pk)
+
+
+class MovieUploadedAPI(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
+    def get(self, request, pk):
+        uuid = pk
+        try:
+            circle = Circle.objects.get(uuid=uuid)
+        except Circle.DoesNotExist:
+            raise ObjectDoesNotExist
+        return Response({"movie_uploaded_at": circle.movie_uploaded_at})
+
+    def post(self, request, pk):
+        uuid = pk
+        password = request.data.get("password")
+        if not password == os.environ.get("MOVIE_UPLOADED_API_PASSWORD"):
+            return Response({"error": True})
+        try:
+            circle = Circle.objects.get(uuid=uuid)
+        except Circle.DoesNotExist:
+            return Response({"error": True})
+        circle.movie_uploaded_at = datetime.datetime.now()
+        circle.save()
+        return Response({"error": False})
+
+
+# Old views
 def app(request):
     if datetime.datetime.now() < datetime.datetime.fromtimestamp(1590397200) and not request.user.is_superuser:
         return render(request, "meets/pre.html")

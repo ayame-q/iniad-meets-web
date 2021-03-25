@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     # django-boost
     'django_boost',
+    # rest-framework
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -133,6 +135,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+if os.environ.get("STATIC_ROOT"):
+    STATIC_ROOT = os.environ.get("STATIC_ROOT")
 
 # Channels
 ASGI_APPLICATION = 'config.routing.application'
@@ -172,3 +176,6 @@ ACCOUNT_UNIQUE_EMAIL = False
 AUTH_USER_MODEL = 'meets.User'
 
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'upload_files')
+MEDIA_URL = '/upload_files/'
