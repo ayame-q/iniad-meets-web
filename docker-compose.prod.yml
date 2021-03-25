@@ -6,12 +6,14 @@ services:
     volumes:
       - "./server:/usr/src/app"
       - "django_static:/var/lib/static"
+      - "./server/upload_files:/usr/src/app/upload_files"
     restart: always
   nginx:
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - "./nginx/nginx.prod.conf:/etc/nginx/nginx.conf"
       - "client_dist:/usr/src/app/client"
       - "django_static:/usr/src/app/django_static"
+      - "./server/upload_files:/usr/src/app/upload_files"
     restart: always
   nodejs:
     volumes:

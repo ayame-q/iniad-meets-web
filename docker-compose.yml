@@ -10,6 +10,7 @@ services:
       - "127.0.0.1:8000:8000"
     volumes:
       - "./server:/usr/src/app"
+      - "./server/upload_files:/usr/src/app/upload_files"
   postgres:
     image: postgres:12-alpine
     ports:
@@ -21,7 +22,8 @@ services:
   nginx:
     image: nginx:alpine
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
+      - "./server/upload_files:/usr/src/app/upload_files"
     links:
       - "django"
       - "nodejs"
