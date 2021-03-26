@@ -178,24 +178,22 @@ class IsSlackJoinedAPI(APIView):
         return Response({"is_slack_joined": is_slack_joined})
 
 
-class SlackChallengeAPI(APIView):
+class SlackEventAPI(APIView):
     permission_classes = ()
     authentication_classes = ()
     def post(self, request):
-        challenge = request.data.get("challenge")
-        return Response({"challenge": challenge})
-
-
-class SlackNewUserAPI(APIView):
-    permission_classes = ()
-    authentication_classes = ()
-    def post(self, request):
-        email = request.data["user"]["profile"]["email"]
-        try:
-            user = User.object.get(email=email)
-            user.get_slack_info()
-        except User.DoesNotExist:
-            pass
+        type = request.data.get("type")
+        if type == "url_verification":
+            challenge = request.data.get("challenge")
+            return Response({"challenge": challenge})
+        if type == "team_join":
+            email = request.data["user"]["profile"]["email"]
+            try:
+                user = User.object.get(email=email)
+                user.get_slack_info()
+            except User.DoesNotExist:
+                pass
+            return Response({"request": "ok"})
 
 
 # Old views
