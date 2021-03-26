@@ -31,7 +31,7 @@ class User(AbstractUser):
     role = models.OneToOneField(UserRole, related_name="userinfo", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="権限")
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="作成日")
     is_student = models.BooleanField(default=False, verbose_name="学生か")
-    slack_id = models.CharField(max_length=10, null=True, blank=True, default=None, verbose_name="Slack ID")
+    slack_id = models.CharField(max_length=20, null=True, blank=True, default=None, verbose_name="Slack ID")
 
     def get_class(self):
         if self.is_student:
