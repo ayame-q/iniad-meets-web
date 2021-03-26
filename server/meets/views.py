@@ -180,7 +180,7 @@ class IsSlackJoinedAPI(APIView):
 
 class SlackChallengeAPI(APIView):
     def get(self, request):
-        challenge = request.data.get["challenge"]
+        challenge = request.data.get("challenge")
         return Response({"challenge": challenge})
 
 
