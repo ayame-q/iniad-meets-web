@@ -70,6 +70,7 @@
         <h2>参加受付</h2>
         {% if user.is_authenticated %}
             <p>ご参加いただけるサークルの担当者の方はこちらのフォームから登録をお願いします。</p>
+            <p style="font-size: 0.8em"><a href="{% url 'circle_admin' %}">受付済のサークル用メニューはこちら</a></p>
             <form method="post">
                 {% csrf_token %}
                 <dl>
