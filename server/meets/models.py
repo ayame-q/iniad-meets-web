@@ -4,8 +4,10 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from allauth.socialaccount.models import SocialAccount
+from slack_sdk import WebClient as SlackWebClient
+from slack_sdk.errors import SlackApiError
 from uuid import uuid4
-import requests, json
+import requests, json, os
 
 
 class BaseModel(models.Model):
@@ -29,11 +31,21 @@ class User(AbstractUser):
     role = models.OneToOneField(UserRole, related_name="userinfo", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="権限")
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="作成日")
     is_student = models.BooleanField(default=False, verbose_name="学生か")
+    slack_id = models.CharField(max_length=10, null=True, blank=True, default=None, verbose_name="Slack ID")
 
     def get_class(self):
         if self.is_student:
             return self.entry_year - 2016
         else:
+            return None
+
+    def get_slack_info(self):
+        client = SlackWebClient(token=os.environ['SLACK_BOT_TOKEN'])
+        try:
+            response = client.users_lookupByEmail(email=self.email)
+            self.slack_id = response["user"]["id"]
+            return self.slack_id
+        except SlackApiError:
             return None
 
 
