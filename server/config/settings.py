@@ -170,6 +170,7 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 
+LOGIN_URL = "/auth/google/login/"
 LOGIN_REDIRECT_URL = "/"
 ACCOUNT_UNIQUE_EMAIL = False
 

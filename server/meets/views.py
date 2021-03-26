@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
@@ -5,7 +6,7 @@ from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.utils import html, timezone
 from django.views.generic import CreateView, UpdateView, ListView, DetailView
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from django.utils.decorators import method_decorator
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -47,7 +48,7 @@ class CircleJoinView(CreateView):
         return redirect("circle_admin", pk=data.pk)
 
 
-class UserAdminCirclesMixin():
+class UserAdminCirclesMixin(LoginRequiredMixin):
     model = Circle
     def get_context_data(self, **kwargs):
         context = super(UserAdminCirclesMixin, self).get_context_data(**kwargs)
@@ -58,14 +59,14 @@ class UserAdminCirclesMixin():
         return context
 
 
-class CircleAdminSinglePageMixin(UserAdminCirclesMixin, LoginRequiredMixin):
+class CircleAdminSinglePageMixin(UserAdminCirclesMixin):
     model = Circle
 
     def get_queryset(self):
         return self.request.user.role.admin_circles.all()
 
 
-class CircleAdminListPageMixin(UserAdminCirclesMixin, LoginRequiredMixin):
+class CircleAdminListPageMixin(UserAdminCirclesMixin):
     model = Circle
 
     def get_queryset(self):
@@ -74,10 +75,11 @@ class CircleAdminListPageMixin(UserAdminCirclesMixin, LoginRequiredMixin):
         return self.request.user.role.admin_circles.all()
     
     def dispatch(self, request, *args, **kwargs):
-        if request.user.role.admin_circles.count() <= 0:
-            return redirect("circle_join")
-        if request.user.role.admin_circles.count() == 1:
-            return redirect("./" + str(request.user.role.admin_circles.get().uuid))
+        if request.user.is_authenticated:
+            if request.user.role.admin_circles.count() <= 0:
+                return redirect("circle_join")
+            if request.user.role.admin_circles.count() == 1:
+                return redirect("./" + str(request.user.role.admin_circles.get().uuid))
         return super(CircleAdminListPageMixin, self).dispatch(request=request, *args, *kwargs)
 
 
