@@ -52,7 +52,7 @@ class UserAdminCirclesMixin():
     def get_context_data(self, **kwargs):
         context = super(UserAdminCirclesMixin, self).get_context_data(**kwargs)
         if self.request.user.is_superuser:
-            context["admin_circles"] = Circle.objects.order_by("id")
+            context["admin_circles"] = Circle.objects.all()
         elif self.request.user.role.admin_circles.count():
             context["admin_circles"] = self.request.user.role.admin_circles.all()
         return context
