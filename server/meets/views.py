@@ -179,7 +179,9 @@ class IsSlackJoinedAPI(APIView):
 
 
 class SlackChallengeAPI(APIView):
-    def get(self, request):
+    permission_classes = ()
+    authentication_classes = ()
+    def post(self, request):
         challenge = request.data.get("challenge")
         return Response({"challenge": challenge})
 
