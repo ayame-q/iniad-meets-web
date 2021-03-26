@@ -190,7 +190,7 @@ class SlackNewUserAPI(APIView):
     permission_classes = ()
     authentication_classes = ()
     def post(self, request):
-        email = request.data["profile"]["email"]
+        email = request.data["user"]["profile"]["email"]
         try:
             user = User.object.get(email=email)
             user.get_slack_info()
