@@ -47,14 +47,25 @@ class CircleJoinView(CreateView):
         return redirect("circle_admin", pk=data.pk)
 
 
-class CircleAdminSinglePageMixin(LoginRequiredMixin):
+class UserAdminCirclesMixin():
+    model = Circle
+    def get_context_data(self, **kwargs):
+        context = super(UserAdminCirclesMixin, self).get_context_data(**kwargs)
+        if self.request.user.is_superuser:
+            context["admin_circles"] = Circle.objects.order_by("id")
+        elif self.request.user.role.admin_circles.count():
+            context["admin_circles"] = self.request.user.role.admin_circles.all()
+        return context
+
+
+class CircleAdminSinglePageMixin(UserAdminCirclesMixin, LoginRequiredMixin):
     model = Circle
 
     def get_queryset(self):
         return self.request.user.role.admin_circles.all()
 
 
-class CircleAdminListPageMixin(LoginRequiredMixin):
+class CircleAdminListPageMixin(UserAdminCirclesMixin, LoginRequiredMixin):
     model = Circle
 
     def get_queryset(self):

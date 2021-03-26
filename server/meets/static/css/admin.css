@@ -228,4 +228,27 @@ main > article, main > section {
   transform: rotate(45deg);
 }
 
+#circle-list-wrap {
+  font-size: 0.8em;
+  color: rgba(77, 77, 77, 0.8);
+}
+#circle-list-wrap p {
+  display: flex;
+  align-items: center;
+}
+#circle-list-wrap p label {
+  white-space: nowrap;
+  flex-shrink: 0;
+  width: fit-content;
+  margin-right: 0.5em;
+}
+#circle-list-wrap p select {
+  font-size: 0.9em;
+  padding: 0.4em 0.5em;
+  flex-shrink: 1;
+  color: rgba(77, 77, 77, 0.8);
+  border: rgba(77, 77, 77, 0.8) solid 1px;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(77, 77, 77, 0.8) 50%), linear-gradient(135deg, rgba(77, 77, 77, 0.8) 50%, transparent 50%);
+}
+
 /*# sourceMappingURL=admin.css.map */

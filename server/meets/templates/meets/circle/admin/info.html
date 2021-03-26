@@ -34,6 +34,25 @@
 <main>
     <section>
         <h2>サークル基本情報編集</h2>
+        {% if admin_circles.count > 1 %}
+            <nav id="circle-list-wrap">
+                <p>
+                    <label for="circle-list">操作中のサークル</label>
+                    <select id="circle-list">
+                        <option value="./">サークル選択</option>
+                        {% for c in admin_circles %}
+                            <option value="{{ c.pk }}"{% if circle.pk == c.pk %} selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </p>
+                <script>
+                    const circleListElement = document.getElementById("circle-list");
+                    circleListElement.addEventListener("change", (event) => {
+                        window.location.href = event.target.value;
+                    })
+                </script>
+            </nav>
+        {% endif %}
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <dl>
