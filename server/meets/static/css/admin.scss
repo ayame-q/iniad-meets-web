@@ -300,3 +300,33 @@ main > article, main > section{
         }
     }
 }
+
+#entries-list-page{
+    .table-wrap{
+        overflow-x: scroll;
+        position: relative;
+        table{
+            text-align: center;
+            th{
+                position: sticky;
+                top: 0;
+                left: 0;
+            }
+            th, td{
+                background-color: white;
+                border: #d8d9d9 1px solid;
+                padding: 0.3em 1em;
+                white-space: nowrap;
+                &.detail{
+                    font-size: 0.8em;
+                }
+                span.not-yet{
+                    color: #D35F55;
+                }
+                a{
+                    color: #4D4D4D;
+                }
+            }
+        }
+    }
+}

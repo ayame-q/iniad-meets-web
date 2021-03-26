@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:wght@600&family=M+PLUS+Rounded+1c:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "/css/admin.css" %}?1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="description" content="今年もあいつがやってくる！！ INIAD公認サークルWeb新歓「INIAD meets web」のサークル参加を受け付けています！">
+    <meta property="og:url" content="https://meets.iniad.net/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="INIAD meets Web">
+    <meta property="og:description" content="今年もあいつがやってくる！！ INIAD公認サークルWeb新歓「INIAD meets web」のサークル参加を受け付けています！">
+    <meta property="og:site_name" content="INIAD meets Web">
+    <meta property="og:image" content="https://meets.iniad.net/static/img/circle_eyecatch.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@iniad_webmedia">
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163289416-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-163289416-1');
+    </script>
+    <title>参加受付済サークルリスト - INIAD meets web</title>
+</head>
+<body>
+<header>
+    <h1><img src="{% static "/img/logo.svg" %}?2021" alt="INIAD meets Web"></h1>
+</header>
+<main>
+    <section id="entries-list-page">
+        <h2>参加受付済サークルリスト</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th rowspan="2" style="z-index: 99">サークル名</th>
+                    <th>代表者</th>
+                    <th colspan="3">提出状況</th>
+                    <th rowspan="2" class="detail">コメント</th>
+                    <th rowspan="2" class="detail">公式サイト</th>
+                    <th rowspan="2" class="detail">Twitter</th>
+                    <th rowspan="2" class="detail">Instagram</th>
+                </tr>
+                <tr><th>担当者</th><th>情報</th><th>PDF</th><th>動画</th></tr>
+                </thead>
+                <tbody>
+                {% for circle in object_list %}
+                    <tr>
+                        <th>{{ circle.name }}</th>
+                        <td style="font-size: 0.8em">{{ circle.leader_name }}<br>{{ circle.entry_user_name }}</td>
+                        <td>{% if circle.comment %}○{% elif circle.website_url or circle.twitter_sn or circle.instagram_id %}<span class="not-yet">△</span>{% else %}<span class="not-yet">×</span>{% endif %}</td>
+                        <td>{% if circle.pamphlet %}○{% else %}<span class="not-yet">×</span>{% endif %}</td>
+                        <td>{% if circle.movie_uploaded_at %}○{% else %}<span class="not-yet">×</span>{% endif %}</td>
+                        <td class="detail" style="font-size: 0.6em">{% if circle.comment %}{{ circle.comment | linebreaksbr }}{% endif %}</td>
+                        <td class="detail">{% if circle.website_url %}<a href="{{ circle.website_url }}" target="_blank">{{ circle.website_url }}</a>{% endif %}</td>
+                        <td class="detail">{% if circle.twitter_sn %}<a href="https://twitter.com/{{ circle.twitter_sn }}" target="_blank">@{{ circle.twitter_sn }}</a>{% endif %}</td>
+                        <td class="detail">{% if circle.instagram_id %}<a href="https://instagram.com/{{ circle.twitter_sn }}" target="_blank">{{ circle.instagram_id }}</a>{% endif %}</td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

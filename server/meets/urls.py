@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/v2/slack/', views.SlackEventAPI.as_view(), name="slack_challenge"),
     path('api/v2/slack/team_join', views.SlackEventAPI.as_view(), name="slack_new_user_join"),
     path("circle/join", views.CircleJoinView.as_view(), name="circle_join"),
+    path("circle/list", views.CircleListView.as_view(), name="circle_list"),
     path('circle/admin/', views.CircleAdminGenericListView.as_view(), name="circle_admin"),
     path('circle/admin/<uuid:pk>', views.CircleAdminMenuView.as_view(), name="circle_admin"),
     path('circle/admin/info/', views.CircleAdminGenericListView.as_view(), name="circle_admin_info"),

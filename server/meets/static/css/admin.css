@@ -257,4 +257,32 @@ main > article, main > section {
   background-image: linear-gradient(45deg, transparent 50%, rgba(77, 77, 77, 0.8) 50%), linear-gradient(135deg, rgba(77, 77, 77, 0.8) 50%, transparent 50%);
 }
 
+#entries-list-page .table-wrap {
+  overflow-x: scroll;
+  position: relative;
+}
+#entries-list-page .table-wrap table {
+  text-align: center;
+}
+#entries-list-page .table-wrap table th {
+  position: sticky;
+  top: 0;
+  left: 0;
+}
+#entries-list-page .table-wrap table th, #entries-list-page .table-wrap table td {
+  background-color: white;
+  border: #d8d9d9 1px solid;
+  padding: 0.3em 1em;
+  white-space: nowrap;
+}
+#entries-list-page .table-wrap table th.detail, #entries-list-page .table-wrap table td.detail {
+  font-size: 0.8em;
+}
+#entries-list-page .table-wrap table th span.not-yet, #entries-list-page .table-wrap table td span.not-yet {
+  color: #D35F55;
+}
+#entries-list-page .table-wrap table th a, #entries-list-page .table-wrap table td a {
+  color: #4D4D4D;
+}
+
 /*# sourceMappingURL=admin.css.map */

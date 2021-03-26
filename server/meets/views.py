@@ -48,6 +48,16 @@ class CircleJoinView(CreateView):
         return redirect("circle_admin", pk=data.pk)
 
 
+class CircleListView(ListView):
+    model = Circle
+    template_name = "meets/circle/list.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.GET.get("pass") == os.environ.get("CIRCLE_LIST_PASSWORD"):
+            raise PermissionDenied
+        return super(CircleListView, self).dispatch(request=request, *args, **kwargs)
+
+
 class UserAdminCirclesMixin(LoginRequiredMixin):
     model = Circle
     def get_context_data(self, **kwargs):
