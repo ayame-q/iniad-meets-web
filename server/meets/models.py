@@ -44,6 +44,7 @@ class User(AbstractUser):
         try:
             response = client.users_lookupByEmail(email=self.email)
             self.slack_id = response["user"]["id"]
+            self.save()
             return self.slack_id
         except SlackApiError:
             return None
