@@ -37,7 +37,7 @@ class CircleInfoForm(BaseForm):
 
     def clean_comment(self):
         text = self.cleaned_data["comment"]
-        if text.count("\n") > 3:
+        if text.count("\n") >= 3:
             raise forms.ValidationError("3行以内で入力してください")
         if len(text) > 80:
             raise forms.ValidationError("80文字以内で入力してください")
