@@ -163,6 +163,12 @@ main > article, main > section {
   width: 100%;
   text-decoration: none;
 }
+#menu-page .task-link a small {
+  display: block;
+  font-size: 0.75em;
+  margin-top: 0.5em;
+  color: rgba(255, 255, 255, 0.3);
+}
 #menu-page .task-link a:hover {
   text-decoration: underline;
 }
