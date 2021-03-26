@@ -26,6 +26,25 @@
         gtag('config', 'UA-163289416-1');
     </script>
     <script>
+        const checkIsSlackJoined = () => {
+            fetch("{% url 'api_is_slack_joined' %}")
+                    .then((response) => {
+                        return response.json()
+                    })
+                    .then((result) => {
+                        if (result.is_slack_joined){
+                            document.getElementById("slack-link").classList.add("finished")
+                        } else {
+                            setTimeout(checkMovieUploaded, 1000)
+                        }
+                    })
+        }
+        const openSlackJoin = () => {
+            openMovieFormAt = new Date()
+            if (!document.getElementById("movie-link").classList.contains("finished")){
+                setTimeout(checkIsSlackJoined, 1000)
+            }
+        }
         let openMovieFormAt = new Date()
         const checkMovieUploaded = () => {
             fetch("{% url 'api_movie_uploaded' circle.pk %}")
@@ -60,6 +79,7 @@
             イベント参加に必要な準備を進めてください！
         </p>
         <section style="margin-top: 3em">
+            <p class="task-link"><a{% if slack %} class="finished"{% endif %} id="slack-link" onclick="openMovieForm()" href="{{ slack_join_url }}" target="_blank">Slackサークスペースに参加</a></p>
             <p class="task-link">
                 <a {% if circle.pamphlet and circle.comment %}class="finished" {% elif circle.pamphlet or circle.website_url or circle.twitter_sn or circle.instagram_id or circle.comment %}class="editing" {% endif %}href="{% url 'circle_admin_info' circle.pk %}">サークル基本情報の登録</a>
             </p>

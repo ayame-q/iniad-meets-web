@@ -11,6 +11,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
 import json, re, csv, datetime
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from .models import Entry, Circle, UserRole, ChatLog, Status
 from .serializers import CircleSerializer
 from . import forms
@@ -75,8 +77,17 @@ class CircleAdminGenericListView(CircleAdminListPageMixin, ListView):
 class CircleAdminMenuView(CircleAdminSinglePageMixin, DetailView):
     template_name = "meets/circle/admin/menu.html"
     extra_context = {
-        "movie_form_url": os.environ.get("MOVIE_FORM_URL")
+        "movie_form_url": os.environ.get("MOVIE_FORM_URL"),
+        "slack_join_url": os.environ.get("SLACK_JOIN_URL")
     }
+
+    def get_context_data(self, **kwargs):
+        context = super(CircleAdminMenuView, self).get_context_data(**kwargs)
+        if self.request.user.slack_id:
+            context["slack"] = True
+        else:
+            context["slack"] = bool(self.request.user.get_slack_info())
+        return context
 
 
 class CircleAdminInfoView(CircleAdminSinglePageMixin, UpdateView):
@@ -148,6 +159,28 @@ class MovieUploadedAPI(APIView):
         circle.movie_uploaded_at = datetime.datetime.now()
         circle.save()
         return Response({"error": False})
+
+
+class IsSlackJoinedAPI(APIView):
+    def get(self, request):
+        is_slack_joined = bool(self.request.user.slack_id)
+        return Response({"is_slack_joined": is_slack_joined})
+
+
+class SlackChallengeAPI(APIView):
+    def get(self, request):
+        challenge = request.data.get["challenge"]
+        return Response({"challenge": challenge})
+
+
+class SlackNewUserAPI(APIView):
+    def get(self, request):
+        email = request.data["profile"]["email"]
+        try:
+            user = User.object.get(email=email)
+            user.get_slack_info()
+        except User.DoesNotExist:
+            pass
 
 
 # Old views
