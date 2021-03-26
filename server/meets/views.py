@@ -185,7 +185,9 @@ class SlackChallengeAPI(APIView):
 
 
 class SlackNewUserAPI(APIView):
-    def get(self, request):
+    permission_classes = ()
+    authentication_classes = ()
+    def post(self, request):
         email = request.data["profile"]["email"]
         try:
             user = User.object.get(email=email)
