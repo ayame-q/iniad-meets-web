@@ -82,7 +82,7 @@ class CircleAdminListPageMixin(UserAdminCirclesMixin, LoginRequiredMixin):
 
 
 class CircleAdminGenericListView(CircleAdminListPageMixin, ListView):
-    template_name = "meets/circle/admin/info.html"
+    template_name = "meets/circle/admin/list.html"
 
 
 class CircleAdminMenuView(CircleAdminSinglePageMixin, DetailView):

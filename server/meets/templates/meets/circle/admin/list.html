@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:wght@600&family=M+PLUS+Rounded+1c:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "/css/admin.css" %}?1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="description" content="INIAD 公認サークルの合同Web新歓のページです。">
+    <meta property="og:url" content="https://meets.iniad.net/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="INIAD meets Web">
+    <meta property="og:description" content="INIAD 公認サークルの合同Web新歓のページです。">
+    <meta property="og:site_name" content="INIAD meets Web">
+    <meta property="og:image" content="https://meets.iniad.net/static/img/thumbnail.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@iniad_webmedia">
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163289416-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-163289416-1');
+    </script>
+    <title>管理サークルリスト - INIAD meets web</title>
+</head>
+<body>
+<header>
+    <h1><img src="{% static "/img/logo.svg" %}" alt="INIAD meets Web"></h1>
+</header>
+<main>
+    <section id="list-page">
+        <h2>サークル管理ページ</h2>
+        {% if admin_circles.count > 1 %}
+            <nav style="font-size: 1.2em">
+                <dl>
+                    <dt><label for="circle-list">操作するサークル</label></dt>
+                    <dd><select id="circle-list">
+                        <option value="./">サークル選択</option>
+                        {% for c in admin_circles %}
+                            <option value="{{ c.pk }}"{% if circle.pk == c.pk %} selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select></dd>
+                </dl>
+                <script>
+                    const circleListElement = document.getElementById("circle-list");
+                    circleListElement.addEventListener("change", (event) => {
+                        window.location.href = event.target.value;
+                    })
+                </script>
+            </nav>
+        {% endif %}
+    </section>
+</main>
+</body>
+</html>
