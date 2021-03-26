@@ -61,7 +61,7 @@ class Circle(BaseModel):
     website_url = models.URLField(null=True, blank=True, verbose_name="WebサイトURL")
     twitter_sn = models.CharField(max_length=15, null=True, blank=True, verbose_name="Twitter ID")
     instagram_id = models.CharField(max_length=30, null=True, blank=True, verbose_name="Instagram ID")
-    comment = models.TextField(blank=True, default="", verbose_name="一言説明")
+    comment = models.TextField(max_length=80, blank=True, default="", verbose_name="一言説明")
     pamphlet = models.FileField(null=True, blank=True, validators=[FileExtensionValidator(allowed_extensions=["pdf"])], verbose_name="サークル資料(PDF)")
     movie_uploaded_at = models.DateTimeField(null=True, blank=True, default=None, verbose_name="動画アップロード時刻")
     entry_webhook = models.URLField(null=True, blank=True, verbose_name="登録時Webhook")

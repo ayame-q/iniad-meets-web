@@ -33,9 +33,19 @@ class CircleInfoForm(BaseForm):
         super(CircleInfoForm, self).__init__(*args, **kwargs)
         self.fields["pamphlet"].help_text = "16:9で1ページのPDFファイルがオススメです。"
         self.fields["pamphlet"].widget.attrs["accept"] = "application/pdf"
+        self.fields["comment"].help_text = "80文字以内かつ3行以内で入力してください。"
+
+    def clean_comment(self):
+        text = self.cleaned_data["comment"]
+        if text.count("\n") > 3:
+            raise forms.ValidationError("3行以内で入力してください")
+        if len(text) > 80:
+            raise forms.ValidationError("80文字以内で入力してください")
+        return text
 
     def clean_pamphlet(self):
         file = self.cleaned_data["pamphlet"]
-        _, ext = os.path.splitext(file.name)
-        file.name = str(uuid4()) + ext.lower()
+        if file:
+            _, ext = os.path.splitext(file.name)
+            file.name = str(uuid4()) + ext.lower()
         return file
