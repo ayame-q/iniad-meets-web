@@ -54,7 +54,7 @@
                         <th>{{ circle.name }}</th>
                         <td style="font-size: 0.8em">{{ circle.leader_name }}<br>{{ circle.entry_user_name }}</td>
                         <td>{% if circle.comment %}○{% elif circle.website_url or circle.twitter_sn or circle.instagram_id %}<span class="not-yet">△</span>{% else %}<span class="not-yet">×</span>{% endif %}</td>
-                        <td>{% if circle.pamphlet %}○{% else %}<span class="not-yet">×</span>{% endif %}</td>
+                        <td>{% if circle.pamphlet %}<a href="{{ circle.pamphlet.url }}">○</a>{% else %}<span class="not-yet">×</span>{% endif %}</td>
                         <td>{% if circle.movie_uploaded_at %}○{% else %}<span class="not-yet">×</span>{% endif %}</td>
                         <td class="detail" style="font-size: 0.6em">{% if circle.comment %}{{ circle.comment | linebreaksbr }}{% endif %}</td>
                         <td class="detail">{% if circle.website_url %}<a href="{{ circle.website_url }}" target="_blank">{{ circle.website_url }}</a>{% endif %}</td>
