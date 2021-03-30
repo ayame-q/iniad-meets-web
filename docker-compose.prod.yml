@@ -14,6 +14,8 @@ services:
       - "client_dist:/usr/src/app/client"
       - "django_static:/usr/src/app/django_static"
       - "./server/upload_files:/usr/src/app/upload_files"
+    ports:
+      - "8002:80"
     restart: always
   nodejs:
     volumes:

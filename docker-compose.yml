@@ -24,7 +24,7 @@ services:
       - "django"
       - "nodejs"
     ports:
-      - "8001:80"
+      - "8080:80"
   nodejs:
     build: client
     env_file:
