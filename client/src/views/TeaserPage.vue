@@ -9,13 +9,13 @@
 			</time></p>
 			<ul class="sns-share">
 				<li>
-					<a href="https://twitter.com/intent/tweet?url=https://meets.iniad.net&text=INIADのサークル情報満載！「INIAD meets Web」2021.4.21 18:00開場 &hashtags=INIADmeetsweb&related=iniad_webmedia&via=iniad_webmedia">
+					<a href="https://twitter.com/intent/tweet?url=https://meets.iniad.net&text=INIADのサークル情報満載！「INIAD meets web」2021.4.21 18:00開場 &hashtags=INIADmeetsweb&related=iniad_webmedia&via=iniad_webmedia">
 						<font-awesome-icon v-bind:icon="['fab', 'twitter']"></font-awesome-icon>
 						ツイート
 					</a>
 				</li>
 				<li class="sns-share-line">
-					<a href="https://line.me/R/msg/text/?INIADのサークル情報満載！「INIAD meets Web」2021.4.21 18:00開場 https://meets.iniad.net" class="sns-share-line">
+					<a href="https://line.me/R/msg/text/?INIADのサークル情報満載！「INIAD meets web」2021.4.21 18:00開場 https://meets.iniad.net" class="sns-share-line">
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 87.38 83.26"><path class="cls-1" d="M87.38,35.46C87.38,15.91,67.78,0,43.69,0S0,15.91,0,35.46c0,17.52,15.54,32.2,36.54,35,1.42.3,3.36.93,3.85,2.15a8.94,8.94,0,0,1,.14,4l-.62,3.74c-.19,1.11-.88,4.32,3.78,2.36S68.85,67.82,78,57.27h0C84.35,50.33,87.38,43.28,87.38,35.46ZM28.28,45.89a.85.85,0,0,1-.85.85H15.18a.89.89,0,0,1-.59-.23h0v0a.83.83,0,0,1-.24-.59h0v-19a.85.85,0,0,1,.85-.85h3.07a.85.85,0,0,1,.85.85V42h8.33a.85.85,0,0,1,.85.85Zm7.38,0a.85.85,0,0,1-.85.84H31.75a.85.85,0,0,1-.85-.84v-19a.85.85,0,0,1,.85-.85h3.06a.85.85,0,0,1,.85.85Zm21.1,0a.85.85,0,0,1-.85.84H52.84l-.21,0h0l-.06,0h-.06l0,0,0,0-.05,0h0a1,1,0,0,1-.21-.21l-8.74-11.8V45.9a.85.85,0,0,1-.85.84H39.5a.86.86,0,0,1-.86-.84v-19A.86.86,0,0,1,39.5,26h3.29l.05,0h0l.05,0h0l0,0h0l0,0,0,0,.05,0h0l.06.05h0l.07.09L52,38.17V26.86a.85.85,0,0,1,.85-.85h3.07a.85.85,0,0,1,.85.85Zm16.92-16a.86.86,0,0,1-.85.86H64.5V34h8.33a.85.85,0,0,1,.85.85v3.07a.85.85,0,0,1-.85.85H64.5V42h8.33a.85.85,0,0,1,.85.85v3.06a.85.85,0,0,1-.85.85H60.59a.87.87,0,0,1-.59-.23h0v0a.83.83,0,0,1-.24-.58h0v-19h0a.87.87,0,0,1,.23-.59h0a.83.83,0,0,1,.59-.24H72.83a.85.85,0,0,1,.85.85Z"/></svg>
 						LINEで送る
 					</a>
