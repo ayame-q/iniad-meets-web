@@ -9,7 +9,7 @@
 			</time></p>
 			<ul class="sns-share">
 				<li>
-					<a href="https://twitter.com/intent/tweet?url=https://meets.iniad.net&text=INIADのサークル情報満載！「INIAD meets Web」2021.4.21 18:00開場 &hashtags=#INIADmeetsweb&related=iniad_webmedia&via=iniad_webmedia">
+					<a href="https://twitter.com/intent/tweet?url=https://meets.iniad.net&text=INIADのサークル情報満載！「INIAD meets Web」2021.4.21 18:00開場 &hashtags=INIADmeetsweb&related=iniad_webmedia&via=iniad_webmedia">
 						<font-awesome-icon v-bind:icon="['fab', 'twitter']"></font-awesome-icon>
 						ツイート
 					</a>
@@ -118,6 +118,9 @@ html{
 		a{
 			color: #222222;
 			text-decoration: none;
+			&:hover{
+				text-decoration: underline;
+			}
 		}
 	}
 }
