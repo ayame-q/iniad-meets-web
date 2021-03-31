@@ -4,9 +4,11 @@
 	"private": true,
 	"scripts": {
 		"serve": "vue-cli-service serve",
-		"build": "vue-cli-service build"
+		"build": "vue-cli-service build",
+		"build-no-clean": "vue-cli-service build --no-clean"
 	},
 	"dependencies": {
+		"axios": "^0.21.1",
 		"core-js": "^3.6.5",
 		"vue": "^2.6.11",
 		"vue-js-modal": "^2.0.0-rc.6",
