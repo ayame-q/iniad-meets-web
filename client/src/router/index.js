@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import VueMeta from "vue-meta";
+import VueGtag from "vue-gtag";
 
 Vue.use(VueRouter);
 Vue.use(VueMeta);
@@ -23,5 +24,11 @@ const router = new VueRouter({
 	base: process.env.BASE_URL,
 	routes,
 });
+
+if (process.env.VUE_APP_GOOGLE_ANALYTICS_ID){
+	Vue.use(VueGtag, {
+		config: { id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID }
+	}, router);
+}
 
 export default router;
