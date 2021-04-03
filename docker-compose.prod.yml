@@ -21,7 +21,6 @@ services:
     volumes:
       - "./client/src:/usr/src/app/src"
       - "client_dist:/usr/src/app/dist"
-    restart: always
 
 volumes:
   database:
