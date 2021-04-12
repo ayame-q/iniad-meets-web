@@ -70,7 +70,7 @@
                     return response.json()
                 })
                 .then((result) => {
-                    if (new Date(result.movie_uploaded_at) > openLogoFormAt){
+                    if (new Date(result.logo_uploaded_at) > openLogoFormAt){
                         document.getElementById("logo-link").classList.add("finished")
                     } else {
                         setTimeout(checkLogoUploaded, 1000)
