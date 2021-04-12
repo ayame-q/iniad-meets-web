@@ -101,6 +101,7 @@ class CircleAdminMenuView(CircleAdminSinglePageMixin, DetailView):
     template_name = "meets/circle/admin/menu.html"
     extra_context = {
         "movie_form_url": os.environ.get("MOVIE_FORM_URL"),
+        "logo_form_url": os.environ.get("LOGO_FORM_URL"),
         "slack_join_url": os.environ.get("SLACK_JOIN_URL")
     }
 
@@ -182,6 +183,35 @@ class MovieUploadedAPI(APIView):
         circle.movie_uploaded_at = datetime.datetime.now()
         circle.save()
         return Response({"error": False})
+
+
+class LogoUploadedAPI(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
+    def get(self, request, pk):
+        uuid = pk
+        try:
+            circle = Circle.objects.get(uuid=uuid)
+        except Circle.DoesNotExist:
+            raise ObjectDoesNotExist
+        return Response({"logo_uploaded_at": circle.logo_uploaded_at})
+
+    def post(self, request, pk):
+        uuid = pk
+        password = request.data.get("password")
+        url = request.data.get("url")
+        if not password == os.environ.get("LOGO_UPLOADED_API_PASSWORD"):
+            return Response({"error": True})
+        try:
+            circle = Circle.objects.get(uuid=uuid)
+        except Circle.DoesNotExist:
+            return Response({"error": True})
+        circle.logo_uploaded_at = datetime.datetime.now()
+        circle.logo_url = url
+        circle.save()
+        return Response({"error": False})
+
 
 
 class IsSlackJoinedAPI(APIView):

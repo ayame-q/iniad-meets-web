@@ -28,19 +28,18 @@
     <script>
         const checkIsSlackJoined = () => {
             fetch("{% url 'api_is_slack_joined' %}")
-                    .then((response) => {
-                        return response.json()
-                    })
-                    .then((result) => {
-                        if (result.is_slack_joined){
-                            document.getElementById("slack-link").classList.add("finished")
-                        } else {
-                            setTimeout(checkMovieUploaded, 1000)
-                        }
-                    })
+                .then((response) => {
+                    return response.json()
+                })
+                .then((result) => {
+                    if (result.is_slack_joined){
+                        document.getElementById("slack-link").classList.add("finished")
+                    } else {
+                        setTimeout(checkIsSlackJoined, 1000)
+                    }
+                })
         }
         const openSlackJoin = () => {
-            openMovieFormAt = new Date()
             if (!document.getElementById("movie-link").classList.contains("finished")){
                 setTimeout(checkIsSlackJoined, 1000)
             }
@@ -63,6 +62,25 @@
             openMovieFormAt = new Date()
             document.getElementById("movie-link").classList.remove("finished")
             setTimeout(checkMovieUploaded, 1000)
+        }
+        let openLogoFormAt = new Date()
+        const checkLogoUploaded = () => {
+            fetch("{% url 'api_logo_uploaded' circle.pk %}")
+                .then((response) => {
+                    return response.json()
+                })
+                .then((result) => {
+                    if (new Date(result.movie_uploaded_at) > openLogoFormAt){
+                        document.getElementById("logo-link").classList.add("finished")
+                    } else {
+                        setTimeout(checkLogoUploaded, 1000)
+                    }
+                })
+        }
+        const openLogoForm = () => {
+            openLogoFormAt = new Date()
+            document.getElementById("logo-link").classList.remove("finished")
+            setTimeout(checkLogoUploaded, 1000)
         }
     </script>
     <title>サークル参加受付 - INIAD meets web</title>
@@ -120,6 +138,12 @@
                 <a{% if circle.admin_users.count > 1 or circle.staff_users.count > 1 %} class="finished"{% endif %} href="{% url 'circle_admin_members' circle.pk %}">
                     <span class="task-link-title">サークルスタッフの追加 (必要な場合)</span>
                     <small>当日質問対応するスタッフ、このページで情報の登録や動画・PDFのアップロードなどを行える人を追加できます。</small>
+                </a>
+            </p>
+            <p class="task-link">
+                <a{% if circle.logo_uploaded_at %} class="finished"{% endif %} id="logo-link" onclick="openLogoForm()" href="{{ logo_form_url }}{{ circle.uuid }}" target="_blank">
+                    ロゴ画像のアップロード (4/15締切)
+                    <small>サークルのロゴ画像をAdobe Illustrator形式(.ai)またはPNG(.png)でアップロードしてください</small>
                 </a>
             </p>
         </section>
