@@ -308,9 +308,11 @@ main > article, main > section{
         table{
             text-align: center;
             th{
-                position: sticky;
-                top: 0;
-                left: 0;
+                @include media(large){
+                    position: sticky;
+                    top: 0;
+                    left: 0;
+                }
             }
             th, td{
                 background-color: white;

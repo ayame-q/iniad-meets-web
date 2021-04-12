@@ -264,10 +264,12 @@ main > article, main > section {
 #entries-list-page .table-wrap table {
   text-align: center;
 }
-#entries-list-page .table-wrap table th {
-  position: sticky;
-  top: 0;
-  left: 0;
+@media (min-width: 481px) {
+  #entries-list-page .table-wrap table th {
+    position: sticky;
+    top: 0;
+    left: 0;
+  }
 }
 #entries-list-page .table-wrap table th, #entries-list-page .table-wrap table td {
   background-color: white;
