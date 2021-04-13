@@ -27,12 +27,13 @@ class CircleJoinForm(BaseForm):
 class CircleInfoForm(BaseForm):
     class Meta:
         model = Circle
-        fields = ("name", "leader_name", "entry_user_name", "pamphlet", "website_url", "twitter_sn", "instagram_id", "comment")
+        #fields = ("name", "leader_name", "entry_user_name", "pamphlet", "website_url", "twitter_sn", "instagram_id", "comment")
+        fields = ("name", "leader_name", "entry_user_name", "website_url", "twitter_sn", "instagram_id", "comment")
 
     def __init__(self, *args, **kwargs):
         super(CircleInfoForm, self).__init__(*args, **kwargs)
-        self.fields["pamphlet"].help_text = "16:9で1ページのPDFファイルがオススメです。"
-        self.fields["pamphlet"].widget.attrs["accept"] = "application/pdf"
+        #self.fields["pamphlet"].help_text = "16:9で1ページのPDFファイルがオススメです。"
+        #self.fields["pamphlet"].widget.attrs["accept"] = "application/pdf"
         self.fields["comment"].help_text = "80文字以内かつ3行以内で入力してください。"
 
     def clean_comment(self):
