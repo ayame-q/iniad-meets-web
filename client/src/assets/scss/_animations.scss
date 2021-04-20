@@ -1,0 +1,12 @@
+@mixin drawerAnimation{
+	-webkit-transition: all 400ms cubic-bezier(1.000, 0.000, 0.000, 1.000);
+	-moz-transition: all 400ms cubic-bezier(1.000, 0.000, 0.000, 1.000);
+	-o-transition: all 400ms cubic-bezier(1.000, 0.000, 0.000, 1.000);
+	transition: all 400ms cubic-bezier(1.000, 0.000, 0.000, 1.000);
+
+	-webkit-transition-timing-function: cubic-bezier(1.000, 0.000, 0.000, 1.000);
+	-moz-transition-timing-function: cubic-bezier(1.000, 0.000, 0.000, 1.000);
+	-o-transition-timing-function: cubic-bezier(1.000, 0.000, 0.000, 1.000);
+	transition-timing-function: cubic-bezier(1.000, 0.000, 0.000, 1.000);
+}
+

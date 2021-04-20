@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Circle, ChatLog
+from .models import Circle, ChatLog, Entry, User
 
 class RecursiveField(serializers.Serializer):
     def to_representation(self, value):
@@ -20,7 +20,13 @@ class CircleAdminSerializer(serializers.ModelSerializer):
         fields = ("uuid", "name", "leader_name", "pamphlet", "website_url", "twitter_sn", "instagram_id", "comment")
 
 
-class ChatLogSerializer(serializers.ModelSerializer):
+class CircleEntrySerializer(serializers.ModelSerializer):
     class Meta:
-        model = ChatLog
-        fields = ()
+        model = Entry
+        fields = ("circle",)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("display_name", "family_name", "given_name", "family_name_ruby", "given_name_ruby")

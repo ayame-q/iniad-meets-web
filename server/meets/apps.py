@@ -6,3 +6,8 @@ class MeetsConfig(AppConfig):
 
     def ready(self):
         from . import signals
+        from .models import Status
+        try:
+            Status.get_instance()
+        except Status.DoesNotExist:
+            Status.objects.create()

@@ -4,7 +4,8 @@ from . import views
 urlpatterns = [
     path("api/v2/circle/<uuid:pk>", views.CircleInfoAPIView.as_view(), name="api_circle_info"),
     #path("api/v2/user/", ),
-    #path("api/v2/entry/<int:pk>"),
+    path("api/v2/entry/", views.CircleEntryAPIView.as_view(), name="api_entry"),
+    path("api/v2/user/", views.UserRetrieveUpdateAPIView.as_view(), name="api_euser"),
     path("api/v2/movie_uploaded/<uuid:pk>", views.MovieUploadedAPI.as_view(), name="api_movie_uploaded"),
     path("api/v2/logo_uploaded/<uuid:pk>", views.LogoUploadedAPI.as_view(), name="api_logo_uploaded"),
     path("api/v2/is_slack_joined", views.IsSlackJoinedAPI.as_view(), name="api_is_slack_joined"),

@@ -1,13 +1,15 @@
 from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from allauth.socialaccount.models import SocialAccount
 from slack_sdk import WebClient as SlackWebClient
 from slack_sdk.errors import SlackApiError
-from uuid import uuid4
-import requests, json, os
+from uuid import uuid4, UUID
+import requests, json, os, datetime, hashlib
 
 
 class BaseModel(models.Model):
@@ -24,7 +26,10 @@ class UserRole(BaseModel):
 class User(AbstractUser):
     uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4, verbose_name="UUID")
     student_id = models.CharField(max_length=10, default="", null=True, blank=True, verbose_name="学籍番号")
-    name = models.CharField(max_length=40, default="", null=True, blank=True, verbose_name="本名")
+    family_name = models.CharField(max_length=40, default="", null=True, blank=True, verbose_name="姓")
+    given_name = models.CharField(max_length=40, default="", null=True, blank=True, verbose_name="名")
+    family_name_ruby = models.CharField(max_length=40, default="", null=True, blank=True, verbose_name="姓(フリガナ)")
+    given_name_ruby = models.CharField(max_length=40, default="", null=True, blank=True, verbose_name="名(フリガナ)")
     display_name = models.CharField(max_length=20, default="No name", verbose_name="公開名")
     is_display_name_initialized = models.BooleanField(default=False, verbose_name="公開名初期化済み")
     entry_year = models.IntegerField(null=True, blank=True, verbose_name="入学年度")
@@ -32,6 +37,12 @@ class User(AbstractUser):
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="作成日")
     is_student = models.BooleanField(default=False, verbose_name="学生か")
     slack_id = models.CharField(max_length=20, null=True, blank=True, default=None, verbose_name="Slack ID")
+
+    def get_name(self):
+        return self.family_name + " " + self.given_name
+
+    def get_name_ruby(self):
+        return self.family_name_ruby + " " + self.given_name_ruby
 
     def get_class(self):
         if self.is_student:
@@ -49,6 +60,26 @@ class User(AbstractUser):
         except SlackApiError:
             return None
 
+    def to_obj(self):
+        return {
+            "uuid": self.uuid,
+            "display_name": self.display_name,
+            "is_display_name_initialized": self.is_display_name_initialized,
+            "family_name": self.family_name,
+            "given_name": self.given_name,
+            "family_name_ruby": self.family_name_ruby,
+            "given_name_ruby": self.given_name_ruby,
+            "staff_circles": [circle.to_obj() for circle in self.role.staff_circles.all()] if self.role else [],
+            "is_admin": self.is_superuser
+        }
+
+
+def get_circle_thumbnail_path(self, filename):
+    prefix = 'thumbnail/'
+    name = str(uuid4())
+    extension = os.path.splitext(filename)[-1]
+    return prefix + name + extension
+
 
 class Circle(BaseModel):
     name = models.CharField(max_length=50, verbose_name="サークル名")
@@ -57,7 +88,6 @@ class Circle(BaseModel):
     staff_users = models.ManyToManyField(UserRole, blank=True, related_name="staff_circles", verbose_name="スタッフ")
     admin_users = models.ManyToManyField(UserRole, blank=True, related_name="admin_circles", verbose_name="管理者")
     order = models.IntegerField(null=True, blank=True, verbose_name="順番")
-    start_time_sec = models.IntegerField(null=True, blank=True, verbose_name="開始時刻(秒)")
     website_url = models.URLField(null=True, blank=True, verbose_name="WebサイトURL")
     twitter_sn = models.CharField(max_length=15, null=True, blank=True, verbose_name="Twitter ID")
     instagram_id = models.CharField(max_length=30, null=True, blank=True, verbose_name="Instagram ID")
@@ -66,26 +96,87 @@ class Circle(BaseModel):
     movie_uploaded_at = models.DateTimeField(null=True, blank=True, default=None, verbose_name="動画アップロード時刻")
     logo_uploaded_at = models.DateTimeField(null=True, blank=True, default=None, verbose_name="ロゴアップロード時刻")
     logo_url = models.URLField(null=True, blank=True, verbose_name="ロゴURL")
+    thumbnail = models.ImageField(null=True, upload_to=get_circle_thumbnail_path, blank=True, verbose_name="サムネイル画像")
     entry_webhook = models.URLField(null=True, blank=True, verbose_name="登録時Webhook")
+    entry_webhook_password = models.CharField(max_length=36, null=True, blank=True, verbose_name="登録時WebhookPassword")
     do_notify_join = models.BooleanField(default=True, verbose_name="入会者をSlackで通知する")
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="登録日")
+
+    def to_obj(self):
+        return {
+            "uuid": self.uuid,
+            "name": self.name,
+            "comment": self.comment,
+            "pamphlet_url": self.pamphlet.url,
+            "website_url": self.website_url,
+            "twitter_sn": self.twitter_sn,
+            "instagram_id": self.instagram_id,
+            "thumbnail_url": self.thumbnail.url if self.thumbnail else None
+        }
 
 
 class ChatLog(BaseModel):
     comment = models.TextField(verbose_name="コメント")
     send_user = models.ForeignKey(User, related_name="chat_logs", on_delete=models.CASCADE, verbose_name="送信者")
     sender_circle = models.ForeignKey(Circle, related_name="chat_logs", null=True, blank=True, on_delete=models.SET_NULL, verbose_name="送信元サークル")
-    receiver_circle = models.ForeignKey(Circle, related_name="questions", null=True, blank=True, on_delete=models.SET_NULL, verbose_name="宛先サークル")
+    receiver_circle = models.ForeignKey(Circle, related_name="get_chat_logs", null=True, blank=True, on_delete=models.SET_NULL, verbose_name="宛先サークル")
     parent = models.ForeignKey("self", related_name="replies", null=True, blank=True, on_delete=models.SET_NULL, verbose_name="返信先")
     is_anonymous = models.BooleanField(default=False, verbose_name="匿名投稿")
+    is_admin_message = models.BooleanField(default=False, verbose_name="運営メッセージ")
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="作成日")
     reacted_users = models.ManyToManyField(User, through="ChatLogReaction", verbose_name="リアクション済みユーザー")
 
+    def to_obj(self):
+        return {
+            "uuid": self.uuid,
+            "comment": self.comment,
+            "send_user_name": (self.send_user.display_name if not self.is_anonymous else "匿名") if not self.is_admin_message else "運営",
+            "receiver_user": {
+                "uuid": self.parent.send_user.uuid,
+                "name": self.parent.send_user.display_name if not self.parent.is_anonymous else "匿名",
+            } if self.parent else None,
+            "sender_circle": {
+                "uuid": self.sender_circle.uuid,
+                "name": self.sender_circle.name
+            } if self.sender_circle else None,
+            "receiver_circle": {
+                "uuid": self.receiver_circle.uuid,
+                "name": self.receiver_circle.name
+            } if self.receiver_circle else None,
+            "is_admin_message": self.is_admin_message,
+            "is_question": bool(self.receiver_circle),
+            "is_answer": bool(self.parent and self.parent.receiver_circle and self.parent.receiver_circle == self.sender_circle),
+            "parent": self.parent.to_obj() if self.parent else None,
+            "reactions": [reaction.to_obj() for reaction in self.reactions.all()],
+            "created_at": self.created_at
+        }
 
-class ChatLogReaction(models.Model):
+
+reaction_accept_emojis = ["😀", "😆", "😅", "🤣", "😍", "☺️", "😉", "🥳", "🥺", "🤗", "🤔", "👏", "🤝", "👍", "🙏", "👀", "🙋", "🙇", "🍩", "💕", "⁉️", "✔️", "💯", "🆗", "🆖"]
+
+
+class ChatLogReaction(BaseModel):
     chat_log = models.ForeignKey(ChatLog, related_name="reactions", on_delete=models.CASCADE, verbose_name="ログ")
     user = models.ForeignKey(User, related_name="reactions", on_delete=models.CASCADE, verbose_name="ユーザー")
-    reaction = models.CharField(max_length=2, verbose_name="リアクション")
+    reaction = models.CharField(max_length=4, verbose_name="リアクション")
+
+    def to_obj(self):
+        return {
+            "uuid": self.uuid,
+            "chat_log_uuid": self.chat_log.uuid,
+            "user": {
+                "uuid": self.user.uuid,
+                "name": self.user.display_name,
+            },
+            "reaction": self.reaction
+        }
+
+    def save(self, *args, **kwargs):
+        if self.reaction not in reaction_accept_emojis:
+            raise ValidationError("Not accepted emojis")
+        if ChatLogReaction.objects.filter(chat_log=self.chat_log, user=self.user, reaction=self.reaction).exists():
+            raise ValidationError("Cannot add many times same reaction")
+        super(ChatLogReaction, self).save(*args, **kwargs)
 
 
 class Entry(BaseModel):
@@ -93,17 +184,63 @@ class Entry(BaseModel):
     circle = models.ForeignKey(Circle, on_delete=models.CASCADE, related_name="entries", verbose_name="サークル")
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="登録日")
 
-    def __init__(self):
+    def to_obj(self):
+        return {
+            "user": {
+                "email": self.user.email,
+                "full_name": self.user.get_name(),
+                "family_name": self.user.family_name,
+                "given_name": self.user.given_name,
+                "student_id": self.user.student_id,
+            },
+            "circle": {
+                "uuid": self.circle.uuid,
+                "name": self.circle.name,
+            },
+            "created_at": self.created_at
+        }
+
+    def save(self, *args, **kwargs):
+        if Entry.objects.filter(circle=self.circle, user=self.user).exists():
+            raise ValidationError("既に入会受付済みです。")
+        if not self.user.family_name or not self.user.given_name:
+            raise ValidationError("先に氏名を登録してください")
+        result = super(Entry, self).save(*args, **kwargs)
+        self.post_webhook()
+        self.post_slack()
+        return result
+
+    def post_webhook(self):
         if self.circle.entry_webhook:
-            data = {}
+            dat = self.created_at.isoformat() + self.circle.entry_webhook_password
+            token = hashlib.sha256(dat.encode()).hexdigest()
+
             headers = {
-                'content-type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authentication': 'Token ' + token
             }
             try:
-                requests.post(url=self.circle.entry_webhook, data=json.dumps(data), headers=headers)
+                requests.post(url=self.circle.entry_webhook, data=json_dumps(self.to_obj()), headers=headers)
             except Exception as err:
                 print(err)
-        super(Entry, self).__init__()
+
+    def post_slack(self):
+        client = SlackWebClient(token=os.environ['SLACK_BOT_TOKEN'])
+
+        message = f"""{self.circle.name}の入会受付がありました。
+> 氏名:　　　{self.user.get_name()}
+> フリガナ:　{self.user.get_name_ruby()}
+> 学籍番号:　{self.user.student_id}
+> メール:　　{self.user.email}
+> 受付日時:　{self.created_at.strftime("%Y-%m-%d %H:%M:%S")}
+"""
+        users = [user_role.userinfo.slack_id for user_role in self.circle.admin_users.all() if user_role.userinfo.slack_id]
+        res = client.conversations_open(users=users)
+        dm_id = res['channel']['id']
+        try:
+            client.chat_postMessage(channel=dm_id, text=message)
+        except SlackApiError as e:
+            print(f"Slack Error: {e.response['error']}")
 
 
 question_type_choices = (
@@ -114,19 +251,110 @@ question_type_choices = (
 
 class Question(BaseModel):
     type = models.SmallIntegerField(choices=question_type_choices, verbose_name="種類")
-    text = models.TextField(verbose_name="問題/質問")
-    start_time_sec = models.IntegerField(null=True, blank=True, verbose_name="開始時刻(秒)")
-    thinking_time_sec = models.IntegerField(null=True, blank=True, verbose_name="検討時間(秒)")
+    text = models.TextField(default="", verbose_name="問題/質問")
+
+    def responses(self):
+        return QuestionResponse.objects.filter(selection__in=self.selections)
+
+    def to_obj(self):
+        return {
+            "uuid": self.uuid,
+            "type": self.type,
+            "text": self.text,
+            "selections": [selection.to_obj() for selection in self.selections.all()],
+            "correct_uuid": self.selections.get(is_correct=True).uuid
+        }
+
+    def to_obj_start(self):
+        return {
+            "uuid": self.uuid,
+            "type": self.type,
+            "text": self.text,
+            "selections": [selection.to_obj_start() for selection in self.selections.all()],
+        }
+
+    def to_obj_end(self):
+        if self.type == 1:
+            return {
+                "uuid": self.uuid,
+                "correct": self.selections.get(is_correct=True).uuid
+            }
+        if self.type == 2:
+            return {
+                "uuid": self.uuid,
+                "selections": [selection.to_obj() for selection in self.selections.all()],
+            }
+
 
 
 class QuestionSelection(BaseModel):
     question = models.ForeignKey(Question, related_name="selections", on_delete=models.CASCADE, verbose_name="問題/質問")
-    is_correct = models.BooleanField(verbose_name="正解か")
+    text = models.TextField(default="", verbose_name="選択肢")
+    is_correct = models.BooleanField(default=False, verbose_name="正解か")
+
+    def percentage(self):
+        if self.question.responses().count() == 0:
+            return 0
+        return self.responses.count() / self.question.responses().count()
+
+    def to_obj(self):
+        return {
+            "uuid": self.uuid,
+            "text": self.text,
+            "percentage": self.percentage(),
+            "question_uuid": self.question.uuid,
+        }
+
+    def to_obj_start(self):
+        return {
+            "uuid": self.uuid,
+            "text": self.text,
+            "question_uuid": self.question.uuid,
+        }
 
 
-class QuestionAnswer(BaseModel):
-    user = models.ForeignKey(User, related_name="question_answers", on_delete=models.CASCADE, verbose_name="クイズ・アンケート回答")
-    selection = models.ForeignKey(QuestionSelection, related_name="answers", on_delete=models.CASCADE, verbose_name="選択")
+class QuestionResponse(BaseModel):
+    user = models.ForeignKey(User, related_name="question_responses", on_delete=models.CASCADE, verbose_name="クイズ・アンケート回答")
+    selection = models.ForeignKey(QuestionSelection, related_name="responses", on_delete=models.CASCADE, verbose_name="選択")
+
+    def is_correct(self):
+        return self.selection.is_correct
+
+
+event_types = (
+    ("circle_start", "サークル開始"),
+    ("question_start", "クイズ・アンケート開始"),
+    ("question_result", "クイズ解答・アンケート結果発表"),
+    ("quiz_final_result", "クイズ最終結果発表"),
+    ("tutorial_info_start", "情報画面チュートリアル開始"),
+    ("tutorial_chat_start", "チャット画面チュートリアル開始"),
+    ("tutorial_list_start", "サークルリストチュートリアル開始"),
+    ("tutorial_hashtag_start", "ハッシュタグチュートリアル開始"),
+    ("pr_url_start", "URL宣伝"),
+    ("final_start", "最終画面表示")
+)
+
+
+class Event(BaseModel):
+    type = models.CharField(max_length=30, choices=event_types, verbose_name="種類")
+    start_time_sec = models.IntegerField(null=True, blank=True, verbose_name="開始時刻(秒)")
+    circle = models.OneToOneField(Circle, related_name="event", null=True, blank=True, on_delete=models.SET_NULL, verbose_name="サークル")
+    question = models.ForeignKey(Question, related_name="event", null=True, blank=True, on_delete=models.SET_NULL, verbose_name="クイズ/アンケート")
+    pr_url = models.URLField(null=True, blank=True, verbose_name="広告URL")
+    pr_text = models.TextField(null=True, blank=True, verbose_name="広告テキスト")
+
+    def to_obj(self):
+        result = {
+            "type": self.type,
+        }
+        if self.type == "question_start":
+            result["question"] = self.question.to_obj_start()
+        if self.type == "question_result":
+            result["question"] = self.question.to_obj_end()
+        if self.type == "pr_url_start":
+            result["pr_url"] = self.pr_url
+            result["pr_text"] = self.pr_text
+        return result
 
 
 status_choices = (
@@ -142,3 +370,19 @@ class Status(BaseModel):
     started_time = models.DateTimeField(null=True, blank=True, verbose_name="実際のイベント開始日時")
     planning_start_time = models.DateTimeField(null=True, blank=True, verbose_name="イベント開始予定日時")
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="作成日")
+
+    @classmethod
+    def get_instance(cls):
+        cls.objects.get()
+
+
+def json_serial(obj):
+    if isinstance(obj, (datetime.datetime, datetime.date)):
+        return obj.isoformat()
+    if isinstance(obj, UUID):
+        return str(obj)
+    raise TypeError (f'Type {obj} not serializable')
+
+
+def json_dumps(obj):
+    return json.dumps(obj, default=json_serial)

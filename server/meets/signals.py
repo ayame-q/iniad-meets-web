@@ -10,13 +10,15 @@ def signed_up(user, **kwargs):
     social_info = SocialAccount.objects.filter(user=user)[0]
     social_token = SocialToken.objects.filter(account=social_info)[0]
     if social_info.provider == "google":
-        user.display_name = social_info.extra_data["name"]
+        user.display_name = social_info.extra_data["given_name"]
         if social_info.extra_data["hd"] == "iniad.org":
-            match = re.match(r"s1f10(([0-9]{2})[0-9]{4})[0-9]{1}@iniad\.org", social_info.extra_data["email"])
+            match = re.match(r"s([0-9])f10(([0-9]{2})[0-9]{4})[0-9]{1}@iniad\.org", social_info.extra_data["email"])
             if(match):
-                user.entry_year = int(match.group(2)) + 2000
+                user.entry_year = int(match.group(3)) + 2000
+                if user.entry_year == 2021:
+                    user.display_name = social_info.extra_data["family_name"]
                 user.is_student = True  # 学生
-                user.student_id = "1F10" + match.group(1)
+                user.student_id = f"{match.group(1)}F10{match.group(2)}"
                 try:
                     user_role = UserRole.objects.get(email=social_info.extra_data["email"])
                     user.role = user_role
