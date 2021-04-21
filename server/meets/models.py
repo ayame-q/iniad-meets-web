@@ -258,6 +258,9 @@ class Question(BaseModel):
     type = models.SmallIntegerField(choices=question_type_choices, verbose_name="種類")
     text = models.TextField(default="", verbose_name="問題/質問")
 
+    def __str__(self):
+        return self.text + " (" + self.get_type_display() + ")"
+
     def responses(self):
         return QuestionResponse.objects.filter(selection__in=self.selections.all())
 
@@ -285,6 +288,9 @@ class QuestionSelection(BaseModel):
     question = models.ForeignKey(Question, related_name="selections", on_delete=models.CASCADE, verbose_name="問題/質問")
     text = models.TextField(default="", verbose_name="選択肢")
     is_correct = models.BooleanField(default=False, verbose_name="正解か")
+
+    def __str__(self):
+        return self.text + " (" + self.question.text + ")"
 
     def percentage(self):
         if self.question.responses().count() == 0:
