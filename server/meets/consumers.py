@@ -1,9 +1,7 @@
-from apscheduler.triggers.date import DateTrigger
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.utils import timezone, html
 from django.core.exceptions import ValidationError
-from apscheduler.schedulers.background import BackgroundScheduler
 import json, datetime, re, uuid
 from .models import ChatLog, ChatLogReaction, Circle, Status, Event, QuestionSelection, QuestionResponse
 from .views import get_status
