@@ -27,8 +27,24 @@
 </template>
 
 <script>
+import EmergencyMessage from "@/components/EmergencyMessage";
+import dayjs from "dayjs";
+
 export default {
 	name: "TeaserPage",
+	mounted() {
+		if (dayjs() < dayjs("2021/4/26 0:00:00")) {
+			this.$modal.show(
+				EmergencyMessage,
+				{},
+				{
+					width: "70%",
+					height: "70%",
+					draggable: true,
+				}
+			)
+		}
+	}
 };
 </script>
 
