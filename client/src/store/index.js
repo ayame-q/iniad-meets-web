@@ -210,7 +210,7 @@ export default new Vuex.Store({
 				return 1
 			}
 
-			const socket = new WebSocket("ws://" + window.location.host + "/ws/chat/")
+			const socket = new WebSocket(process.env.VUE_APP_WEBSOCKET_PROTOCOL + "://" + window.location.host + "/ws/chat/")
 
 			const jsonReviver = (key, val) => {
 				if (typeof(val) == "string" &&
