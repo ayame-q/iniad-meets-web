@@ -43,6 +43,7 @@ import ChatForm from "@/components/ChatForm";
 import CircleListView from "@/components/CircleListView";
 import VideoView from "@/components/VideoView";
 import EventView from "@/components/EventView";
+import axios from "axios";
 
 export default {
 	name: "VenuePage",
@@ -90,6 +91,12 @@ export default {
 		}
 	},
 	mounted() {
+		axios.get("/api/v2/is_authenticated", {withCredentials: true})
+		.then((response) => {
+			if (!response.data.is_authenticated) {
+				this.$router.push("/")
+			}
+		})
 		const chatLogWrapElement = document.getElementById("chat-log-wrap")
 		chatLogWrapElement.addEventListener("scroll", () => {
 			if (chatLogWrapElement.scrollTop >= chatLogWrapElement.scrollHeight - chatLogWrapElement.clientHeight) {

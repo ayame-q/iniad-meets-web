@@ -1,6 +1,6 @@
 from django.conf import settings
-from django.shortcuts import render, redirect
-from django.http import JsonResponse, HttpResponse, Http404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, HttpResponse, Http404, FileResponse
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist, ValidationError
 from django.utils import html, timezone
@@ -15,7 +15,7 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 import json, re, csv, datetime
 from django.contrib.auth import get_user_model
 User = get_user_model()
-from .models import Entry, Circle, UserRole, ChatLog, Status
+from .models import Entry, Circle, UserRole, ChatLog, Status, QuestionResponse
 from .serializers import CircleSerializer, CircleEntrySerializer, UserSerializer
 from . import forms
 import os
@@ -233,6 +233,10 @@ class LogoUploadedAPI(APIView):
         return Response({"error": False})
 
 
+class UserIsAuthenticatedAPI(APIView):
+    def get(self, request):
+        return Response({"is_authenticated": self.request.user.is_authenticated})
+
 
 class IsSlackJoinedAPI(APIView):
     def get(self, request):
@@ -251,11 +255,24 @@ class SlackEventAPI(APIView):
         if type == "team_join":
             email = request.data["user"]["profile"]["email"]
             try:
-                user = User.object.get(email=email)
+                user = User.objects.get(email=email)
                 user.get_slack_info()
             except User.DoesNotExist:
                 pass
             return Response({"request": "ok"})
+
+
+def sns_share_image(request, uuid):
+    user = get_object_or_404(User, uuid=uuid)
+
+    question_count = QuestionResponse.objects.filter(user=user).count()
+    correct_count = QuestionResponse.objects.filter(user=user, selection__is_correct=True).count()
+
+    from .shareimage import make_share_image
+    img = make_share_image(correct_count, question_count)
+    response = HttpResponse(content_type="image/jpeg")
+    img.save(response, "JPEG")
+    return response
 
 
 # Old views

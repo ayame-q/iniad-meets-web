@@ -1,9 +1,11 @@
+from apscheduler.triggers.date import DateTrigger
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.utils import timezone, html
 from django.core.exceptions import ValidationError
+from apscheduler.schedulers.background import BackgroundScheduler
 import json, datetime, re, uuid
-from .models import ChatLog, ChatLogReaction, Circle, Status, Question
+from .models import ChatLog, ChatLogReaction, Circle, Status, Event, QuestionSelection, QuestionResponse
 from .views import get_status
 
 
@@ -32,7 +34,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
         response = json.loads(text_data)
 
         for (event, data) in response.items():
-            if event == "chat_message":
+
+            if event == "start":
+                if not self.user.is_superuser:
+                    continue
+                status = Status.objects.get()
+                status.started_time = timezone.localtime()
+                status.save()
+                circles = Circle.objects.all()
+
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        "type": "broadcast_start",
+                        "data": json_dumps({
+                            "circles": [circle.to_obj() for circle in circles],
+                        }),
+                    }
+                )
+            elif event == "chat_message":
                 comment = html.escape(data.get("comment"))
                 is_anonymous = bool(data.get("is_anonymous"))
                 sender_circle = None
@@ -56,7 +76,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
-                        "type": "send_chat_message",
+                        "type": "broadcast_chat_message",
                         "data": json_dumps(chat_log.to_obj()),
                     }
                 )
@@ -71,7 +91,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
-                        "type": "send_chat_reaction_add",
+                        "type": "broadcast_chat_reaction_add",
                         "data": json_dumps(chat_log_reaction.to_obj()),
                     }
                 )
@@ -89,39 +109,62 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
-                        "type": "send_chat_reaction_remove",
+                        "type": "broadcast_chat_reaction_remove",
                         "data": json_dumps(chat_log_reaction.to_obj()),
                     }
                 )
             elif event == "get_old_messages":
                 oldest_uuid = data.get("oldest_uuid")
                 await self.send_old_messages(oldest_uuid)
+            elif event == "get_events_updated":
+                await self.send_events_updated()
+            elif event == "question_response":
+                selection_uuid = data.get("uuid")
+                try:
+                    question_selection = QuestionSelection.objects.get(uuid=selection_uuid)
+                    question_selection.question.responses().filter(user=self.user).delete()
+                    question_response = QuestionResponse.objects.create(selection=question_selection, user=self.user)
+                except (QuestionSelection.DoesNotExist):
+                    continue
+                await self.send_question_response(question_response)
 
     async def send_connect_messages(self):
         chat_logs = reversed(ChatLog.objects.all().order_by("-created_at")[:30])
         circles = Circle.objects.all()
+        events = Event.objects.all()
+        status = Status.objects.get()
+        question_responses = QuestionResponse.objects.filter(user=self.user)
+        started_timedelta = timezone.localtime() - status.started_time if status.started_time else None
         await self.send(text_data=json_dumps({
             "init": {
                 "user": self.user.to_obj(),
                 "chat_logs": [chat_log.to_obj() for chat_log in chat_logs],
-                "questions": [],
-                "circles": [circle.to_obj() for circle in circles]
+                "circles": [circle.to_obj() for circle in circles],
+                "events": [event.to_obj() for event in events],
+                "started_before_millisec": (started_timedelta.total_seconds() * 1000 + started_timedelta.microseconds / 1000) if started_timedelta else None,
+                "question_responses": [response.to_obj() for response in question_responses]
             }
         }))
 
-    async def send_chat_message(self, event):
+    async def broadcast_start(self, event):
+        data = event.get("data")
+        await self.send(text_data=json_dumps({
+            "start": json.loads(data)
+        }))
+
+    async def broadcast_chat_message(self, event):
         data = event.get("data")
         await self.send(text_data=json_dumps({
             "chat_message": json.loads(data)
         }))
 
-    async def send_chat_reaction_add(self, event):
+    async def broadcast_chat_reaction_add(self, event):
         data = event.get("data")
         await self.send(text_data=json_dumps({
             "chat_reaction_add": json.loads(data)
         }))
 
-    async def send_chat_reaction_remove(self, event):
+    async def broadcast_chat_reaction_remove(self, event):
         data = event.get("data")
         await self.send(text_data=json_dumps({
             "chat_reaction_remove": json.loads(data)
@@ -137,27 +180,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         }))
 
-
-    async def notify(self, event):
-        notify = event["notify"]
-        await self.send(text_data=json.dumps({
-            "notify": notify
+    async def send_question_response(self, response):
+        await self.send(text_data=json_dumps({
+            "question_response": response.to_obj()
         }))
 
-    async def status(self, event):
-        status = event["status"]
-        await self.send(text_data=json.dumps({
-            "status": status
+    async def send_events_updated(self):
+        events = Event.objects.all()
+        await self.send(text_data=json_dumps({
+            "events": [event.to_obj() for event in events],
         }))
-
-    async def start_broadcast(self, *args):
-        await self.send(text_data=json.dumps({"start_broadcast": True}))
-
-    async def force_reload(self, *args):
-        await self.send(text_data=json.dumps({"force_reload": True}))
-
-    async def end_event(self, *args):
-        await self.send(text_data=json.dumps({"end_event": True}))
 
 
 def json_serial(obj):
@@ -170,4 +202,3 @@ def json_serial(obj):
 
 def json_dumps(obj):
     return json.dumps(obj, default=json_serial)
-

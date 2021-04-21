@@ -1,9 +1,13 @@
 <template>
-	<div class="event">
-		<div class="next">Webメディア研究会<img src="../assets/img/next.svg" alt="NEXT"></div>
-		<event-circle-view v-bind:circle="$store.getters.getCircles[0]"></event-circle-view>
-		<!--<event-question-view v-bind:question="questionSample"></event-question-view>-->
-		<!--<event-final-view></event-final-view>-->
+	<div class="event" v-bind:class="{'blink': (event && event.type==='tutorial_info_start')}">
+		<div class="next" v-if="(!event || event.type!=='final_start') && nextCircle">{{ nextCircle.name }}<img src="../assets/img/next.svg" alt="NEXT"></div>
+		<event-circle-view v-bind:circle="circle" v-if="event && event.type==='circle_start'"></event-circle-view>
+		<event-question-view v-bind:question="event.question" v-if="event && ( event.type === 'question_start' || event.type === 'question_result')"></event-question-view>
+		<event-final-view v-if="event && event.type==='final_start'"></event-final-view>
+		<event-tutorial-view v-if="event && event.type==='tutorial_info_start'"></event-tutorial-view>
+		<event-pr-url-view v-bind:event="event" v-if="event && event.type==='pr_url_start'"></event-pr-url-view>
+		<event-hash-tag-view v-if="event && event.type==='tutorial_hashtag_start'"></event-hash-tag-view>
+		<button v-on:click="$store.dispatch('sendStart')" v-if="$store.getters.getMyUser.is_admin">スタート</button>
 	</div>
 </template>
 
@@ -11,38 +15,29 @@
 import EventCircleView from "@/components/EventCircleView";
 import EventQuestionView from "@/components/EventQuestionView";
 import EventFinalView from "@/components/EventFinalView";
+import EventTutorialView from "@/components/EventTutorialView";
+import EventPrUrlView from "@/components/EventPrUrlView";
+import EventHashTagView from "@/components/EventHashTagView";
 export default {
 	name: "EventView",
-	data() {
-		return {
-			questionSample: {
-				"type": 1,
-				"text": "問題",
-				"selections": [
-					{
-						"question_uuid": "uuid1",
-						"text": "選択肢1"
-					},
-					{
-						"question_uuid": "uuid2",
-						"text": "選択肢2"
-					},
-					{
-						"question_uuid": "uuid3",
-						"text": "選択肢3"
-					},
-					{
-						"question_uuid": "uuid4",
-						"text": "選択肢4"
-					}
-				]
-			}
+	computed: {
+		event() {
+			return this.$store.getters.getEvent
+		},
+		circle() {
+			return this.$store.getters.getNowCircle
+		},
+		nextCircle() {
+			return this.$store.getters.getNextCircle
 		}
 	},
 	components: {
 		EventCircleView,
 		EventQuestionView,
-		EventFinalView
+		EventFinalView,
+		EventTutorialView,
+		EventPrUrlView,
+		EventHashTagView
 	}
 };
 </script>

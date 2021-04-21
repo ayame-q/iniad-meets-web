@@ -87,7 +87,6 @@ class Circle(BaseModel):
     entry_user_name = models.CharField(max_length=50, default="", verbose_name="担当者名")
     staff_users = models.ManyToManyField(UserRole, blank=True, related_name="staff_circles", verbose_name="スタッフ")
     admin_users = models.ManyToManyField(UserRole, blank=True, related_name="admin_circles", verbose_name="管理者")
-    order = models.IntegerField(null=True, blank=True, verbose_name="順番")
     website_url = models.URLField(null=True, blank=True, verbose_name="WebサイトURL")
     twitter_sn = models.CharField(max_length=15, null=True, blank=True, verbose_name="Twitter ID")
     instagram_id = models.CharField(max_length=30, null=True, blank=True, verbose_name="Instagram ID")
@@ -101,6 +100,12 @@ class Circle(BaseModel):
     entry_webhook_password = models.CharField(max_length=36, null=True, blank=True, verbose_name="登録時WebhookPassword")
     do_notify_join = models.BooleanField(default=True, verbose_name="入会者をSlackで通知する")
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="登録日")
+
+    class Meta:
+        ordering = ["event__start_time_sec", "event__order"]
+
+    def __str__(self):
+        return self.name
 
     def to_obj(self):
         return {
@@ -254,16 +259,18 @@ class Question(BaseModel):
     text = models.TextField(default="", verbose_name="問題/質問")
 
     def responses(self):
-        return QuestionResponse.objects.filter(selection__in=self.selections)
+        return QuestionResponse.objects.filter(selection__in=self.selections.all())
 
     def to_obj(self):
-        return {
+        result = {
             "uuid": self.uuid,
             "type": self.type,
             "text": self.text,
             "selections": [selection.to_obj() for selection in self.selections.all()],
-            "correct_uuid": self.selections.get(is_correct=True).uuid
         }
+        if self.type == 1:
+            result["correct_uuid"] = self.selections.get(is_correct=True).uuid
+        return result
 
     def to_obj_start(self):
         return {
@@ -272,19 +279,6 @@ class Question(BaseModel):
             "text": self.text,
             "selections": [selection.to_obj_start() for selection in self.selections.all()],
         }
-
-    def to_obj_end(self):
-        if self.type == 1:
-            return {
-                "uuid": self.uuid,
-                "correct": self.selections.get(is_correct=True).uuid
-            }
-        if self.type == 2:
-            return {
-                "uuid": self.uuid,
-                "selections": [selection.to_obj() for selection in self.selections.all()],
-            }
-
 
 
 class QuestionSelection(BaseModel):
@@ -295,13 +289,13 @@ class QuestionSelection(BaseModel):
     def percentage(self):
         if self.question.responses().count() == 0:
             return 0
-        return self.responses.count() / self.question.responses().count()
+        return int(self.responses.count() / self.question.responses().count() * 100)
 
     def to_obj(self):
         return {
             "uuid": self.uuid,
             "text": self.text,
-            "percentage": self.percentage(),
+            "percentage": self.percentage() if self.question.type == 2 else None,
             "question_uuid": self.question.uuid,
         }
 
@@ -319,6 +313,14 @@ class QuestionResponse(BaseModel):
 
     def is_correct(self):
         return self.selection.is_correct
+
+    def to_obj(self):
+        return {
+            "selection_uuid": self.selection.uuid,
+            "question_uuid": self.selection.question.uuid,
+            "question_type": self.selection.question.type,
+            "is_correct": bool(self.selection.is_correct)
+        }
 
 
 event_types = (
@@ -338,19 +340,45 @@ event_types = (
 class Event(BaseModel):
     type = models.CharField(max_length=30, choices=event_types, verbose_name="種類")
     start_time_sec = models.IntegerField(null=True, blank=True, verbose_name="開始時刻(秒)")
+    order = models.IntegerField(null=True, blank=True, verbose_name="順番")
     circle = models.OneToOneField(Circle, related_name="event", null=True, blank=True, on_delete=models.SET_NULL, verbose_name="サークル")
     question = models.ForeignKey(Question, related_name="event", null=True, blank=True, on_delete=models.SET_NULL, verbose_name="クイズ/アンケート")
     pr_url = models.URLField(null=True, blank=True, verbose_name="広告URL")
     pr_text = models.TextField(null=True, blank=True, verbose_name="広告テキスト")
 
+    class Meta:
+        ordering = ["start_time_sec", "order"]
+
+    def __str__(self):
+        result = self.get_type_display()
+        if self.circle:
+            result += f" ({self.circle.name})"
+        if self.question:
+            result += f" ({self.question.text})"
+        if self.pr_text:
+            result += f" ({self.pr_text})"
+        return result
+
+    def get_starting_at(self):
+        status = Status.objects.get()
+        return timezone.localtime(status.started_time) + datetime.timedelta(seconds=self.start_time_sec)
+
     def to_obj(self):
+        status = Status.objects.get()
         result = {
+            "uuid": self.uuid,
             "type": self.type,
+            "start_time_sec": self.start_time_sec,
+            "starting_at": status.planning_start_time + datetime.timedelta(seconds=self.start_time_sec)
         }
+        if status.started_time:
+            result["starting_at"] = status.started_time + datetime.timedelta(seconds=self.start_time_sec)
+        if self.type == "circle_start":
+            result["circle"] = self.circle.uuid
         if self.type == "question_start":
             result["question"] = self.question.to_obj_start()
         if self.type == "question_result":
-            result["question"] = self.question.to_obj_end()
+            result["question"] = self.question.to_obj()
         if self.type == "pr_url_start":
             result["pr_url"] = self.pr_url
             result["pr_text"] = self.pr_text
@@ -370,6 +398,8 @@ class Status(BaseModel):
     started_time = models.DateTimeField(null=True, blank=True, verbose_name="実際のイベント開始日時")
     planning_start_time = models.DateTimeField(null=True, blank=True, verbose_name="イベント開始予定日時")
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="作成日")
+    streaming_url = models.CharField(max_length=512, null=True, blank=True, verbose_name="ストリーミングURL")
+    archive_url = models.CharField(max_length=512, null=True, blank=True, verbose_name="アーカイブURL")
 
     @classmethod
     def get_instance(cls):

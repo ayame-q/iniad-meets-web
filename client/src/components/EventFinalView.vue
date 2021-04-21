@@ -1,10 +1,10 @@
 <template>
 	<div class="final">
 		<div class="quiz-result">
-			<p>クイズ 9問中 <span style="font-size: 1.6em; margin-left: 0.2em">6</span> 問正解！おめでとうございます！！！</p>
+			<p>クイズ {{ quizCount }}問中 <span style="font-size: 1.6em; margin-left: 0.2em">{{ correctCount }}</span> 問正解！おめでとうございます！！！</p>
 			<ul class="quiz-link">
-				<li><a href=""><img src="@/assets/img/twitter_white.svg" alt="Twitterで">結果をシェア</a></li>
-				<li><a href="">景品を受け取る</a></li>
+				<li><a v-bind:href="`https://twitter.com/intent/tweet?url=https://meets.iniad.net/share/img/${$store.getters.getMyUser.uuid}&text=INIAD meets webのクイズに${quizCount}問中${correctCount}問正解しました！%20&hashtags=INIADmeetsweb&related=iniad_webmedia&via=iniad_webmedia`" target="_blank"><img src="@/assets/img/twitter_white.svg" alt="Twitterで">結果をシェア</a></li>
+				<li><a href="/img/wallpaper.png" target="_blank">景品を受け取る</a></li>
 			</ul>
 		</div>
 		<div class="final-buttons">
@@ -23,6 +23,24 @@
 <script>
 export default {
 	name: "EventFinalView",
+	computed: {
+		quizResponses() {
+			return this.$store.getters.getQuestionResponses.filter((item) => {
+				return item.question_type === 1
+			})
+		},
+		correctResponses() {
+			return this.$store.getters.getQuestionResponses.filter((item) => {
+				return item.question_type === 1 && item.is_correct
+			})
+		},
+		quizCount() {
+			return this.quizResponses.length
+		},
+		correctCount() {
+			return this.correctResponses.length
+		}
+	}
 };
 </script>
 

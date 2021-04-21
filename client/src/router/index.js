@@ -14,9 +14,23 @@ const routes = [
 			if (process.env.VUE_APP_TEASER === "true" || process.env.VUE_APP_TEASER === "True") {
 				return import("@/views/TeaserPage")
 			}
-			return import("@/views/VenuePage")
+			return import("@/views/EntrancePage")
 		},
 	},
+	{
+		path: "/venue",
+		name: "Venue",
+		component() {
+			return import("@/views/VenuePage")
+		}
+	},
+	{
+		path: "/entrance",
+		name: "Entrance",
+		component() {
+			return import("@/views/EntrancePage")
+		}
+	}
 ];
 
 const router = new VueRouter({

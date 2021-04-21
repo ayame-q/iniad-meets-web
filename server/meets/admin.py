@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, Circle, UserRole, ChatLog, ChatLogReaction, Entry, Status
+from .models import User, Circle, UserRole, ChatLog, ChatLogReaction, Entry, Status, Event, Question, QuestionSelection, QuestionResponse
 
 # Register your models here.
 class UserAdmin(BaseUserAdmin):
@@ -25,4 +25,8 @@ admin.site.register(UserRole, UUIDFieldAdmin)
 admin.site.register(ChatLog, UUIDFieldAdmin)
 admin.site.register(ChatLogReaction, UUIDFieldAdmin)
 admin.site.register(Entry, UUIDFieldAdmin)
+admin.site.register(Event, UUIDFieldAdmin)
 admin.site.register(Status, UUIDFieldAdmin)
+admin.site.register(Question, UUIDFieldAdmin)
+admin.site.register(QuestionSelection, UUIDFieldAdmin)
+admin.site.register(QuestionResponse, UUIDFieldAdmin)

@@ -1,7 +1,7 @@
 <template>
 	<div class="video">
 		<video class="video-js vjs-theme-forest vjs-16-9" id="video" controls playsinline ref="videoPlayer">
-			<source src="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" type="application/x-mpegURL">
+			<source src="https://stream.ayame.me/live/video.m3u8" type="application/x-mpegURL">
 		</video>
 	</div>
 </template>

@@ -171,7 +171,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 LOGIN_URL = "/auth/google/login/"
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/venue"
 ACCOUNT_UNIQUE_EMAIL = False
 
 AUTH_USER_MODEL = 'meets.User'

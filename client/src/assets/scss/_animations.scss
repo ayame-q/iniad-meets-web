@@ -10,3 +10,17 @@
 	transition-timing-function: cubic-bezier(1.000, 0.000, 0.000, 1.000);
 }
 
+@keyframes blink-animation{
+	0% {
+		border: transparent solid 3px;
+	}
+	100% {
+		border: #FFDA45 solid 3px;
+		background-color: #FFF6D1;
+	}
+}
+
+
+.blink{
+	animation:blink-animation 1.5s ease-in-out infinite alternate;
+}

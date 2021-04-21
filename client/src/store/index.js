@@ -16,17 +16,26 @@ export default new Vuex.Store({
 		socket: null,
 		isSocketConnected: false,
 		tryConnectSocketCount: 0,
+		events: [],
+		pastEvents: [],
 		chatLogs: [],
-		questions: [],
+		questionResponses: [],
 		circles: [],
 		reactionEmojis: ["😀", "😆", "😅", "🤣", "😍", "☺️", "😉", "🥳", "🥺", "🤗", "🤔", "👏", "🤝", "👍", "🙏", "👀", "🙋", "🙇", "🍩", "💕", "⁉️", "✔️", "💯", "🆗", "🆖"],
 		chatLogWrapScrolledAt: null,
 		isChatLogWrapScrollOnAuto: false,
 		chatFormParentUuid: null,
+		startedTime: null,
 	},
 	getters: {
 		getSocket(state) {
 			return state.socket
+		},
+		getEvent(state) {
+			return state.pastEvents[state.pastEvents.length - 1]
+		},
+		getEvents(state) {
+			return state.events
 		},
 		getMyUser(state) {
 			return state.myUser
@@ -36,6 +45,21 @@ export default new Vuex.Store({
 		},
 		getCircles(state) {
 			return state.circles
+		},
+		getNowCircle(state, getters) {
+			try {
+				return state.circles.find((item) => {
+					return item.uuid === getters.getEvent.circle
+				})
+			} catch (e) {
+				return null
+			}
+		},
+		getNextCircle(state, getters) {
+			if (getters.getNowCircle === null) {
+				const index = state.circles.indexOf(getters.getNowCircle) + 1
+				return state.circles[index]
+			}
 		},
 		getIsAdmin(state) {
 			return state.myUser.is_admin
@@ -66,19 +90,6 @@ export default new Vuex.Store({
 				return (item.is_question || item.is_answer)
 			})
 		},
-		getQuestions(state) {
-			return state.questions
-		},
-		getQuizzes(state) {
-			return state.questions.filter((item, index) => {
-				return item.type === 1
-			})
-		},
-		getQuestionnaire(state) {
-			return state.questions.filter((item, index) => {
-				return item.type === 2
-			})
-		},
 		getIsSocketConnected(state) {
 			return state.isSocketConnected
 		},
@@ -93,14 +104,34 @@ export default new Vuex.Store({
 		},
 		getChatFormParentUuid(state) {
 			return state.chatFormParentUuid
+		},
+		getQuestionResponses(state) {
+			return state.questionResponses
 		}
 	},
 	mutations: {
 		setSocket(state, socket) {
 			state.socket = socket
 		},
+		setStartedTimeNow(state) {
+			state.startedTime = dayjs()
+		},
+		setStartedTimeBeforeMillisec(state, millisec) {
+			state.startedTime = dayjs().subtract(millisec, "ms")
+		},
 		setMyUser(state, user) {
 			state.myUser = user
+		},
+		setEvents(state, events) {
+			state.events = events
+		},
+		setPastEvents(state) {
+			if (!state.startedTime){
+				return null
+			}
+			state.pastEvents = state.events.filter((item) => {
+				return state.startedTime.add(item.start_time_sec, "s") <= dayjs()
+			})
 		},
 		setCircles(state, circles){
 			state.circles = circles
@@ -128,11 +159,17 @@ export default new Vuex.Store({
 				return item.uuid !== reaction.uuid
 			}) // 指定されたリアクションを削除
 		},
-		setQuestions(state, questions) {
-			state.questions = questions
+		setQuestionResponses(state, responses) {
+			state.questionResponses = responses
 		},
-		addQuestion(state, question) {
-			state.questions.push(question)
+		addQuestionResponse(state, response) {
+			const original = state.questionResponses.filter((item) => {
+				item.question_uuid === response.question_uuid
+			})
+			if (original){
+				state.questionResponses.splice(state.questionResponses.indexOf(original), 1)
+			}
+			state.questionResponses.push(response)
 		},
 		setSocketConnected(state) {
 			state.tryConnectSocketCount = 0
@@ -179,7 +216,6 @@ export default new Vuex.Store({
 				if (typeof(val) == "string" &&
 					val.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?\+\d{2}:\d{2}$/)){
 					return dayjs(val);
-					//2021-04-16T10:59:32+00:00
 				}
 				return val;
 			}
@@ -189,12 +225,33 @@ export default new Vuex.Store({
 
 				for (const [event, data] of Object.entries(response)) {
 					console.log("Get WebSocket message:", event, data)
-					if (event === "init") {
+					if (event === "start") {
+						context.commit("setStartedTimeNow")
+						for (const event of context.getters.getEvents) {
+							setTimeout((() => {
+								context.commit("setPastEvents")
+							}), event.start_time_sec * 1000)
+						}
+					} else if (event === "init") {
 						context.commit("setSocketConnected")
-						context.commit("setMyUser", data.user)
+						if (data.started_before_millisec){
+							context.commit("setStartedTimeBeforeMillisec", data.started_before_millisec)
+						}
 						context.commit("setCircles", data.circles)
+						context.commit("setEvents", data.events)
+						context.commit("setPastEvents")
+						for (const event of context.getters.getEvents) {
+							if (data.started_before_millisec / 1000 < event.start_time_sec)
+							setTimeout((() => {
+								context.commit("setPastEvents")
+								if (event.type === "question_result" && event.question.type === 2) {
+									context.dispatch("getEventUpdated")
+								}
+							}), event.start_time_sec * 1000 - data.started_before_millisec)
+						}
+						context.commit("setMyUser", data.user)
 						context.commit("setChatLogs", data.chat_logs)
-						context.commit("setQuestions", data.questions)
+						context.commit("setQuestionResponses", data.question_responses)
 					} else if (event === "chat_message") {
 						context.commit("addChatLog", data)
 					} else if (event === "chat_reaction_add") {
@@ -211,6 +268,11 @@ export default new Vuex.Store({
 								keyChatLogElement.scrollIntoView()
 							}
 						})
+					} else if (event === "events") {
+						context.commit("setEvents", data)
+						context.commit("setPastEvents")
+					} else if (event === "question_response") {
+						context.commit("addQuestionResponse", data)
 					}
 				}
 			}
@@ -267,6 +329,26 @@ export default new Vuex.Store({
 				data: {
 					oldest_uuid: oldestMessageUuid
 				}
+			})
+		},
+		sendQuestionResponse(context, uuid) {
+			context.dispatch("sendSocket", {
+				event: "question_response",
+				data: {
+					uuid: uuid
+				}
+			})
+		},
+		getEventUpdated(context) {
+			context.dispatch("sendSocket", {
+				event: "get_events_updated",
+				data: true
+			})
+		},
+		sendStart(context) {
+			context.dispatch("sendSocket", {
+				event: "start",
+				data: true
 			})
 		}
 	},
