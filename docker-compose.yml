@@ -7,6 +7,8 @@ services:
       - "redis"
     env_file:
       - ".env"
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
     volumes:
       - "./server:/usr/src/app"
       - "./server/upload_files:/usr/src/app/upload_files"
