@@ -36,6 +36,8 @@ export default {
 html{
 	width: 100%;
 	height: 100%;
+}
+#app{
 	display: flex;
 	justify-content: center;
 	align-items: center;
