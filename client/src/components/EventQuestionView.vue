@@ -40,13 +40,7 @@ export default {
 			const original = responses.find((item) => {
 				return item.question_uuid === this.question.uuid
 			})
-			if (original.is_correct) {
-				return original.is_correct
-			}
-			const result = (original.selection_uuid === this.question.correct_uuid)
-			original["is_correct"] = result
-			this.$store.commit("addQuestionResponse", original)
-			return result
+			return original.is_correct
 		}
 	}
 };
