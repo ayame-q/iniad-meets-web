@@ -265,8 +265,8 @@ class SlackEventAPI(APIView):
 def sns_share_image(request, uuid):
     user = get_object_or_404(User, uuid=uuid)
 
-    question_count = QuestionResponse.objects.filter(user=user).count()
-    correct_count = QuestionResponse.objects.filter(user=user, selection__is_correct=True).count()
+    question_count = QuestionResponse.objects.filter(user=user, selection__question__type=1).count()
+    correct_count = QuestionResponse.objects.filter(user=user, selection__question__type=1, selection__is_correct=True).count()
 
     from .shareimage import make_share_image
     img = make_share_image(correct_count, question_count)
