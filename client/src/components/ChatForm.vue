@@ -16,7 +16,7 @@
 				</select>
 			</p>
 			<p v-if="isQuestion"><input type="checkbox" id="chat-form-anonymous" v-model="isAnonymous"><label for="chat-form-anonymous">匿名で送信</label></p>
-			<p v-if="$store.getters.getMyStaffCircles">
+			<p v-if="$store.getters.getMyStaffCircles.length > 0">
 				<input type="checkbox" id="chat-form-circle" v-model="isCircleMessage" v-on:input="isCircleMessageInputChanged=true"><label for="chat-form-circle">サークルとして送信</label>
 				<select class="circle-list" v-bind:class="{'active': isCircleMessage}" v-model="senderCircleUuid" v-on:input="isCircleMessageInputChanged=true">
 					<option v-for="circle of $store.getters.getMyStaffCircles" v-bind:value="circle.uuid">{{ circle.name }}</option>
