@@ -53,7 +53,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$number-width: 2vw;
+$number-width: 3vw;
 $thumbnail-width: 30%;
 $arrow-width: 1vw;
 .circle-list-circle{
@@ -71,20 +71,29 @@ $arrow-width: 1vw;
 		display: flex;
 		align-items: center;
 		padding: 1em 0;
+		padding-left: 0.1vw;
 		cursor: pointer;
 
 		.number{
+			text-align: right;
+			padding-right: 1vw;
 			width: $number-width;
 			font-size: 1.3em;
+			flex-shrink: 0;
+			flex-grow: 0;
 		}
 		.thumbnail{
 			width: $thumbnail-width;
+			flex-shrink: 0;
+			flex-grow: 0;
 			img{
 				width: 100%;
 			}
 		}
 		.info{
 			margin: 0 1em;
+			flex-shrink: 1;
+			flex-grow: 1;
 		}
 	}
 	.detail-box{
@@ -94,7 +103,7 @@ $arrow-width: 1vw;
 		overflow: hidden;
 		opacity: 0;
 		transition: max-height 0.5s, opacity 0.8s, background-color 0.8s;
-		margin-left: $number-width;
+		margin-left: calc(0.5vw + #{$number-width});
 		margin-right: $arrow-width;
 
 		&.detail-open{
