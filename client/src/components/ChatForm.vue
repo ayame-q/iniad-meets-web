@@ -24,7 +24,7 @@
 			</p>
 			<p v-if="$store.getters.getIsAdmin"><input type="checkbox" id="chat-form-admin_message" v-model="isAdminMessage"><label for="chat-form-admin_message">運営として送信</label></p>
 		</div>
-		<p><textarea v-model="comment" class="input-comment" placeholder="質問・メッセージを送信" rows="1" v-on:input="input" v-on:click="openOption" v-on:keydown.ctrl.enter="submit" v-on:keydown.meta.enter="submit"></textarea></p>
+		<p><textarea v-model="comment" class="input-comment" placeholder="質問・メッセージを送信" rows="1" v-on:input="input" v-on:click="openOption" v-on:keydown.ctrl.enter="submit" v-on:keydown.meta.enter="submit" ref="textarea"></textarea></p>
 		<p><button type="submit"><img src="@/assets/img/chat_submit.svg" alt="送信"></button></p>
 	</form>
 </template>
@@ -153,6 +153,11 @@ export default {
 			this.comment = null
 			this.isQuestion = false
 			this.parentUuid = null
+			const target = this.$refs.textarea
+			target.style.height = "auto"
+			this.$nextTick(() => {
+				target.style.height = target.scrollHeight + "px"
+			})
 		},
 		input(event) {
 			if (this.comment) {
