@@ -191,13 +191,13 @@ class Entry(BaseModel):
 
     def to_obj(self):
         return {
-            "user": {
-                "email": self.user.email,
-                "full_name": self.user.get_name(),
-                "family_name": self.user.family_name,
-                "given_name": self.user.given_name,
-                "student_id": self.user.student_id,
-            },
+            "email": self.user.email,
+            "full_name": self.user.get_name(),
+            "family_name": self.user.family_name,
+            "given_name": self.user.given_name,
+            "family_name_ruby": self.user.family_name_ruby,
+            "given_name_ruby": self.user.given_name_ruby,
+            "student_id": self.user.student_id,
             "circle": {
                 "uuid": self.circle.uuid,
                 "name": self.circle.name,
