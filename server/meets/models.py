@@ -239,6 +239,8 @@ class Entry(BaseModel):
 > 学籍番号:　{self.user.student_id}
 > メール:　　{self.user.email}
 > 受付日時:　{self.created_at.strftime("%Y-%m-%d %H:%M:%S")}
+
+入会者リストを見る: {os.environ.get("SITE_HOST")}circle/admin/entries/{self.circle.uuid}
 """
         users = [user_role.userinfo.slack_id for user_role in self.circle.admin_users.all() if user_role.userinfo.slack_id]
         res = client.conversations_open(users=users)
@@ -393,9 +395,9 @@ class Event(BaseModel):
 
 
 status_choices = (
-    (0, "開始前"),
-    (1, "開催中"),
-    (2, "終了"),
+    (0, "開場前"),
+    (1, "開場可"),
+    (2, "配信終了"),
 )
 
 
@@ -407,6 +409,10 @@ class Status(BaseModel):
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="作成日")
     streaming_url = models.CharField(max_length=512, null=True, blank=True, verbose_name="ストリーミングURL")
     archive_url = models.CharField(max_length=512, null=True, blank=True, verbose_name="アーカイブURL")
+    can_circle_join = models.BooleanField(default=False, verbose_name="新規サークル受付中")
+    can_circle_movie_upload = models.BooleanField(default=False, verbose_name="動画アップロード受付中")
+    can_circle_pamphlet_upload = models.BooleanField(default=False, verbose_name="資料アップロード受付中")
+    can_circle_logo_upload = models.BooleanField(default=False, verbose_name="ロゴアップロード受付中")
 
     @classmethod
     def get_instance(cls):

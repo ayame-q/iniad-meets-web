@@ -50,3 +50,22 @@ class CircleInfoForm(BaseForm):
             _, ext = os.path.splitext(file.name)
             file.name = str(uuid4()) + ext.lower()
         return file
+
+
+class CirclePamphletForm(BaseForm):
+    class Meta:
+        model = Circle
+        fields = ("pamphlet",)
+
+    def __init__(self, *args, **kwargs):
+        super(CirclePamphletForm, self).__init__(*args, **kwargs)
+        self.fields["pamphlet"].help_text = "16:9で1ページのPDFファイルがオススメです。"
+        self.fields["pamphlet"].widget.attrs["accept"] = "application/pdf"
+        self.fields["pamphlet"].widget.attrs["required"] = True
+
+    def clean_pamphlet(self):
+        file = self.cleaned_data["pamphlet"]
+        if file:
+            _, ext = os.path.splitext(file.name)
+            file.name = str(uuid4()) + ext.lower()
+        return file

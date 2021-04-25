@@ -150,10 +150,10 @@ main > article, main > section {
   text-decoration: underline;
 }
 
-#menu-page .task-link {
+#menu-page .task-link, #menu-page .menu-link {
   width: 100%;
 }
-#menu-page .task-link a {
+#menu-page .task-link a, #menu-page .menu-link a {
   display: block;
   background-color: #D35F55;
   color: #FFFFFF;
@@ -163,13 +163,13 @@ main > article, main > section {
   width: 100%;
   text-decoration: none;
 }
-#menu-page .task-link a small {
+#menu-page .task-link a small, #menu-page .menu-link a small {
   display: block;
   font-size: 0.75em;
   margin-top: 0.5em;
   color: rgba(255, 255, 255, 0.3);
 }
-#menu-page .task-link a:hover {
+#menu-page .task-link a:hover, #menu-page .menu-link a:hover {
   text-decoration: underline;
 }
 #menu-page .task-link a:not(.finished):not(.editing)::before {
@@ -186,6 +186,9 @@ main > article, main > section {
 #menu-page .task-link a.finished::before {
   content: "[入力済]";
   margin-right: 0.3em;
+}
+#menu-page .menu-link a {
+  background-color: #36b0cc;
 }
 
 #members-page .remove-form {

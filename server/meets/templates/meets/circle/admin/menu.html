@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:wght@600&family=M+PLUS+Rounded+1c:wght@300;400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static "/css/admin.css" %}?2">
+    <link rel="stylesheet" href="{% static "/css/admin.css" %}?3">
     <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <meta name="description" content="今年もあいつがやってくる！！ INIAD公認サークルWeb新歓「INIAD meets web」のサークル参加を受け付けています！">
     <meta property="og:url" content="https://meets.iniad.net/">
@@ -91,7 +91,7 @@
 </header>
 <main>
     <section id="menu-page">
-        <h2>参加登録完了</h2>
+        <h2>{% if status.status <= 0 %}参加登録完了{% else %}サークルメニュー{% endif %}</h2>
         {% if admin_circles.count > 1 %}
             <nav id="circle-list-wrap">
                 <p>
@@ -111,39 +111,63 @@
                 </script>
             </nav>
         {% endif %}
+        {% if status.status <= 0 %}
         <p>ありがとうございます。<br>「{{ circle.name }}」の INIAD meets web 参加登録が完了しました！</p>
         <p>下のメニューから、サークル基本情報の登録や動画のアップロードなど、<br>
             イベント参加に必要な準備を進めてください！
         </p>
+        {% endif %}
         <section style="margin-top: 3em">
+            {% if status.status > 0 %}
+                <div style="margin-bottom: 3em;">
+                    <p class="menu-link">
+                        <a href="{% url 'circle_admin_entries' circle.pk %}">
+                            入会者リスト
+                            <small>meets web会場にてサークルに入会受付した人を一覧で見ることができます</small>
+                        </a>
+                    </p>
+                </div>
+            {% endif %}
             <p class="task-link">
                 <a{% if slack %} class="finished"{% endif %} id="slack-link" onclick="openMovieForm()" href="{{ slack_join_url }}" target="_blank">
-                    Slackサークスペースに参加
+                    Slackワークスペースに参加
                     <small>重要な連絡や入会者の通知などをすべてこちらのSlackワークスペースで行います。運営への質問もこちらから。</small>
                 </a>
             </p>
             <p class="task-link">
-                <a {% if circle.pamphlet and circle.comment %}class="finished" {% elif circle.pamphlet or circle.website_url or circle.twitter_sn or circle.instagram_id or circle.comment %}class="editing" {% endif %}href="{% url 'circle_admin_info' circle.pk %}">
-                    サークル基本情報の登録 (4/10締切)
+                <a {% if circle.comment %}class="finished" {% elif circle.website_url or circle.twitter_sn or circle.instagram_id or circle.comment %}class="editing" {% endif %}href="{% url 'circle_admin_info' circle.pk %}">
+                    サークル基本情報の登録
                     <small>配信中・サークルリストで表示する情報を入力してください。サークル名や担当者名などの変更もできます。</small>
                 </a>
             </p>
+            {% if status.can_circle_logo_upload %}
+                <p class="task-link">
+                    <a{% if circle.logo_uploaded_at %} class="finished"{% endif %} id="logo-link" onclick="openLogoForm()" href="{{ logo_form_url }}{{ circle.uuid }}" target="_blank">
+                        ロゴ画像のアップロード
+                        <small>サークルのロゴ画像をAdobe Illustrator形式(.ai)またはPNG(.png)でアップロードしてください</small>
+                    </a>
+                </p>
+            {% endif %}
+            {% if status.can_circle_pamphlet_upload %}
+            <p class="task-link">
+                <a {% if circle.pamphlet %}class="finished" {% endif %}href="{% url 'circle_admin_pamphlet' circle.pk %}">
+                    サークル資料のアップロード
+                    <small>配信中・サークルリストから開けるサークル資料のPDFをアップロードしてください。16:9で1ページのPDFファイルがオススメです。</small>
+                </a>
+            </p>
+            {% endif %}
+            {% if status.can_circle_movie_upload %}
             <p class="task-link">
                 <a{% if circle.movie_uploaded_at %} class="finished"{% endif %} id="movie-link" onclick="openMovieForm()" href="{{ movie_form_url }}{{ circle.uuid }}" target="_blank">
-                    動画のアップロード (4/10締切)
+                    動画のアップロード
                     <small>実際に配信する動画を720pまたは1080pのH.264 mp4形式でアップロードしてください。</small>
                 </a>
             </p>
+            {% endif %}
             <p class="task-link">
                 <a{% if circle.admin_users.count > 1 or circle.staff_users.count > 1 %} class="finished"{% endif %} href="{% url 'circle_admin_members' circle.pk %}">
                     <span class="task-link-title">サークルスタッフの追加 (必要な場合)</span>
                     <small>当日質問対応するスタッフ、このページで情報の登録や動画・PDFのアップロードなどを行える人を追加できます。</small>
-                </a>
-            </p>
-            <p class="task-link">
-                <a{% if circle.logo_uploaded_at %} class="finished"{% endif %} id="logo-link" onclick="openLogoForm()" href="{{ logo_form_url }}{{ circle.uuid }}" target="_blank">
-                    ロゴ画像のアップロード (4/14締切)
-                    <small>サークルのロゴ画像をAdobe Illustrator形式(.ai)またはPNG(.png)でアップロードしてください</small>
                 </a>
             </p>
         </section>

@@ -15,7 +15,7 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 import json, re, csv, datetime, os
 from django.contrib.auth import get_user_model
 User = get_user_model()
-from .models import Entry, Circle, UserRole, QuestionResponse
+from .models import Entry, Circle, UserRole, QuestionResponse, Status
 from .serializers import CircleSerializer, CircleEntrySerializer, UserSerializer
 from . import forms
 
@@ -87,6 +87,7 @@ class UserAdminCirclesMixin(LoginRequiredMixin):
     model = Circle
     def get_context_data(self, **kwargs):
         context = super(UserAdminCirclesMixin, self).get_context_data(**kwargs)
+        context["status"] = Status.objects.get()
         if self.request.user.is_superuser:
             context["admin_circles"] = Circle.objects.all()
         elif self.request.user.role.admin_circles.count():
@@ -147,6 +148,14 @@ class CircleAdminInfoView(CircleAdminSinglePageMixin, UpdateView):
         return reverse("circle_admin", kwargs={"pk": self.object.pk})
 
 
+class CircleAdminPamphletView(CircleAdminSinglePageMixin, UpdateView):
+    form_class = forms.CirclePamphletForm
+    template_name = "meets/circle/admin/pamphlet.html"
+
+    def get_success_url(self):
+        return reverse("circle_admin", kwargs={"pk": self.object.pk})
+
+
 class CircleAdminMembersView(CircleAdminSinglePageMixin, DetailView):
     template_name = "meets/circle/admin/member.html"
 
@@ -182,6 +191,10 @@ class CircleAdminMembersView(CircleAdminSinglePageMixin, DetailView):
             target_model.remove(UserRole.objects.get(pk=remove_pk))
 
         return redirect("circle_admin_members", pk=circle.pk)
+
+
+class CircleAdminEntriesView(CircleAdminSinglePageMixin, DetailView):
+    template_name = "meets/circle/admin/entries.html"
 
 
 class MovieUploadedAPI(APIView):
@@ -277,4 +290,23 @@ def sns_share_image(request, uuid):
     img = make_share_image(correct_count, question_count)
     response = HttpResponse(content_type="image/jpeg")
     img.save(response, "JPEG")
+    return response
+
+
+def circle_admin_entries_csv(request, pk):
+    try:
+        if request.user.is_superuser:
+            circle = Circle.objects.get(pk=pk)
+        else:
+            circle = Circle.objects.filter(admin_users=request.user.role).get(pk=pk)
+    except Circle.DoesNotExist:
+        raise PermissionDenied
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="circle-entry.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(["学籍番号", "名前", "フリガナ", "メールアドレス", "受付日時"])
+    for entry in circle.entries.all():
+        writer.writerow([entry.user.student_id, entry.user.get_name(), entry.user.get_name_ruby(), entry.user.email, "{0:%Y-%m-%d %H:%M:%S}".format(entry.created_at)])
+
     return response

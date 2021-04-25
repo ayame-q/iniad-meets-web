@@ -18,6 +18,12 @@ urlpatterns = [
     path('circle/admin/<uuid:pk>', views.CircleAdminMenuView.as_view(), name="circle_admin"),
     path('circle/admin/info/', views.CircleAdminGenericListView.as_view(), name="circle_admin_info"),
     path('circle/admin/info/<uuid:pk>', views.CircleAdminInfoView.as_view(), name="circle_admin_info"),
+    path('circle/admin/pamphlet/', views.CircleAdminGenericListView.as_view(), name="circle_admin_pamphlet"),
+    path('circle/admin/pamphlet/<uuid:pk>', views.CircleAdminPamphletView.as_view(), name="circle_admin_pamphlet"),
     path('circle/admin/members/', views.CircleAdminGenericListView.as_view(), name="circle_admin_members"),
     path('circle/admin/members/<uuid:pk>', views.CircleAdminMembersView.as_view(), name="circle_admin_members"),
+    path('circle/admin/entries/', views.CircleAdminGenericListView.as_view(), name="circle_admin_entries"),
+    path('circle/admin/entries/<uuid:pk>', views.CircleAdminEntriesView.as_view(), name="circle_admin_entries"),
+    path('circle/admin/entries/csv/', views.CircleAdminGenericListView.as_view(), name="circle_admin_entries_csv"),
+    path('circle/admin/entries/csv/<uuid:pk>', views.circle_admin_entries_csv, name="circle_admin_entries_csv"),
 ]

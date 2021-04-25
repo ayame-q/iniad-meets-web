@@ -177,7 +177,7 @@ main > article, main > section{
 }
 
 #menu-page{
-    .task-link{
+    .task-link, .menu-link{
         width: 100%;
         a{
             display: block;
@@ -199,7 +199,10 @@ main > article, main > section{
             &:hover{
                 text-decoration: underline;
             }
-
+        }
+    }
+    .task-link{
+        a{
             &:not(.finished):not(.editing){
                 &::before{
                     content: "[未入力]";
@@ -221,7 +224,11 @@ main > article, main > section{
                     margin-right: 0.3em;
                 }
             }
-
+        }
+    }
+    .menu-link{
+        a{
+            background-color: #36b0cc;
         }
     }
 }

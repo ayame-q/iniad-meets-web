@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:wght@600&family=M+PLUS+Rounded+1c:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "/css/admin.css" %}?1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="description" content="今年もあいつがやってくる！！ INIAD公認サークルWeb新歓「INIAD meets web」のサークル参加を受け付けています！">
+    <meta property="og:url" content="https://meets.iniad.net/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="INIAD meets Web">
+    <meta property="og:description" content="今年もあいつがやってくる！！ INIAD公認サークルWeb新歓「INIAD meets web」のサークル参加を受け付けています！">
+    <meta property="og:site_name" content="INIAD meets Web">
+    <meta property="og:image" content="https://meets.iniad.net/static/img/circle_eyecatch.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@iniad_webmedia">
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163289416-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-163289416-1');
+    </script>
+    <title>入会者一覧 - INIAD meets web</title>
+</head>
+<body>
+<header>
+    <h1><img src="{% static "/img/logo.svg" %}?2021" alt="INIAD meets Web"></h1>
+</header>
+<main>
+    <section id="entries-list-page">
+        <h2>サークル入会者一覧</h2>
+        {% if admin_circles.count > 1 %}
+            <nav id="circle-list-wrap">
+                <p>
+                    <label for="circle-list">操作中のサークル</label>
+                    <select id="circle-list">
+                        <option value="./">サークル選択</option>
+                        {% for c in admin_circles %}
+                            <option value="{{ c.pk }}"{% if circle.pk == c.pk %} selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </p>
+                <script>
+                    const circleListElement = document.getElementById("circle-list");
+                    circleListElement.addEventListener("change", (event) => {
+                        window.location.href = event.target.value;
+                    })
+                </script>
+            </nav>
+        {% endif %}
+        <div class="table-wrap">
+        {% if circle.entries.all %}
+            <a href="{% url 'circle_admin_entries_csv' circle.uuid %}">CSVでダウンロード</a>
+            <table>
+                <thead>
+                <tr><th style="z-index: 99">名前</th><th>フリガナ</th><th>学籍番号</th><th>メールアドレス</th><th>受付日時</th></tr>
+                </thead>
+                <tbody>
+                {% for entry in circle.entries.all %}
+                    <tr>
+                        <th>{{ entry.user.get_name }}</th>
+                        <td>{{ entry.user.get_name_ruby }}</td>
+                        <td>{{ entry.user.student_id }}</td>
+                        <td><a href="mailto:{{ entry.user.email }}">{{ entry.user.email }}</a></td>
+                        <td>{{ entry.user.created_at }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>入会者はまだありません。</p>
+        {% endif %}
+        </div>
+    </section>
+</main>
+</body>
+</html>
