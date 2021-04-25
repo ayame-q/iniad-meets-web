@@ -206,7 +206,7 @@ class MovieUploadedAPI(APIView):
             circle = Circle.objects.get(uuid=uuid)
         except Circle.DoesNotExist:
             return Response({"error": True})
-        circle.movie_uploaded_at = datetime.datetime.now()
+        circle.movie_uploaded_at = timezone.localtime()
         circle.save()
         return Response({"error": False})
 
@@ -233,7 +233,7 @@ class LogoUploadedAPI(APIView):
             circle = Circle.objects.get(uuid=uuid)
         except Circle.DoesNotExist:
             return Response({"error": True})
-        circle.logo_uploaded_at = datetime.datetime.now()
+        circle.logo_uploaded_at = timezone.localtime()
         circle.logo_url = url
         circle.save()
         return Response({"error": False})
