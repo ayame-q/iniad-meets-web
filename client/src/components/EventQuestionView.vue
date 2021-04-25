@@ -40,6 +40,9 @@ export default {
 			const original = responses.find((item) => {
 				return item.question_uuid === this.question.uuid
 			})
+			if (!original) {
+				return false
+			}
 			return original.is_correct
 		}
 	}
