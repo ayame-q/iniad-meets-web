@@ -1,8 +1,8 @@
 <template>
 	<form class="display-name-form" @submit.prevent="submit">
-		<h3 style="display: none">公開名登録</h3>
+		<h3 style="display: none">公開名設定</h3>
 		<p class="description">
-			チャットで利用する公開名を登録してください。
+			チャットで利用する公開名を設定してください。
 		</p>
 		<div class="name-wrap">
 			<div class="name-line">
@@ -12,7 +12,7 @@
 				</p>
 			</div>
 		</div>
-		<p class="submit-button-wrap"><input type="submit" value="登録"></p>
+		<p class="submit-button-wrap"><input type="submit" value="設定"></p>
 	</form>
 </template>
 
