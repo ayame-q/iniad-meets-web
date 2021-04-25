@@ -297,7 +297,15 @@ export default new Vuex.Store({
 
 			socket.onclose = (event) => {
 				context.commit("setSocketDisconnected")
-				setTimeout(context.dispatch("connectWebSocket"), 5000)
+				console.log("Disconnect from websocket server. Reconnect later.")
+				setTimeout(() => {
+					context.dispatch("connectWebSocket")
+				}, 5000)
+			}
+
+			socket.onerror = (error) => {
+				console.error(error)
+				socket.close()
 			}
 
 			context.commit("setSocket", socket)
