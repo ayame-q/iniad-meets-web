@@ -8,7 +8,7 @@
 				<img v-bind:src="circle.thumbnail_url" v-bind:alt="circle.name">
 			</div>
 			<div class="info">
-				{{ circle.name }}
+				<p>{{ circle.name }}</p>
 			</div>
 		</div>
 		<div class="detail-box" v-bind:class="{'detail-open': isDetailOpen}">

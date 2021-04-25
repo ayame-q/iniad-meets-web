@@ -63,6 +63,9 @@ export default {
 			}
 		}
 	}
+	.pamphlet{
+		cursor: pointer;
+	}
 	.comment{
 		font-size: 0.7em;
 		white-space: pre-line;
