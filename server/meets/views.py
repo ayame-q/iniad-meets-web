@@ -71,7 +71,6 @@ class CircleJoinView(CreateView):
         data = form.save()
         data.admin_users.add(self.request.user.role)
         data.staff_users.add(self.request.user.role)
-        print(redirect("circle_admin", pk=data.pk))
         return redirect("circle_admin", pk=data.pk)
 
 
