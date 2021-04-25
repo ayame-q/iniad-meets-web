@@ -4,7 +4,6 @@ from django.utils import timezone, html
 from django.core.exceptions import ValidationError
 import json, datetime, re, uuid
 from .models import ChatLog, ChatLogReaction, Circle, Status, Event, QuestionSelection, QuestionResponse
-from .views import get_status
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
