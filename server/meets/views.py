@@ -50,6 +50,13 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
+    def perform_update(self, serializer):
+        data = self.request.data
+        if data.get("display_name"):
+            serializer.save(is_display_name_initialized=True)
+        serializer.save()
+
+
 
 class CircleJoinView(CreateView):
     model = Circle

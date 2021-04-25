@@ -32,6 +32,7 @@
 <script>
 import ClickOutside from "vue-click-outside";
 import ChatLogView from "@/components/ChatLogView";
+import UpdateUserDisplayNameForm from "@/components/UpdateUserDisplayNameForm";
 
 export default {
 	name: "ChatForm",
@@ -179,6 +180,18 @@ export default {
 			this.isChatOptionOpen = false
 		},
 		openOption() {
+			if (!this.$store.getters.getMyUser.is_display_name_initialized) {
+				this.$modal.show(
+					UpdateUserDisplayNameForm,
+					{
+						circle: this.circle
+					},
+					{
+						width: "40%",
+						draggable: true,
+					}
+				)
+			}
 			this.isChatOptionOpen = true
 		},
 		deleteParent() {

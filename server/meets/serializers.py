@@ -29,4 +29,5 @@ class CircleEntrySerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("display_name", "family_name", "given_name", "family_name_ruby", "given_name_ruby")
+        fields = ("display_name", "family_name", "given_name", "family_name_ruby", "given_name_ruby", "is_display_name_initialized")
+        read_only_fields = ("is_display_name_initialized",)
