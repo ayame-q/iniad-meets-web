@@ -94,6 +94,7 @@ export default {
 			display: flex;
 			li{
 				height: 100%;
+				max-height: 5em;
 				width: 49%;
 				&:not(:last-child){
 					margin-right: 2%;
