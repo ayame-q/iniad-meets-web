@@ -94,21 +94,18 @@ class UserAdminCirclesMixin(LoginRequiredMixin):
             context["admin_circles"] = self.request.user.role.admin_circles.all()
         return context
 
-
-class CircleAdminSinglePageMixin(UserAdminCirclesMixin):
-    model = Circle
-
-    def get_queryset(self):
-        return self.request.user.role.admin_circles.all()
-
-
-class CircleAdminListPageMixin(UserAdminCirclesMixin):
-    model = Circle
-
     def get_queryset(self):
         if self.request.user.is_superuser:
             return Circle.objects.all()
         return self.request.user.role.admin_circles.all()
+
+
+class CircleAdminSinglePageMixin(UserAdminCirclesMixin):
+    model = Circle
+
+
+class CircleAdminListPageMixin(UserAdminCirclesMixin):
+    model = Circle
     
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
