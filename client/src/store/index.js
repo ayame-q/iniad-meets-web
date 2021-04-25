@@ -10,7 +10,8 @@ export default new Vuex.Store({
 		myUser: {
 			uuid: null,
 			staff_circles: [],
-			is_admin: false
+			is_admin: false,
+			entered_circles: [],
 		},
 		isOpen: false,
 		socket: null,
@@ -45,6 +46,9 @@ export default new Vuex.Store({
 		},
 		getCircles(state) {
 			return state.circles
+		},
+		getMyEnteredCircles(state) {
+			return state.myUser.entered_circles
 		},
 		getNowCircle(state, getters) {
 			try {
@@ -135,6 +139,9 @@ export default new Vuex.Store({
 		},
 		setCircles(state, circles){
 			state.circles = circles
+		},
+		addEnteredCircle(state, circle) {
+			state.myUser.entered_circles.push(circle)
 		},
 		setChatLogs(state, logs) {
 			state.chatLogs = logs

@@ -1,6 +1,8 @@
 <template>
 	<div class="entry-button-wrap">
-		<p class="entry-button"><button v-on:click="startEntry">入会はこちら</button></p>
+		<p class="entry-button">
+			<button v-on:click="startEntry" v-bind:disabled="isPending || isEntered" v-bind:class="{'entered': isEntered, 'pending': isPending}">{{ entryButtonText }}</button>
+		</p>
 	</div>
 </template>
 
@@ -11,7 +13,28 @@ import entryCircle from "@/mixins/entryCircle";
 export default {
 	name: "EntryButton",
 	props: {
-		circle: Object
+		circle: Object,
+	},
+	data() {
+		return {
+			isPending: false
+		}
+	},
+	computed: {
+		isEntered() {
+			return this.$store.getters.getMyEnteredCircles.find((item) => {
+				return item.uuid === this.circle.uuid
+			})
+		},
+		entryButtonText() {
+			if (this.isEntered) {
+				return "入会済"
+			}
+			if (this.isPending) {
+				return ""
+			}
+			return "入会はこちら"
+		},
 	},
 	methods: {
 		openUpdateUserNameForm() {
@@ -27,6 +50,7 @@ export default {
 			)
 		},
 		startEntry() {
+			this.isPending = true
 			const myUser = this.$store.getters.getMyUser
 			if(myUser.family_name && myUser.given_name) {
 				this.entry(this.circle)
@@ -42,6 +66,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@keyframes pending {
+	0%{
+		transform: rotate(0deg);
+	}
+	100%{
+		transform: rotate(360deg);
+	}
+}
 .entry-button{
 	width: fit-content;
 	button{
@@ -50,6 +82,33 @@ export default {
 		background-color: $sub-color;
 		border-radius: 1.5em;
 		padding: 0.5em 1.2em;
+		
+		&:disabled{
+			cursor: default;
+		}
+		&.entered{
+			background: $light-button-color;
+		}
+		&.pending{
+			content: "";
+			width: 2em;
+			height: 2em;
+			top: 50%;
+			left: 50%;
+			transform: translateY(-50%) translateX(-50%);
+			margin: auto;
+			padding: 0;
+			background-color: #FFFFFF;
+			border-color: #cbcbcb;
+			border-width:3px;
+			border-style: solid;
+			border-radius: 100%;
+			border-left-color: $sub-color;
+			animation: pending 2s 0.25s linear infinite;
+			&::after {
+
+			}
+		}
 	}
 }
 </style>

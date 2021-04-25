@@ -70,7 +70,8 @@ class User(AbstractUser):
             "family_name_ruby": self.family_name_ruby,
             "given_name_ruby": self.given_name_ruby,
             "staff_circles": [circle.to_obj() for circle in self.role.staff_circles.all()] if self.role else [],
-            "is_admin": self.is_superuser
+            "is_admin": self.is_superuser,
+            "entered_circles": [{"uuid": entry.circle.uuid} for entry in self.entries.all()]
         }
 
 
