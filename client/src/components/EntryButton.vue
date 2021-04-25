@@ -50,7 +50,6 @@ export default {
 			)
 		},
 		startEntry() {
-			this.isPending = true
 			const myUser = this.$store.getters.getMyUser
 			if(myUser.family_name && myUser.given_name) {
 				this.entry(this.circle)

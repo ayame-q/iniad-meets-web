@@ -3,6 +3,7 @@ import axios from "axios";
 export default {
 	methods: {
 		entry(circle) {
+			this.isPending = true
 			axios.post("/api/v2/entry/",{
 				circle: circle.uuid
 			}, {withCredentials: true, headers: {"X-CSRFToken": this.$cookies.get("csrftoken")}})
