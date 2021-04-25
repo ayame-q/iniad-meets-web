@@ -60,10 +60,21 @@ export default new Vuex.Store({
 			}
 		},
 		getNextCircle(state, getters) {
-			if (getters.getNowCircle === null) {
-				const index = state.circles.indexOf(getters.getNowCircle) + 1
-				return state.circles[index]
+			if (!getters.getNowCircle) {
+				const pastEvents = state.pastEvents
+				for (let i = pastEvents.length - 1; i >= 0; i--) {
+					if (pastEvents[i].type === "circle_start") {
+						const lastCircle = state.circles.find((item) => {
+							return item.uuid === pastEvents[i].circle
+						})
+						const index = state.circles.indexOf(lastCircle)
+						return state.circles[index + 1]
+					}
+				}
+				return state.circles[0]
 			}
+			const index = state.circles.indexOf(getters.getNowCircle) + 1
+			return state.circles[index]
 		},
 		getIsAdmin(state) {
 			return state.myUser.is_admin
