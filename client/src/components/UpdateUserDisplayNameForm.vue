@@ -23,7 +23,7 @@ export default {
 	name: "UpdateUserDisplayNameForm",
 	data() {
 		return {
-			display_name: null,
+			display_name: this.$store.getters.getMyUser.display_name,
 		}
 	},
 	methods: {
@@ -63,10 +63,7 @@ export default {
 				margin-top: 1em;
 			}
 			p{
-				width: 49%;
-				&:not(:last-child){
-					margin-right: 2%;
-				}
+				width: 100%;
 			}
 
 		}
