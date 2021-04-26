@@ -20,7 +20,12 @@
 			<div class="side-wrap">
 				<div class="chat-tab-wrap">
 					<ul>
-						<li class="chat-tab" v-for="(chatType, index) of chatTypes" v-bind:class="{ 'active': activeChatType === index }" v-on:click="setActiveChatType(index)">{{ chatType }}</li>
+						<li class="chat-tab" v-for="(chatType, index) of chatTypes" v-bind:class="{ 'active': activeChatType === index }" v-on:click="setActiveChatType(index)">
+							{{ chatType }}
+							<span class="count" v-if="index === 3 && $store.getters.getChatLogsForYouNotRead.length > 0">
+								{{ $store.getters.getChatLogsForYouNotRead.length }}
+							</span>
+						</li>
 					</ul>
 				</div>
 				<div class="chat-wrap">
@@ -63,22 +68,35 @@ export default {
 	},
 	computed: {
 		getActiveChatLog() {
+			let result = null
 			switch (this.activeChatType) {
 				case 0:
-					return this.$store.getters.getChatLogs
+					result = this.$store.getters.getChatLogs
+					break
 				case 1:
-					return this.$store.getters.getChatLogsQuestionsAndAnswers
+					result = this.$store.getters.getChatLogsQuestionsAndAnswers
+					break
 				case 2:
-					return this.$store.getters.getChatLogsAdminMessages
+					result = this.$store.getters.getChatLogsAdminMessages
+					break
 				case 3:
-					return this.$store.getters.getChatLogsForYou
+					result = this.$store.getters.getChatLogsForYou
+					this.$store.commit("setChatLogForYouRead", result[result.length - 1].uuid)
+					break
+				default:
+					result = this.$store.getters.getChatLogs
+					break
 			}
+			return result
 		}
 	},
 	methods: {
 		setActiveChatType(index) {
 			this.activeChatType = index
 			this.$store.commit("startChatLogWrapScrollAuto")
+			if (this.chatTypes[this.activeChatType].withCount){
+				localStorage.setItem(`lastReadType${this.activeChatType}`, this.getActiveChatLog[this.getActiveChatLog.length - 1].uuid)
+			}
 			this.$nextTick(() => {
 				const chatLogWrapElement = document.getElementById("chat-log-wrap")
 				chatLogWrapElement.scrollTop = chatLogWrapElement.scrollHeight
@@ -265,6 +283,20 @@ export default {
 							color: #FFFFFF;
 							left: -0.5em;
 							z-index: 3;
+						}
+						.count{
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							position: absolute;
+							top: -0.3em;
+							right: -0.5em;
+							background-color: $sub-color;
+							color: white;
+							width: 1.2em;
+							height: 1.2em;
+							padding: 0.2em;
+							border-radius: 100%;
 						}
 					}
 				}

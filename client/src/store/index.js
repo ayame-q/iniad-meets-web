@@ -26,6 +26,7 @@ export default new Vuex.Store({
 		chatLogWrapScrolledAt: null,
 		isChatLogWrapScrollOnAuto: false,
 		chatFormParentUuid: null,
+		chatLogForYouReadUuid: localStorage.getItem("chatLogForYouRead"),
 		startedTime: null,
 	},
 	getters: {
@@ -99,6 +100,14 @@ export default new Vuex.Store({
 					}))
 				)
 			})
+		},
+		getChatLogsForYouNotRead(state, getters) {
+			const myChatLog = getters.getChatLogsForYou
+			const readChatLog = myChatLog.find((item) => {
+				return item.uuid === state.chatLogForYouReadUuid
+			})
+			const index = myChatLog.indexOf(readChatLog)
+			return myChatLog.slice(index + 1)
 		},
 		getChatLogsQuestionsAndAnswers(state) {
 			return state.chatLogs.filter((item) => {
@@ -212,6 +221,10 @@ export default new Vuex.Store({
 		},
 		clearChatLogWrapScrolledAt(state) {
 			state.chatLogWrapScrolledAt = null
+		},
+		setChatLogForYouRead(state, uuid) {
+			state.chatLogForYouReadUuid = uuid
+			localStorage.setItem(`chatLogForYouRead`, uuid)
 		},
 		setChatFormParentUuid(state, parentUuid) {
 			state.chatFormParentUuid = parentUuid
