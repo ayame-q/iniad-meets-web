@@ -8,6 +8,11 @@ services:
       - "django_static:/var/lib/static"
       - "./server/upload_files:/usr/src/app/upload_files"
     restart: always
+  postgres:
+    command: postgres -c max_connections=10000
+    restart: always
+  redis:
+    restart: always
   nginx:
     volumes:
       - "./nginx/nginx.prod.conf:/etc/nginx/nginx.conf"
