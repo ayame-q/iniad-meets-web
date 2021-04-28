@@ -10,6 +10,7 @@ urlpatterns = [
     path("api/v2/logo_uploaded/<uuid:pk>", views.LogoUploadedAPI.as_view(), name="api_logo_uploaded"),
     path("api/v2/is_slack_joined", views.IsSlackJoinedAPI.as_view(), name="api_is_slack_joined"),
     path('api/v2/is_open', views.IsOpenAPIView.as_view(), name="api_is_open"),
+    path('api/v2/status', views.StatusAPIView.as_view(), name="api_status"),
     path('api/v2/slack/', views.SlackEventAPI.as_view(), name="slack_challenge"),
     path('api/v2/slack/team_join', views.SlackEventAPI.as_view(), name="slack_new_user_join"),
     path("share/<uuid:pk>", views.SnsShareView.as_view(), name="sns_share"),

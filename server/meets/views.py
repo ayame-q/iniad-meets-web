@@ -319,3 +319,12 @@ class IsOpenAPIView(APIView):
         if status.status != 0 and status.opening_time < timezone.localtime():
             is_open = True
         return JsonResponse({"is_open": is_open})
+
+
+class StatusAPIView(APIView):
+    def get(self, request):
+        status = Status.objects.get()
+        return JsonResponse({
+            "status": status.status,
+            "movie_url": status.streaming_url if status.status != 2 else status.archive_url
+        })

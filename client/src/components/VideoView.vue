@@ -1,7 +1,7 @@
 <template>
 	<div class="video">
 		<video class="video-js vjs-theme-forest vjs-16-9" id="video" controls playsinline ref="videoPlayer">
-			<source src="https://stream.ayame.me/live/video.m3u8" type="application/x-mpegURL">
+			<source v-bind:src="videoSrc" type="application/x-mpegURL">
 		</video>
 	</div>
 </template>
@@ -9,18 +9,26 @@
 <script>
 import videojs from 'video.js'
 import 'video.js/dist/video-js.css'
+import axios from "axios";
 
 export default {
 	name: "VideoView",
 	data() {
 		return {
 			player: null,
+			videoSrc: null,
 			options: {}
 		}
 	},
 	mounted() {
-		this.player = videojs(this.$refs.videoPlayer, this.options, () => {
-			console.log('onPlayerReady', this);
+		axios.get("/api/v2/status")
+		.then((result) => {
+			this.videoSrc = result.data.movie_url
+			this.$nextTick(() => {
+				this.player = videojs(this.$refs.videoPlayer, this.options, () => {
+					console.log('onPlayerReady', this);
+				})
+			})
 		})
 	},
 };
