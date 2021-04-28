@@ -19,7 +19,7 @@ def add_text_to_image(img, text, font_size, top, left, max_length=740):
 
 def make_share_image(score, full):
     base_img = Image.open(os.path.join(settings.BASE_DIR, "meets/quiz_snsshare.png")).copy()
-    base_img = add_text_to_image(base_img, str(full), 72, 703, 960)
-    img = add_text_to_image(base_img, str(score), 180, 590, 1549)
+    base_img = add_text_to_image(base_img, str(full), 70, 686, 1034)
+    img = add_text_to_image(base_img, str(score), 180, 570, 1600)
 
     return img
