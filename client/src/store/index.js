@@ -255,7 +255,7 @@ export default new Vuex.Store({
 				const response = JSON.parse(event.data, jsonReviver)
 
 				for (const [event, data] of Object.entries(response)) {
-					console.log("Get WebSocket message:", event, data)
+					//console.log("Get WebSocket message:", event, data)
 					if (event === "start") {
 						context.commit("setStartedTimeNow")
 						for (const event of context.getters.getEvents) {
@@ -330,7 +330,7 @@ export default new Vuex.Store({
 			socket.send(JSON.stringify(({
 				[event]: data
 			})))
-			console.log("Send Websocket Message", event, data)
+			//console.log("Send Websocket Message", event, data)
 		},
 		sendChatMessage(context, {comment, parent=null, senderCircleUuid=null, receiverCircleUuid=null, isAnonymous=false, isAdminMessage=false}) {
 			context.dispatch("sendSocket", {
