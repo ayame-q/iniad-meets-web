@@ -28,13 +28,10 @@ export default {
 	},
 	methods: {
 		submit() {
-			axios.patch("/api/v2/user/", {
-				display_name: this.display_name,
-			}, {withCredentials: true, headers: {"X-CSRFToken": this.$cookies.get("csrftoken")}})
-				.then((response) => {
-					this.$store.commit("setMyUser", Object.assign(this.$store.getters.getMyUser, response.data))
-					this.$emit("close")
-				})
+			this.$store.dispatch("updateDisplayName", this.display_name)
+			.then(() => {
+				this.$emit("close")
+			})
 		}
 	},
 };

@@ -304,6 +304,8 @@ export default new Vuex.Store({
 						context.commit("setPastEvents")
 					} else if (event === "question_response") {
 						context.commit("addQuestionResponse", data)
+					} else if (event === "user") {
+						context.commit("setMyUser", data)
 					}
 				}
 			}
@@ -388,6 +390,14 @@ export default new Vuex.Store({
 			context.dispatch("sendSocket", {
 				event: "start",
 				data: true
+			})
+		},
+		updateDisplayName(context, displayName) {
+			context.dispatch("sendSocket", {
+				event: "update_display_name",
+				data: {
+					display_name: displayName
+				}
 			})
 		}
 	},

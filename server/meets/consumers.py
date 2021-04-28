@@ -124,6 +124,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 except (QuestionSelection.DoesNotExist):
                     continue
                 await self.send_question_response(question_response)
+            elif event == "update_display_name":
+                display_name = data.get("display_name")
+                self.user.display_name = display_name
+                self.user.is_display_name_initialized = True
+                self.user.save()
+                await self.send_user_updated()
 
     async def send_connect_messages(self):
         chat_logs = reversed(ChatLog.objects.all().order_by("-created_at")[:30])
@@ -186,6 +192,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         events = Event.objects.all()
         await self.send(text_data=json_dumps({
             "events": [event.to_obj() for event in events],
+        }))
+
+    async def send_user_updated(self):
+        await self.send(text_data=json_dumps({
+            "user": self.user.to_obj(),
         }))
 
 
