@@ -277,14 +277,18 @@ class SlackEventAPI(APIView):
             return Response({"request": "ok"})
 
 
+class SnsShareView(DetailView):
+    model = User
+    template_name = "meets/share.html"
+    extra_context = {"site_host": os.environ.get("SITE_HOST") if os.environ.get("SITE_HOST")[-1] != "/" else os.environ.get("SITE_HOST")[0:-1]}
+
+
+
 def sns_share_image(request, uuid):
     user = get_object_or_404(User, uuid=uuid)
 
-    question_count = QuestionResponse.objects.filter(user=user, selection__question__type=1).count()
-    correct_count = QuestionResponse.objects.filter(user=user, selection__question__type=1, selection__is_correct=True).count()
-
     from .shareimage import make_share_image
-    img = make_share_image(correct_count, question_count)
+    img = make_share_image(user.get_correct_count(), user.get_question_count())
     response = HttpResponse(content_type="image/jpeg")
     img.save(response, "JPEG")
     return response

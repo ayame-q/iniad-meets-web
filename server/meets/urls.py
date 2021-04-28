@@ -11,6 +11,7 @@ urlpatterns = [
     path("api/v2/is_slack_joined", views.IsSlackJoinedAPI.as_view(), name="api_is_slack_joined"),
     path('api/v2/slack/', views.SlackEventAPI.as_view(), name="slack_challenge"),
     path('api/v2/slack/team_join', views.SlackEventAPI.as_view(), name="slack_new_user_join"),
+    path("share/<uuid:pk>", views.SnsShareView.as_view(), name="sns_share"),
     path("share/img/<uuid:uuid>", views.sns_share_image, name="sns_share_image"),
     path("circle/join", views.CircleJoinView.as_view(), name="circle_join"),
     path("circle/list", views.CircleListView.as_view(), name="circle_list"),

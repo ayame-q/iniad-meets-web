@@ -60,6 +60,12 @@ class User(AbstractUser):
         except SlackApiError:
             return None
 
+    def get_question_count(self):
+        return QuestionResponse.objects.filter(user=self, selection__question__type=1).count()
+
+    def get_correct_count(self):
+        return QuestionResponse.objects.filter(user=self, selection__question__type=1, selection__is_correct=True).count()
+
     def to_obj(self):
         return {
             "uuid": self.uuid,
