@@ -9,7 +9,7 @@
 		</div>
 		<div class="final-buttons">
 			<ul>
-				<li><a>参加者アンケートに回答</a></li>
+				<li><a v-bind:href="finalQuestionnaireUrl" target="_blank">参加者アンケートに回答</a></li>
 				<li>
 					<a href="https://iniad-wm.com/" target="_blank" class="times-button">
 						<img src="@/assets/img/times-icon-white.svg" alt="Times icon">INIAD Timesを見に行く
@@ -39,6 +39,9 @@ export default {
 		},
 		correctCount() {
 			return this.correctResponses.length
+		},
+		finalQuestionnaireUrl() {
+			return process.env.VUE_APP_FINAL_QUESTIONNAIRE_URL
 		}
 	}
 };
