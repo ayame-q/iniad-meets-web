@@ -1,6 +1,13 @@
 <template>
 	<div class="entrance-page">
 		<p class="entry-wrap"><a href="/auth/google/login/" class="entry"><img src="@/assets/img/entrance_entry_text.svg" alt="入場"></a></p>
+		<div class="smp-notify">
+			<p>
+				<b>スマートフォンでの参加は非推奨です。</b><br>
+				パソコンまたはタブレットでの参加をオススメします。
+				<small style="display: block">(スマートフォンで参加する場合、横画面でご覧いただくと多少マシに表示されるかと思います。)</small>
+			</p>
+		</div>
 	</div>
 </template>
 
@@ -53,6 +60,17 @@ html{
 				height: 1em;
 				display: block;
 			}
+		}
+	}
+	.smp-notify{
+		display: none;
+		@include media(small){
+			font-size: 18px;
+			display: block;
+			position: fixed;
+			left: 0;
+			bottom: 0;
+			width: 100%;
 		}
 	}
 }

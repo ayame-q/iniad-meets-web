@@ -1,0 +1,15 @@
+@mixin media($a: false, $b: false){
+	$value: large;
+	@if($a == $value or $b == $value){
+		@media (min-width: 481px) {
+			@content;
+		}
+	}
+
+	$value: small;
+	@if($a == $value or $b == $value){
+		@media (max-width: 480px) {
+			@content;
+		}
+	}
+}

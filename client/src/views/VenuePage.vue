@@ -192,16 +192,27 @@ export default {
 	.circle-list-wrap{
 		position: fixed;
 		z-index: 99;
-		right: calc(-#{$subcolumn-width} + #{$column-margin-width} - 20px - 30px);
-		width: calc(#{$subcolumn-width} - #{$column-margin-width} / 2);
 		height: 100%;
 		overflow-y: scroll;
 		padding-top: $header-height;
 		background-color: $theme-color;
 		box-shadow: -10px 0 15px 10px rgba(#4D4D4D, 0.7);
 		@include drawerAnimation;
-		&.drawer-opened{
-			right: 0;
+
+		@include media(large) {
+			right: calc(-#{$subcolumn-width} + #{$column-margin-width} - 20px - 30px);
+			width: calc(#{$subcolumn-width} - #{$column-margin-width} / 2);
+			&.drawer-opened{
+				right: 0;
+			}
+		}
+
+		@include media(small) {
+			left: calc(100% + 20px);
+			width: 100%;
+			&.drawer-opened{
+				left: 0;
+			}
 		}
 	}
 
@@ -301,7 +312,6 @@ export default {
 					}
 				}
 			}
-
 		}
 	}
 }
