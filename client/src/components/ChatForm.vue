@@ -314,5 +314,10 @@ form.chat-form{
 			background-color: #FFFFFF;
 		}
 	}
+	button{
+		img{
+			height: 80%;
+		}
+	}
 }
 </style>
