@@ -1,6 +1,7 @@
 <template>
 	<div id="app">
-		<router-view/>
+		<router-view />
+		<v-dialog />
 	</div>
 </template>
 
@@ -92,5 +93,12 @@ input, select, textarea, button{
 button{
 	cursor: pointer;
 }
-
+.vue-dialog{
+	background-color: $sub-color !important;
+	border-radius: 1em !important;
+	color: #FFFFFF;
+	button:hover{
+		color: $sub-color;
+	}
+}
 </style>

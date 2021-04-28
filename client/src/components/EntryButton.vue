@@ -52,7 +52,26 @@ export default {
 		startEntry() {
 			const myUser = this.$store.getters.getMyUser
 			if(myUser.family_name && myUser.given_name) {
-				this.entry(this.circle)
+				this.$modal.show('dialog', {
+					title: '確認',
+					text: `${this.circle.name}に入会しますか？`,
+					buttons: [
+						{
+							title: 'キャンセル',
+							handler: () => {
+								this.$modal.hide('dialog')
+							}
+						},
+						{
+							title: '入会する',
+							handler: () => {
+								this.isPending = true
+								this.entry(this.circle)
+								this.$modal.hide('dialog')
+							}
+						}
+					]
+				})
 			} else {
 				this.openUpdateUserNameForm()
 			}
@@ -81,7 +100,11 @@ export default {
 		background-color: $sub-color;
 		border-radius: 1.5em;
 		padding: 0.5em 1.2em;
-		
+
+		&:hover{
+			text-decoration: underline;
+		}
+
 		&:disabled{
 			cursor: default;
 		}
@@ -104,9 +127,6 @@ export default {
 			border-radius: 100%;
 			border-left-color: $sub-color;
 			animation: pending 2s 0.25s linear infinite;
-			&::after {
-
-			}
 		}
 	}
 }
