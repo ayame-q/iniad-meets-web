@@ -11,10 +11,7 @@ const routes = [
 		path: "/",
 		name: "Index",
 		component() {
-			if (process.env.VUE_APP_TEASER === "true" || process.env.VUE_APP_TEASER === "True") {
-				return import("@/views/TeaserPage")
-			}
-			return import("@/views/EntrancePage")
+			return import("@/views/Home")
 		},
 	},
 	{

@@ -283,7 +283,6 @@ class SnsShareView(DetailView):
     extra_context = {"site_host": os.environ.get("SITE_HOST") if os.environ.get("SITE_HOST")[-1] != "/" else os.environ.get("SITE_HOST")[0:-1]}
 
 
-
 def sns_share_image(request, uuid):
     user = get_object_or_404(User, uuid=uuid)
 
@@ -311,3 +310,12 @@ def circle_admin_entries_csv(request, pk):
         writer.writerow([entry.user.student_id, entry.user.get_name(), entry.user.get_name_ruby(), entry.user.email, "{0:%Y-%m-%d %H:%M:%S}".format(entry.created_at)])
 
     return response
+
+
+class IsOpenAPIView(APIView):
+    def get(self, request):
+        status = Status.objects.get()
+        is_open = False
+        if status.status != 0 and status.opening_time < timezone.localtime():
+            is_open = True
+        return JsonResponse({"is_open": is_open})
