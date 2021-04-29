@@ -4,10 +4,8 @@
 			<p>INIADのサークル情報満載！<br>リアルタイムなWeb新歓イベント</p>
 			<h1><img src="@/assets/img/logo.svg" alt="INIAD meets web"></h1>
 			<p class="datetime"><time>
-				<span class="date" v-if="dayjs() < dayjs('2021/4/29 19:00:00')">2021.4.29 Thur.</span>
-				<span class="time" v-if="dayjs() < dayjs('2021/4/29 19:00:00')">18:00 Open, 18:30 Start</span>
-				<span class="date" v-if="dayjs() >= dayjs('2021/4/29 19:00:00')">2021.4.30 Fri.</span>
-				<span class="time" v-if="dayjs() >= dayjs('2021/4/29 19:00:00')">13:30 Open, 14:00 Start</span>
+				<span class="date">{{ day }}</span>
+				<span class="time">{{ time }}</span>
 			</time></p>
 			<ul class="sns-share">
 				<li>
@@ -45,6 +43,22 @@ export default {
 					draggable: true,
 				}
 			)
+		}
+	},
+	computed: {
+		day() {
+			if (dayjs() < dayjs('2021/4/29 19:00:00')) {
+				return "2021.4.29 Thu."
+			} else {
+				return "2021.4.30 Fri."
+			}
+		},
+		time() {
+			if (dayjs() < dayjs('2021/4/29 19:00:00')) {
+				return "18:00 Open, 18:30 Start"
+			} else {
+				return "13:30 Open, 14:00 Start"
+			}
 		}
 	}
 };
