@@ -255,3 +255,6 @@ dump.rdb
 
 # upload_files
 upload_files
+
+# GCP Key
+gcs-credential.json
