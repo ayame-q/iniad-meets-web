@@ -81,6 +81,13 @@ class User(AbstractUser):
         }
 
 
+def get_circle_pamphlet_path(self, filename):
+    prefix = 'pamphlet/'
+    name = str(uuid4())
+    extension = os.path.splitext(filename)[-1]
+    return prefix + name + extension
+
+
 def get_circle_thumbnail_path(self, filename):
     prefix = 'thumbnail/'
     name = str(uuid4())
@@ -98,7 +105,7 @@ class Circle(BaseModel):
     twitter_sn = models.CharField(max_length=15, null=True, blank=True, verbose_name="Twitter ID")
     instagram_id = models.CharField(max_length=30, null=True, blank=True, verbose_name="Instagram ID")
     comment = models.TextField(max_length=80, blank=True, default="", verbose_name="一言説明")
-    pamphlet = models.FileField(null=True, blank=True, validators=[FileExtensionValidator(allowed_extensions=["pdf"])], verbose_name="サークル資料(PDF)")
+    pamphlet = models.FileField(null=True, blank=True, upload_to=get_circle_pamphlet_path, validators=[FileExtensionValidator(allowed_extensions=["pdf"])], verbose_name="サークル資料(PDF)")
     movie_uploaded_at = models.DateTimeField(null=True, blank=True, default=None, verbose_name="動画アップロード時刻")
     logo_uploaded_at = models.DateTimeField(null=True, blank=True, default=None, verbose_name="ロゴアップロード時刻")
     logo_url = models.URLField(null=True, blank=True, verbose_name="ロゴURL")
