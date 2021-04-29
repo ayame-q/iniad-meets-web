@@ -28,6 +28,10 @@ export default new Vuex.Store({
 		chatFormParentUuid: null,
 		chatLogForYouReadUuid: localStorage.getItem("chatLogForYouRead"),
 		startedTime: null,
+		status: {
+			status: null,
+			final_questionnaire_url: null,
+		}
 	},
 	getters: {
 		getSocket(state) {
@@ -131,11 +135,17 @@ export default new Vuex.Store({
 		},
 		getQuestionResponses(state) {
 			return state.questionResponses
+		},
+		getStatus(state) {
+			return state.status
 		}
 	},
 	mutations: {
 		setSocket(state, socket) {
 			state.socket = socket
+		},
+		setStatus(state, status) {
+			state.status = status
 		},
 		setStartedTimeNow(state) {
 			state.startedTime = dayjs()
@@ -283,6 +293,7 @@ export default new Vuex.Store({
 						context.commit("setMyUser", data.user)
 						context.commit("setChatLogs", data.chat_logs)
 						context.commit("setQuestionResponses", data.question_responses)
+						context.commit("setStatus", data.status)
 					} else if (event === "chat_message") {
 						context.commit("addChatLog", data)
 					} else if (event === "chat_reaction_add") {

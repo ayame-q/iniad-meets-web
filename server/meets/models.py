@@ -422,6 +422,7 @@ class Status(BaseModel):
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="作成日")
     streaming_url = models.CharField(max_length=512, null=True, blank=True, verbose_name="ストリーミングURL")
     archive_url = models.CharField(max_length=512, null=True, blank=True, verbose_name="アーカイブURL")
+    final_questionnaire_url = models.CharField(max_length=512, null=True, blank=True, verbose_name="終了後アンケートURL")
     can_circle_join = models.BooleanField(default=False, verbose_name="新規サークル受付中")
     can_circle_movie_upload = models.BooleanField(default=False, verbose_name="動画アップロード受付中")
     can_circle_pamphlet_upload = models.BooleanField(default=False, verbose_name="資料アップロード受付中")

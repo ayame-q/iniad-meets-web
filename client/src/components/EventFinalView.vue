@@ -41,7 +41,7 @@ export default {
 			return this.correctResponses.length
 		},
 		finalQuestionnaireUrl() {
-			return process.env.VUE_APP_FINAL_QUESTIONNAIRE_URL
+			return this.$store.getters.getStatus.final_questionnaire_url
 		}
 	}
 };
