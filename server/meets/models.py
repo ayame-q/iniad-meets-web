@@ -206,6 +206,9 @@ class Entry(BaseModel):
     circle = models.ForeignKey(Circle, on_delete=models.CASCADE, related_name="entries", verbose_name="サークル")
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="登録日")
 
+    class Meta:
+        ordering = ["created_at"]
+
     def to_obj(self):
         return {
             "email": self.user.email,

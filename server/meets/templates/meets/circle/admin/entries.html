@@ -67,7 +67,7 @@
                         <td>{{ entry.user.get_name_ruby }}</td>
                         <td>{{ entry.user.student_id }}</td>
                         <td><a href="mailto:{{ entry.user.email }}">{{ entry.user.email }}</a></td>
-                        <td>{{ entry.user.created_at }}</td>
+                        <td>{{ entry.created_at }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
