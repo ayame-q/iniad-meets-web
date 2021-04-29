@@ -11,7 +11,7 @@ export default {
 					this.$store.commit("addEnteredCircle", {
 						uuid: response.data.circle
 					})
-					this.$toast.show(`${circle.name} の入会受付が完了しました。`)
+					this.$toast.show(`${circle.name} の入会受付が完了しました。サークルよりINIADメールアドレスに連絡が届きますのでお待ちください。`)
 					this.isPending = false
 				})
 				.catch((error) => {

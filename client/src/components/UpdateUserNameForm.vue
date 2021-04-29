@@ -27,6 +27,7 @@
 				</p>
 			</div>
 		</div>
+		<p style="font-size: 0.5em; margin-top: 2em">入会手続きを行うと、サークルにあなたのINIADメールアドレスと登録いただいた氏名が通知されます。</p>
 		<p class="submit-button-wrap"><input type="submit" value="登録"></p>
 	</form>
 </template>
