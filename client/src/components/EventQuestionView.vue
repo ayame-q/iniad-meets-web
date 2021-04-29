@@ -74,40 +74,44 @@ export default {
 		list-style: none;
 		display: flex;
 		height: 100%;
-		button{
-			border: $light-button-color solid 3px;
-			border-radius: 1em;
-			color: $text-color;
-			width: 100%;
-			height: 100%;
-			font-weight: bold;
-			&:hover{
-				text-decoration: underline;
-			}
-			&:disabled{
-				background-color: transparent;
+		li{
+			min-height: 3em;
+			button{
+				border: $light-button-color solid 3px;
+				border-radius: 1em;
+				color: $text-color;
+				width: 100%;
+				height: 100%;
+				font-weight: bold;
+				min-height: 3em;
 				&:hover{
-					text-decoration: none;
+					text-decoration: underline;
 				}
-			}
-			&.selected{
-				background-color: $theme-color;
-				border-color: $theme-color;
-				color: #FFFFFF;
-			}
-			&.result-questionnaire{
-				display: flex;
-				justify-content: center;
-				position: relative;
-				.text{
-					font-size: 0.8em;
-					position: absolute;
-					top: 0;
-					left: 0.5em;
+				&:disabled{
+					background-color: transparent;
+					&:hover{
+						text-decoration: none;
+					}
 				}
-				.result-percentage{
-					justify-self: center;
-					align-self: center;
+				&.selected{
+					background-color: $theme-color;
+					border-color: $theme-color;
+					color: #FFFFFF;
+				}
+				&.result-questionnaire{
+					display: flex;
+					justify-content: center;
+					position: relative;
+					.text{
+						font-size: 0.8em;
+						position: absolute;
+						top: 0;
+						left: 0.5em;
+					}
+					.result-percentage{
+						justify-self: center;
+						align-self: center;
+					}
 				}
 			}
 		}
