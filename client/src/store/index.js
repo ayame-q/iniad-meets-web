@@ -31,6 +31,7 @@ export default new Vuex.Store({
 		status: {
 			status: null,
 			final_questionnaire_url: null,
+			questions_count: null,
 		}
 	},
 	getters: {

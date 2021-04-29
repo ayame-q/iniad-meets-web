@@ -35,7 +35,7 @@ export default {
 			})
 		},
 		quizCount() {
-			return this.quizResponses.length
+			return this.$store.getters.getStatus.questions_count
 		},
 		correctCount() {
 			return this.correctResponses.length

@@ -146,11 +146,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "events": [event.to_obj() for event in events],
                 "started_before_millisec": (started_timedelta.total_seconds() * 1000 + started_timedelta.microseconds / 1000) if started_timedelta else None,
                 "question_responses": [response.to_obj() for response in question_responses],
-                "status": {
-                    "status": status.status,
-                    "movie_url": status.streaming_url if status.status != 2 else status.archive_url,
-                    "final_questionnaire_url": status.final_questionnaire_url
-                }
+                "status": status.to_obj()
             }
         }))
 

@@ -61,6 +61,9 @@ class User(AbstractUser):
             return None
 
     def get_question_count(self):
+        return Question.get_questions_count()
+
+    def get_answered_question_count(self):
         return QuestionResponse.objects.filter(user=self, selection__question__type=1).count()
 
     def get_correct_count(self):
@@ -299,6 +302,10 @@ class Question(BaseModel):
             "selections": [selection.to_obj_start() for selection in self.selections.all()],
         }
 
+    @classmethod
+    def get_questions_count(cls):
+        return cls.objects.filter(type=1).count()
+
 
 class QuestionSelection(BaseModel):
     question = models.ForeignKey(Question, related_name="selections", on_delete=models.CASCADE, verbose_name="問題/質問")
@@ -431,6 +438,14 @@ class Status(BaseModel):
     @classmethod
     def get_instance(cls):
         cls.objects.get()
+
+    def to_obj(self):
+        return {
+            "status": self.status,
+            "movie_url": self.streaming_url if self.status != 2 else self.archive_url,
+            "final_questionnaire_url": self.final_questionnaire_url,
+            "questions_count": Question.get_questions_count()
+        }
 
 
 def json_serial(obj):
