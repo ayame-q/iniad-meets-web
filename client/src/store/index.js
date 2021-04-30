@@ -168,6 +168,9 @@ export default new Vuex.Store({
 				return state.startedTime.add(item.start_time_sec, "s") <= dayjs()
 			})
 		},
+		clearPastEvents(state) {
+			state.pastEvents = []
+		},
 		setCircles(state, circles){
 			state.circles = circles
 		},
@@ -266,6 +269,7 @@ export default new Vuex.Store({
 					//console.log("Get WebSocket message:", event, data)
 					if (event === "start") {
 						context.commit("setStartedTimeNow")
+						context.commit("clearPastEvents")
 						for (const event of context.getters.getEvents) {
 							setTimeout((() => {
 								context.commit("setPastEvents")
@@ -278,6 +282,7 @@ export default new Vuex.Store({
 						}
 						context.commit("setCircles", data.circles)
 						context.commit("setEvents", data.events)
+						context.commit("clearPastEvents")
 						context.commit("setPastEvents")
 						for (const event of context.getters.getEvents) {
 							if (data.started_before_millisec / 1000 < event.start_time_sec)
