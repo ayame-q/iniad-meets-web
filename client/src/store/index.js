@@ -201,12 +201,9 @@ export default new Vuex.Store({
 			state.questionResponses = responses
 		},
 		addQuestionResponse(state, response) {
-			const original = state.questionResponses.filter((item) => {
-				item.question_uuid === response.question_uuid
+			state.questionResponses = state.questionResponses.filter((item) => {
+				return item.question_uuid !== response.question_uuid
 			})
-			if (original){
-				state.questionResponses.splice(state.questionResponses.indexOf(original), 1)
-			}
 			state.questionResponses.push(response)
 		},
 		setSocketConnected(state) {
