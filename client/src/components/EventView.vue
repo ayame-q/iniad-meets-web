@@ -1,6 +1,6 @@
 <template>
 	<div class="event" v-bind:class="{'blink': (event && event.type==='tutorial_info_start')}">
-		<div class="next" v-if="(!event || event.type!=='final_start') && nextCircle">{{ nextCircle.name }}<img src="../assets/img/next.svg" alt="NEXT"></div>
+		<div class="next" v-if="(!event || event.type!=='final_start') && nextCircle" v-bind:class="{'archive': isArchive}" v-on:click="playNextCircle">{{ nextCircle.name }}<img src="../assets/img/next.svg" alt="NEXT"></div>
 		<event-circle-view v-bind:circle="circle" v-if="event && event.type==='circle_start'"></event-circle-view>
 		<event-question-view v-bind:question="event.question" v-if="event && ( event.type === 'question_start' || event.type === 'question_result')"></event-question-view>
 		<event-final-view v-if="event && event.type==='final_start'"></event-final-view>
@@ -31,6 +31,16 @@ export default {
 		},
 		nextCircle() {
 			return this.$store.getters.getNextCircle
+		},
+		isArchive() {
+			return this.$store.getters.getStatus.status === 2
+		}
+	},
+	methods: {
+		playNextCircle() {
+			if(this.isArchive) {
+				this.$store.dispatch("playMovieOnSeconds", this.nextCircle.start_time_sec + 1)
+			}
 		}
 	},
 	components: {
@@ -54,6 +64,7 @@ export default {
 		position: absolute;
 		top: 1em;
 		right: 0;
+		z-index: 10;
 		background-color: $light-button-color;
 		color: #FFFFFF;
 		font-size: 0.6em;
@@ -65,6 +76,9 @@ export default {
 			display: block;
 			margin-left: 0.5em;
 			height: 0.8em;
+		}
+		&.archive{
+			cursor: pointer;
 		}
 	}
 }

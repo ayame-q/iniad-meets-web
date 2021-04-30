@@ -7,6 +7,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
 	state: {
+		player: null,
 		myUser: {
 			uuid: null,
 			staff_circles: [],
@@ -36,6 +37,9 @@ export default new Vuex.Store({
 		}
 	},
 	getters: {
+		getPlayer(state) {
+			return state.player
+		},
 		getSocket(state) {
 			return state.socket
 		},
@@ -143,6 +147,9 @@ export default new Vuex.Store({
 		}
 	},
 	mutations: {
+		setPlayer(state, player) {
+			state.player = player
+		},
 		setSocket(state, socket) {
 			state.socket = socket
 		},
@@ -162,19 +169,36 @@ export default new Vuex.Store({
 			state.events = events
 		},
 		setPastEvents(state) {
-			if (!state.startedTime){
-				return null
+			console.log("SetPastEvents")
+			if (state.status.status !== 2) {
+				if (!state.startedTime){
+					return null
+				}
+				state.pastEvents = state.events.filter((item) => {
+					return state.startedTime.add(item.start_time_sec, "s") <= dayjs()
+				})
+			} else {
+				const playerSec = state.player.currentTime()
+				state.pastEvents = state.events.filter((item) => {
+					return item.start_time_sec <= playerSec + 5
+				})
 			}
-			state.pastEvents = state.events.filter((item) => {
-				return state.startedTime.add(item.start_time_sec, "s") <= dayjs()
-			})
 		},
-		clearPastEvents(state) {
+		clearPastEventsAndTimeout(state) {
 			for (const timeoutId of state.eventTimeoutIds) {
 				clearTimeout(timeoutId)
 			}
 			state.eventTimeoutIds = []
 			state.pastEvents = []
+		},
+		clearPastEvents(state) {
+			state.pastEvents = []
+		},
+		clearTimeoutsForPastEvent(state) {
+			for (const timeoutId of state.eventTimeoutIds) {
+				clearTimeout(timeoutId)
+			}
+			state.eventTimeoutIds = []
 		},
 		addPastEvent(state, event) {
 			state.pastEvents.push(event)
@@ -261,7 +285,7 @@ export default new Vuex.Store({
 
 			if (context.getters.getTryConnectSocketCount > 5) {
 				console.error("WebSocket Connecting Error!")
-				context.commit("clearPastEvents")
+				context.commit("clearPastEventsAndTimeout")
 				context.commit("addPastEvent", {
 					type: "connection_error"
 				})
@@ -285,7 +309,7 @@ export default new Vuex.Store({
 					//console.log("Get WebSocket message:", event, data)
 					if (event === "start") {
 						context.commit("setStartedTimeNow")
-						context.commit("clearPastEvents")
+						context.commit("clearPastEventsAndTimeout")
 						for (const event of context.getters.getEvents) {
 							const timeoutId = setTimeout((() => {
 								context.commit("setPastEvents")
@@ -297,25 +321,27 @@ export default new Vuex.Store({
 						if (data.started_before_millisec){
 							context.commit("setStartedTimeBeforeMillisec", data.started_before_millisec)
 						}
+						context.commit("setStatus", data.status)
+						context.commit("setMyUser", data.user)
 						context.commit("setCircles", data.circles)
 						context.commit("setEvents", data.events)
-						context.commit("clearPastEvents")
-						context.commit("setPastEvents")
-						for (const event of context.getters.getEvents) {
-							if (data.started_before_millisec / 1000 < event.start_time_sec) {
-								const timeoutId = setTimeout((() => {
-									context.commit("setPastEvents")
-									if (event.type === "question_result" && event.question.type === 2) {
-										context.dispatch("getEventUpdated")
-									}
-								}), event.start_time_sec * 1000 - data.started_before_millisec)
-								context.commit("addEventTimeoutId", timeoutId)
+						if (data.status.status !== 2) {
+							context.commit("clearPastEventsAndTimeout")
+							context.commit("setPastEvents")
+							for (const event of context.getters.getEvents) {
+								if (data.started_before_millisec / 1000 < event.start_time_sec) {
+									const timeoutId = setTimeout((() => {
+										context.commit("setPastEvents")
+										if (event.type === "question_result" && event.question.type === 2) {
+											context.dispatch("getEventUpdated")
+										}
+									}), event.start_time_sec * 1000 - data.started_before_millisec)
+									context.commit("addEventTimeoutId", timeoutId)
+								}
 							}
 						}
-						context.commit("setMyUser", data.user)
 						context.commit("setChatLogs", data.chat_logs)
 						context.commit("setQuestionResponses", data.question_responses)
-						context.commit("setStatus", data.status)
 					} else if (event === "chat_message") {
 						context.commit("addChatLog", data)
 					} else if (event === "chat_reaction_add") {
@@ -432,7 +458,27 @@ export default new Vuex.Store({
 					display_name: displayName
 				}
 			})
-		}
+		},
+		updateMovieTime(context, time) {
+			context.commit("setPastEvents")
+			for (const event of context.getters.getEvents) {
+				if (time < event.start_time_sec) {
+					const timeoutId = setTimeout((() => {
+						context.commit("setPastEvents")
+						if (event.type === "question_result" && event.question.type === 2) {
+							context.dispatch("getEventUpdated")
+						}
+					}), (event.start_time_sec - time) * 1000)
+					context.commit("addEventTimeoutId", timeoutId)
+				}
+			}
+		},
+		playMovieOnSeconds(context, sec) {
+			const player = context.getters.getPlayer
+			player.currentTime(sec)
+			player.play()
+			context.dispatch("updateMovieTime", sec)
+		},
 	},
 	modules: {},
 });

@@ -6,6 +6,7 @@
 			</div>
 			<div class="thumbnail">
 				<img v-bind:src="circle.thumbnail_url" v-bind:alt="circle.name">
+				<div class="play" v-on:click="playMovie" v-if="$store.getters.getStatus.status === 2"></div>
 			</div>
 			<div class="info">
 				<p>{{ circle.name }}</p>
@@ -43,6 +44,11 @@ export default {
 	data() {
 		return {
 			isDetailOpen: false,
+		}
+	},
+	methods: {
+		playMovie() {
+			this.$store.dispatch("playMovieOnSeconds", this.circle.start_time_sec)
 		}
 	},
 	components: {
@@ -86,8 +92,21 @@ $arrow-width: 1vw;
 			width: $thumbnail-width;
 			flex-shrink: 0;
 			flex-grow: 0;
+			position: relative;
 			img{
 				width: 100%;
+				display: block;
+			}
+			.play{
+				background-image: url("../assets/img/play.svg");
+				background-size: 40%;
+				background-position: center;
+				background-repeat: no-repeat;
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
 			}
 		}
 		.info{

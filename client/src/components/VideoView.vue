@@ -15,7 +15,6 @@ export default {
 	name: "VideoView",
 	data() {
 		return {
-			player: null,
 			videoSrc: null,
 			options: {}
 		}
@@ -25,9 +24,33 @@ export default {
 		.then((result) => {
 			this.videoSrc = result.data.movie_url
 			this.$nextTick(() => {
-				this.player = videojs(this.$refs.videoPlayer, this.options, () => {
-					console.log('onPlayerReady', this);
+				const player = videojs(this.$refs.videoPlayer, this.options, () => {
+					player.on("error", (err) => {
+						console.error("Movie load Error!")
+					})
+					player.on("play", (arg) => {
+						if (this.$store.getters.getStatus.status === 2){
+							this.$store.commit("clearPastEventsAndTimeout")
+							const player = this.$store.getters.getPlayer
+							this.$store.dispatch("updateMovieTime", player.currentTime())
+						}
+					})
+					/*
+					player.on("seeked", (arg) => {
+						if (this.$store.getters.getStatus.status === 2){
+							this.$store.commit("clearPastEventsAndTimeout")
+							const player = this.$store.getters.getPlayer
+							this.$store.dispatch("updateMovieTime", player.currentTime())
+						}
+					})
+					*/
+					player.on("pause", (arg) => {
+						if (this.$store.getters.getStatus.status === 2) {
+							this.$store.commit("clearTimeoutsForPastEvent")
+						}
+					})
 				})
+				this.$store.commit("setPlayer", player)
 			})
 		})
 	},

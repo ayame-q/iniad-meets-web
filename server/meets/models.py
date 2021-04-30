@@ -134,7 +134,8 @@ class Circle(BaseModel):
             "website_url": self.website_url,
             "twitter_sn": self.twitter_sn,
             "instagram_id": self.instagram_id,
-            "thumbnail_url": self.thumbnail.url if self.thumbnail else None
+            "thumbnail_url": self.thumbnail.url if self.thumbnail else None,
+            "start_time_sec": self.event.start_time_sec if self.event else None
         }
 
 
