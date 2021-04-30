@@ -81,7 +81,9 @@ export default {
 					break
 				case 3:
 					result = this.$store.getters.getChatLogsForYou
-					this.$store.commit("setChatLogForYouRead", result[result.length - 1].uuid)
+					if(result[result.length - 1]) {
+						this.$store.commit("setChatLogForYouRead", result[result.length - 1].uuid)
+					}
 					break
 				default:
 					result = this.$store.getters.getChatLogs
