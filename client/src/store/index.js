@@ -19,6 +19,7 @@ export default new Vuex.Store({
 		tryConnectSocketCount: 0,
 		events: [],
 		pastEvents: [],
+		eventTimeoutIds: [],
 		chatLogs: [],
 		questionResponses: [],
 		circles: [],
@@ -169,7 +170,14 @@ export default new Vuex.Store({
 			})
 		},
 		clearPastEvents(state) {
+			for (const timeoutId of state.eventTimeoutIds) {
+				clearTimeout(timeoutId)
+			}
+			state.eventTimeoutIds = []
 			state.pastEvents = []
+		},
+		addEventTimeoutId(state, timeoutId) {
+			state.eventTimeoutIds.push(timeoutId)
 		},
 		setCircles(state, circles){
 			state.circles = circles
@@ -271,9 +279,10 @@ export default new Vuex.Store({
 						context.commit("setStartedTimeNow")
 						context.commit("clearPastEvents")
 						for (const event of context.getters.getEvents) {
-							setTimeout((() => {
+							const timeoutId = setTimeout((() => {
 								context.commit("setPastEvents")
 							}), event.start_time_sec * 1000)
+							context.commit("addEventTimeoutId", timeoutId)
 						}
 					} else if (event === "init") {
 						context.commit("setSocketConnected")
@@ -285,13 +294,15 @@ export default new Vuex.Store({
 						context.commit("clearPastEvents")
 						context.commit("setPastEvents")
 						for (const event of context.getters.getEvents) {
-							if (data.started_before_millisec / 1000 < event.start_time_sec)
-							setTimeout((() => {
-								context.commit("setPastEvents")
-								if (event.type === "question_result" && event.question.type === 2) {
-									context.dispatch("getEventUpdated")
-								}
-							}), event.start_time_sec * 1000 - data.started_before_millisec)
+							if (data.started_before_millisec / 1000 < event.start_time_sec) {
+								const timeoutId = setTimeout((() => {
+									context.commit("setPastEvents")
+									if (event.type === "question_result" && event.question.type === 2) {
+										context.dispatch("getEventUpdated")
+									}
+								}), event.start_time_sec * 1000 - data.started_before_millisec)
+								context.commit("addEventTimeoutId", timeoutId)
+							}
 						}
 						context.commit("setMyUser", data.user)
 						context.commit("setChatLogs", data.chat_logs)
