@@ -35,6 +35,7 @@ class User(AbstractUser):
     entry_year = models.IntegerField(null=True, blank=True, verbose_name="入学年度")
     role = models.OneToOneField(UserRole, related_name="userinfo", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="権限")
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="作成日")
+    last_connected_at = models.DateTimeField(default=timezone.localtime, verbose_name="最終接続時刻")
     is_student = models.BooleanField(default=False, verbose_name="学生か")
     slack_id = models.CharField(max_length=20, null=True, blank=True, default=None, verbose_name="Slack ID")
 

@@ -17,6 +17,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             await self.accept()
             await self.send_connect_messages()
+            self.user.last_connected_at = timezone.localtime()
+            self.user.save()
         else:
             await self.close()
 
