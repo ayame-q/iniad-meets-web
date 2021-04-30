@@ -7,6 +7,7 @@
 		<event-tutorial-view v-if="event && event.type==='tutorial_info_start'"></event-tutorial-view>
 		<event-pr-url-view v-bind:event="event" v-if="event && event.type==='pr_url_start'"></event-pr-url-view>
 		<event-hash-tag-view v-if="event && event.type==='tutorial_hashtag_start'"></event-hash-tag-view>
+		<event-connection-error-view v-if="event && event.type==='connection_error'"></event-connection-error-view>
 		<button v-on:click="$store.dispatch('sendStart')" v-if="$store.getters.getMyUser.is_admin">スタート</button>
 	</div>
 </template>
@@ -18,6 +19,7 @@ import EventFinalView from "@/components/EventFinalView";
 import EventTutorialView from "@/components/EventTutorialView";
 import EventPrUrlView from "@/components/EventPrUrlView";
 import EventHashTagView from "@/components/EventHashTagView";
+import EventConnectionErrorView from "@/components/EventConnectionErrorView";
 export default {
 	name: "EventView",
 	computed: {
@@ -37,7 +39,8 @@ export default {
 		EventFinalView,
 		EventTutorialView,
 		EventPrUrlView,
-		EventHashTagView
+		EventHashTagView,
+		EventConnectionErrorView
 	}
 };
 </script>

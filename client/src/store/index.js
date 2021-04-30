@@ -176,6 +176,9 @@ export default new Vuex.Store({
 			state.eventTimeoutIds = []
 			state.pastEvents = []
 		},
+		addPastEvent(state, event) {
+			state.pastEvents.push(event)
+		},
 		addEventTimeoutId(state, timeoutId) {
 			state.eventTimeoutIds.push(timeoutId)
 		},
@@ -256,7 +259,12 @@ export default new Vuex.Store({
 		connectWebSocket(context) {
 			context.commit("setSocketTry") // 接続試行を記録
 
-			if (context.getters.getIsSocketConnected > 5) {
+			if (context.getters.getTryConnectSocketCount > 5) {
+				console.error("WebSocket Connecting Error!")
+				context.commit("clearPastEvents")
+				context.commit("addPastEvent", {
+					type: "connection_error"
+				})
 				return 1
 			}
 
