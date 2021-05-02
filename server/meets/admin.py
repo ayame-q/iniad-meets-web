@@ -2,31 +2,60 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User, Circle, UserRole, ChatLog, ChatLogReaction, Entry, Status, Event, Question, QuestionSelection, QuestionResponse
 
-# Register your models here.
-class UserAdmin(BaseUserAdmin):
-    def __init__(self, *args, **kwargs):
-        fieldsets = list(self.fieldsets)
-        fieldsets.append(("個人設定", {
-            'fields': ("display_name", "type", "entry_year", "course", "favorite_posts", "favorite_categories", "initialized", "icon_type", "icon_social_model", "profile_text", "profile_url", "profile_twitter", "is_twitter_public", "twitter_token", "twitter_token_secret", "is_tweet_new_question", "line_id", "is_notify_new_answer_on_line", "is_notify_new_supplement_on_line"),
-        })),
-        self.fieldsets = tuple(fieldsets)
-        super().__init__(*args, **kwargs)
-
 
 class UUIDFieldAdmin(admin.ModelAdmin):
     readonly_fields=('uuid',)
 
 
+class UserAdmin(UUIDFieldAdmin):
+    list_display = ("username", "family_name", "given_name", "is_student", "entry_year")
+    list_filter = ("is_student", "entry_year")
 
-# Register your models here.
-admin.site.register(User, UUIDFieldAdmin)
-admin.site.register(Circle, UUIDFieldAdmin)
+
+class CircleAdmin(UUIDFieldAdmin):
+    list_display = ("name", "entry_user_name")
+
+
+class ChatLogAdmin(UUIDFieldAdmin):
+    list_display = ("comment", "send_user", "sender_circle", "receiver_circle", "created_at")
+    search_fields = ("comment",)
+
+
+class ChatLogReactionAdmin(UUIDFieldAdmin):
+    list_display = ("reaction", "chat_log", "user")
+
+
+class EntryAdmin(UUIDFieldAdmin):
+    list_display = ("user", "circle", "created_at")
+
+
+class QuestionAdmin(UUIDFieldAdmin):
+    list_display = ("type", "text")
+    list_display_links = ("type", "text")
+
+
+class QuestionSelectionAdmin(UUIDFieldAdmin):
+    list_display = ("text", "question", "is_correct")
+
+
+class EventAdmin(UUIDFieldAdmin):
+    list_display = ("start_time_sec", "type", "circle", "question", "pr_text")
+    list_display_links = ("start_time_sec", "type")
+
+
+class StatusAdmin(UUIDFieldAdmin):
+    list_display = ("status", "opening_time", "started_time", "planning_start_time", "streaming_url", "archive_url")
+    list_display_links = ("status", "opening_time")
+
+
+admin.site.register(User, UserAdmin)
+admin.site.register(Circle, CircleAdmin)
 admin.site.register(UserRole, UUIDFieldAdmin)
-admin.site.register(ChatLog, UUIDFieldAdmin)
-admin.site.register(ChatLogReaction, UUIDFieldAdmin)
-admin.site.register(Entry, UUIDFieldAdmin)
-admin.site.register(Event, UUIDFieldAdmin)
-admin.site.register(Status, UUIDFieldAdmin)
-admin.site.register(Question, UUIDFieldAdmin)
-admin.site.register(QuestionSelection, UUIDFieldAdmin)
+admin.site.register(ChatLog, ChatLogAdmin)
+admin.site.register(ChatLogReaction, ChatLogReactionAdmin)
+admin.site.register(Entry, EntryAdmin)
+admin.site.register(Event, EventAdmin)
+admin.site.register(Status, StatusAdmin)
+admin.site.register(Question, QuestionAdmin)
+admin.site.register(QuestionSelection, QuestionSelectionAdmin)
 admin.site.register(QuestionResponse, UUIDFieldAdmin)

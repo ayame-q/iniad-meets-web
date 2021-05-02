@@ -39,6 +39,9 @@ class User(AbstractUser):
     is_student = models.BooleanField(default=False, verbose_name="学生か")
     slack_id = models.CharField(max_length=20, null=True, blank=True, default=None, verbose_name="Slack ID")
 
+    class Meta:
+        ordering = ["-created_at"]
+
     def get_name(self):
         return self.family_name + " " + self.given_name
 
@@ -149,6 +152,12 @@ class ChatLog(BaseModel):
     is_admin_message = models.BooleanField(default=False, verbose_name="運営メッセージ")
     created_at = models.DateTimeField(default=timezone.localtime, verbose_name="作成日")
     reacted_users = models.ManyToManyField(User, through="ChatLogReaction", verbose_name="リアクション済みユーザー")
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.comment
 
     def to_obj(self):
         return {
@@ -282,6 +291,9 @@ class Question(BaseModel):
     type = models.SmallIntegerField(choices=question_type_choices, verbose_name="種類")
     text = models.TextField(default="", verbose_name="問題/質問")
 
+    class Meta:
+        ordering = ["event"]
+
     def __str__(self):
         return self.text + " (" + self.get_type_display() + ")"
 
@@ -316,6 +328,9 @@ class QuestionSelection(BaseModel):
     question = models.ForeignKey(Question, related_name="selections", on_delete=models.CASCADE, verbose_name="問題/質問")
     text = models.TextField(default="", verbose_name="選択肢")
     is_correct = models.BooleanField(default=False, verbose_name="正解か")
+
+    class Meta:
+        ordering = ["-question"]
 
     def __str__(self):
         return self.text + " (" + self.question.text + ")"
