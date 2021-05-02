@@ -38,6 +38,10 @@ class QuestionSelectionAdmin(UUIDFieldAdmin):
     list_display = ("text", "question", "is_correct")
 
 
+class QuestionResponseAdmin(UUIDFieldAdmin):
+    list_display = ("selection", "user")
+
+
 class EventAdmin(UUIDFieldAdmin):
     list_display = ("start_time_sec", "type", "circle", "question", "pr_text")
     list_display_links = ("start_time_sec", "type")
@@ -58,4 +62,4 @@ admin.site.register(Event, EventAdmin)
 admin.site.register(Status, StatusAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(QuestionSelection, QuestionSelectionAdmin)
-admin.site.register(QuestionResponse, UUIDFieldAdmin)
+admin.site.register(QuestionResponse, QuestionResponseAdmin)

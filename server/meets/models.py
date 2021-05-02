@@ -360,6 +360,9 @@ class QuestionResponse(BaseModel):
     user = models.ForeignKey(User, related_name="question_responses", on_delete=models.CASCADE, verbose_name="クイズ・アンケート回答")
     selection = models.ForeignKey(QuestionSelection, related_name="responses", on_delete=models.CASCADE, verbose_name="選択")
 
+    class Meta:
+        ordering = ["selection"]
+
     def is_correct(self):
         return self.selection.is_correct
 
