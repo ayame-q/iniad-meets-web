@@ -329,8 +329,6 @@ class QuestionSelection(BaseModel):
     text = models.TextField(default="", verbose_name="選択肢")
     is_correct = models.BooleanField(default=False, verbose_name="正解か")
 
-    class Meta:
-        ordering = ["-question"]
 
     def __str__(self):
         return self.text + " (" + self.question.text + ")"
