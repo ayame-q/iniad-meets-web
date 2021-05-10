@@ -56,6 +56,10 @@ html{
 			color: #FFFFFF;
 			border-radius: 0.25em;
 			border-bottom: #2D90A0 0.2em solid;
+			&:active{
+				margin-top: calc(0.2em - 3px);
+				border-bottom-width: 3px;
+			}
 			img{
 				height: 1em;
 				display: block;
