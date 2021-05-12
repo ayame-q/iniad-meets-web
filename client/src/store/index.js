@@ -479,6 +479,13 @@ export default new Vuex.Store({
 			player.play()
 			context.dispatch("updateMovieTime", sec)
 		},
+		setMovieSeconds(context, sec) {
+			const player = context.getters.getPlayer
+			player.currentTime(sec)
+			setTimeout(() => {
+				context.dispatch("updateMovieTime", sec)
+			})
+		},
 	},
 	modules: {},
 });

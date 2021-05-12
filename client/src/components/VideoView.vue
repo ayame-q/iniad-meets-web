@@ -19,6 +19,28 @@ export default {
 			options: {}
 		}
 	},
+	methods: {
+		setStartCircle() {
+			if (!this.$store.getters.getStatus.status || !this.$store.getters.getCircles) {
+				setTimeout(this.setStartCircle, 100)
+				return
+			}
+			if (this.$route.query.circle && this.$store.getters.getStatus.status === 2) {
+				const circle = this.$store.getters.getCircles.find((item) => {
+					return item.uuid === this.$route.query.circle
+				})
+				if (circle) {
+					this.$store.dispatch("setMovieSeconds", circle.start_time_sec)
+				}
+			}
+		}
+	},
+	created() {
+		if (this.$cookies.get("start-circle")) {
+			this.$router.replace({query: {circle: this.$cookies.get("start-circle")}})
+			this.$cookies.remove("start-circle")
+		}
+	},
 	mounted() {
 		axios.get("/api/v2/status")
 		.then((result) => {
@@ -48,6 +70,9 @@ export default {
 						if (this.$store.getters.getStatus.status === 2) {
 							this.$store.commit("clearTimeoutsForPastEvent")
 						}
+					})
+					player.on("ready", () => {
+						this.setStartCircle()
 					})
 				})
 				this.$store.commit("setPlayer", player)

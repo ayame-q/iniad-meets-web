@@ -1,6 +1,6 @@
 <template>
 	<div class="entrance-page">
-		<p class="entry-wrap"><a href="/auth/google/login/" class="entry"><img src="@/assets/img/entrance_entry_text.svg" alt="入場"></a></p>
+		<p class="entry-wrap"><a v-on:click="enter" class="entry"><img src="@/assets/img/entrance_entry_text.svg" alt="入場"></a></p>
 		<div class="smp-notify">
 			<p>
 				<b>スマートフォンでの参加は非推奨です。</b><br>
@@ -12,8 +12,18 @@
 </template>
 
 <script>
+import dayjs from "dayjs";
+
 export default {
 	name: "EntrancePage",
+	methods: {
+		enter() {
+			if (this.$route.query.circle) {
+				this.$cookies.set("start-circle", this.$route.query.circle, 30)
+			}
+			window.location.href = "/auth/google/login/"
+		}
+	}
 };
 </script>
 
@@ -56,6 +66,7 @@ html{
 			color: #FFFFFF;
 			border-radius: 0.25em;
 			border-bottom: #2D90A0 0.2em solid;
+			cursor: pointer;
 			&:active{
 				margin-top: calc(0.2em - 3px);
 				border-bottom-width: 3px;

@@ -114,7 +114,7 @@ export default {
 		axios.get("/api/v2/is_authenticated", {withCredentials: true})
 		.then((response) => {
 			if (!response.data.is_authenticated) {
-				this.$router.push("/")
+				this.$router.push({path: "/", query: {circle: this.$route.query.circle}})
 			}
 		})
 		const chatLogWrapElement = document.getElementById("chat-log-wrap")
