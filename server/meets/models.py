@@ -128,6 +128,9 @@ class Circle(BaseModel):
     def __str__(self):
         return self.name
 
+    def start_time_sec(self):
+        return self.event.start_time_sec if self.event else None
+
     def to_obj(self):
         return {
             "uuid": self.uuid,
